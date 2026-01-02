@@ -1,5 +1,5 @@
 # Stage 1: build the app
-FROM node:20-alpine as build
+FROM node:20-alpine AS build
 
 RUN npm install -g npm@latest
 
