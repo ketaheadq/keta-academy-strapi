@@ -1,16 +1,16 @@
 {
-  "collectionName": "components_api_admission_scores",
-  "info": {
-    "displayName": "admission_score"
-  },
-  "options": {},
-  "attributes": {
-    "title": {
-      "type": "string"
-    },
-    "content": {
-      "type": "text"
-    }
-  },
-  "config": {}
+	"collectionName": "components_api_admission_scores",
+	"info": {
+		"displayName": "admission_score"
+	},
+	"options": {},
+	"attributes": {
+		"title": {
+			"type": "string"
+		},
+		"content": {
+			"type": "text"
+		}
+	},
+	"config": {}
 }

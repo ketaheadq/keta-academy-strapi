@@ -1,29 +1,27 @@
 {
-  "collectionName": "components_seo_seos",
-  "info": {
-    "displayName": "SEO",
-    "icon": "search"
-  },
-  "options": {},
-  "attributes": {
-    "metaTitle": {
-      "type": "string",
-      "required": true
-    },
-    "metaDescription": {
-      "type": "string",
-      "required": true
-    },
-    "keywords": {
-      "type": "text"
-    },
-    "metaImage": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": [
-        "images"
-      ]
-    }
-  },
-  "config": {}
+	"collectionName": "components_seo_seos",
+	"info": {
+		"displayName": "SEO",
+		"icon": "search"
+	},
+	"options": {},
+	"attributes": {
+		"metaTitle": {
+			"type": "string",
+			"required": true
+		},
+		"metaDescription": {
+			"type": "string",
+			"required": true
+		},
+		"keywords": {
+			"type": "text"
+		},
+		"metaImage": {
+			"type": "media",
+			"multiple": false,
+			"allowedTypes": ["images"]
+		}
+	},
+	"config": {}
 }

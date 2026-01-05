@@ -1,23 +1,19 @@
 {
-  "collectionName": "components_shared_social_links",
-  "info": {
-    "displayName": "SocialLink",
-    "icon": "link"
-  },
-  "options": {},
-  "attributes": {
-    "platform": {
-      "type": "enumeration",
-      "enum": [
-        "instagram",
-        "youtube",
-        "tiktok"
-      ]
-    },
-    "url": {
-      "type": "string",
-      "required": true
-    }
-  },
-  "config": {}
+	"collectionName": "components_shared_social_links",
+	"info": {
+		"displayName": "SocialLink",
+		"icon": "link"
+	},
+	"options": {},
+	"attributes": {
+		"platform": {
+			"type": "enumeration",
+			"enum": ["instagram", "youtube", "tiktok"]
+		},
+		"url": {
+			"type": "string",
+			"required": true
+		}
+	},
+	"config": {}
 }

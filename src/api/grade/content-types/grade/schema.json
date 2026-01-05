@@ -1,34 +1,34 @@
 {
-  "kind": "collectionType",
-  "collectionName": "grades",
-  "info": {
-    "singularName": "grade",
-    "pluralName": "grades",
-    "displayName": "Grade"
-  },
-  "options": {
-    "draftAndPublish": false
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "title": {
-      "type": "string",
-      "required": true,
-      "unique": true
-    },
-    "slug": {
-      "type": "string",
-      "required": true,
-      "unique": true
-    },
-    "order": {
-      "type": "integer"
-    },
-    "courses": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::course.course",
-      "mappedBy": "grades"
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "grades",
+	"info": {
+		"singularName": "grade",
+		"pluralName": "grades",
+		"displayName": "Grade"
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"title": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"slug": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"order": {
+			"type": "integer"
+		},
+		"courses": {
+			"type": "relation",
+			"relation": "manyToMany",
+			"target": "api::course.course",
+			"mappedBy": "grades"
+		}
+	}
 }

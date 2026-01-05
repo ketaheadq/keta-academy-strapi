@@ -1,31 +1,27 @@
 {
-  "kind": "collectionType",
-  "collectionName": "quiz_progresses",
-  "info": {
-    "singularName": "quiz-progress",
-    "pluralName": "quiz-progresses",
-    "displayName": "QuizProgress"
-  },
-  "options": {
-    "draftAndPublish": false
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "score": {
-      "type": "integer"
-    },
-    "quiz_status": {
-      "type": "enumeration",
-      "enum": [
-        "not_started",
-        "in_progress",
-        "completed"
-      ]
-    },
-    "user_plus_quiz_id": {
-      "type": "string",
-      "required": true,
-      "unique": true
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "quiz_progresses",
+	"info": {
+		"singularName": "quiz-progress",
+		"pluralName": "quiz-progresses",
+		"displayName": "QuizProgress"
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"score": {
+			"type": "integer"
+		},
+		"quiz_status": {
+			"type": "enumeration",
+			"enum": ["not_started", "in_progress", "completed"]
+		},
+		"user_plus_quiz_id": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		}
+	}
 }

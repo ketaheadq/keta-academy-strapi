@@ -1,34 +1,32 @@
 {
-  "kind": "collectionType",
-  "collectionName": "departments",
-  "info": {
-    "singularName": "department",
-    "pluralName": "departments",
-    "displayName": "Department"
-  },
-  "options": {
-    "draftAndPublish": true
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "titile": {
-      "type": "string"
-    },
-    "content": {
-      "type": "blocks"
-    },
-    "admission_score": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::admission-score.admission-score",
-      "mappedBy": "department"
-    },
-    "image": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": [
-        "images"
-      ]
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "departments",
+	"info": {
+		"singularName": "department",
+		"pluralName": "departments",
+		"displayName": "Department"
+	},
+	"options": {
+		"draftAndPublish": true
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"titile": {
+			"type": "string"
+		},
+		"content": {
+			"type": "blocks"
+		},
+		"admission_score": {
+			"type": "relation",
+			"relation": "oneToOne",
+			"target": "api::admission-score.admission-score",
+			"mappedBy": "department"
+		},
+		"image": {
+			"type": "media",
+			"multiple": false,
+			"allowedTypes": ["images"]
+		}
+	}
 }

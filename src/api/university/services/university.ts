@@ -2,6 +2,6 @@
  * university service
  */
 
-import { factories } from '@strapi/strapi';
+import { factories } from "@strapi/strapi";
 
-export default factories.createCoreService('api::university.university');
+export default factories.createCoreService("api::university.university");

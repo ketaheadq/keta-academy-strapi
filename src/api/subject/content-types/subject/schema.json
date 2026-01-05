@@ -1,40 +1,40 @@
 {
-  "kind": "collectionType",
-  "collectionName": "subjects",
-  "info": {
-    "singularName": "subject",
-    "pluralName": "subjects",
-    "displayName": "Subject"
-  },
-  "options": {
-    "draftAndPublish": false
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "title": {
-      "type": "string",
-      "required": true,
-      "unique": true
-    },
-    "slug": {
-      "type": "string",
-      "required": true,
-      "unique": true
-    },
-    "courses": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::course.course",
-      "mappedBy": "subject"
-    },
-    "description": {
-      "type": "string",
-      "required": true
-    },
-    "icon": {
-      "type": "component",
-      "component": "shared.icon",
-      "repeatable": false
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "subjects",
+	"info": {
+		"singularName": "subject",
+		"pluralName": "subjects",
+		"displayName": "Subject"
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"title": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"slug": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"courses": {
+			"type": "relation",
+			"relation": "oneToMany",
+			"target": "api::course.course",
+			"mappedBy": "subject"
+		},
+		"description": {
+			"type": "string",
+			"required": true
+		},
+		"icon": {
+			"type": "component",
+			"component": "shared.icon",
+			"repeatable": false
+		}
+	}
 }

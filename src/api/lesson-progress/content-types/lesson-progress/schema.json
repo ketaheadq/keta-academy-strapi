@@ -1,24 +1,24 @@
 {
-  "kind": "collectionType",
-  "collectionName": "lesson_progresses",
-  "info": {
-    "singularName": "lesson-progress",
-    "pluralName": "lesson-progresses",
-    "displayName": "LessonProgress"
-  },
-  "options": {
-    "draftAndPublish": false
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "isCompleted": {
-      "type": "boolean",
-      "default": false
-    },
-    "user_plus_lesson_id": {
-      "type": "string",
-      "required": true,
-      "unique": true
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "lesson_progresses",
+	"info": {
+		"singularName": "lesson-progress",
+		"pluralName": "lesson-progresses",
+		"displayName": "LessonProgress"
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"isCompleted": {
+			"type": "boolean",
+			"default": false
+		},
+		"user_plus_lesson_id": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		}
+	}
 }

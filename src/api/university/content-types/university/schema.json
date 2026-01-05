@@ -1,49 +1,47 @@
 {
-  "kind": "collectionType",
-  "collectionName": "universities",
-  "info": {
-    "singularName": "university",
-    "pluralName": "universities",
-    "displayName": "University"
-  },
-  "options": {
-    "draftAndPublish": true
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "title": {
-      "type": "string"
-    },
-    "description": {
-      "type": "text"
-    },
-    "content": {
-      "type": "blocks"
-    },
-    "slug": {
-      "type": "string"
-    },
-    "ranking": {
-      "type": "integer"
-    },
-    "seoTitle": {
-      "type": "string"
-    },
-    "seoDescription": {
-      "type": "text"
-    },
-    "admission_score": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::admission-score.admission-score",
-      "mappedBy": "university"
-    },
-    "image": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": [
-        "images"
-      ]
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "universities",
+	"info": {
+		"singularName": "university",
+		"pluralName": "universities",
+		"displayName": "University"
+	},
+	"options": {
+		"draftAndPublish": true
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"title": {
+			"type": "string"
+		},
+		"description": {
+			"type": "text"
+		},
+		"content": {
+			"type": "blocks"
+		},
+		"slug": {
+			"type": "string"
+		},
+		"ranking": {
+			"type": "integer"
+		},
+		"seoTitle": {
+			"type": "string"
+		},
+		"seoDescription": {
+			"type": "text"
+		},
+		"admission_score": {
+			"type": "relation",
+			"relation": "oneToOne",
+			"target": "api::admission-score.admission-score",
+			"mappedBy": "university"
+		},
+		"image": {
+			"type": "media",
+			"multiple": false,
+			"allowedTypes": ["images"]
+		}
+	}
 }

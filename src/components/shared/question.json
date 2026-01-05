@@ -1,33 +1,30 @@
 {
-  "collectionName": "components_shared_questions",
-  "info": {
-    "displayName": "Question",
-    "icon": "question"
-  },
-  "options": {},
-  "attributes": {
-    "text": {
-      "type": "blocks"
-    },
-    "type": {
-      "type": "enumeration",
-      "required": true,
-      "enum": [
-        "multipleChoice",
-        "trueFalse"
-      ]
-    },
-    "explanation": {
-      "type": "blocks"
-    },
-    "order": {
-      "type": "integer"
-    },
-    "options": {
-      "type": "component",
-      "component": "shared.answer-option",
-      "repeatable": true
-    }
-  },
-  "config": {}
+	"collectionName": "components_shared_questions",
+	"info": {
+		"displayName": "Question",
+		"icon": "question"
+	},
+	"options": {},
+	"attributes": {
+		"text": {
+			"type": "blocks"
+		},
+		"type": {
+			"type": "enumeration",
+			"required": true,
+			"enum": ["multipleChoice", "trueFalse"]
+		},
+		"explanation": {
+			"type": "blocks"
+		},
+		"order": {
+			"type": "integer"
+		},
+		"options": {
+			"type": "component",
+			"component": "shared.answer-option",
+			"repeatable": true
+		}
+	},
+	"config": {}
 }

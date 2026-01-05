@@ -1,60 +1,60 @@
 {
-  "kind": "collectionType",
-  "collectionName": "pages",
-  "info": {
-    "singularName": "page",
-    "pluralName": "pages",
-    "displayName": "Page"
-  },
-  "options": {
-    "draftAndPublish": true
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "slug": {
-      "type": "string"
-    },
-    "title": {
-      "type": "string"
-    },
-    "page_category": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::page-category.page-category",
-      "inversedBy": "pages"
-    },
-    "pageType": {
-      "type": "enumeration",
-      "enum": [
-        "Üniversite Taban Puanları",
-        "Bölüm Taban Puanları",
-        "Videolar",
-        "Bloglar",
-        "Hesaplama Araçları"
-      ]
-    },
-    "admission_scores": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::admission-score.admission-score",
-      "mappedBy": "page"
-    },
-    "videos": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::video.video",
-      "mappedBy": "page"
-    },
-    "blogs": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::blog.blog",
-      "mappedBy": "page"
-    },
-    "SEO": {
-      "type": "component",
-      "component": "seo.seo",
-      "repeatable": false
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "pages",
+	"info": {
+		"singularName": "page",
+		"pluralName": "pages",
+		"displayName": "Page"
+	},
+	"options": {
+		"draftAndPublish": true
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"slug": {
+			"type": "string"
+		},
+		"title": {
+			"type": "string"
+		},
+		"page_category": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::page-category.page-category",
+			"inversedBy": "pages"
+		},
+		"pageType": {
+			"type": "enumeration",
+			"enum": [
+				"Üniversite Taban Puanları",
+				"Bölüm Taban Puanları",
+				"Videolar",
+				"Bloglar",
+				"Hesaplama Araçları"
+			]
+		},
+		"admission_scores": {
+			"type": "relation",
+			"relation": "oneToMany",
+			"target": "api::admission-score.admission-score",
+			"mappedBy": "page"
+		},
+		"videos": {
+			"type": "relation",
+			"relation": "oneToMany",
+			"target": "api::video.video",
+			"mappedBy": "page"
+		},
+		"blogs": {
+			"type": "relation",
+			"relation": "oneToMany",
+			"target": "api::blog.blog",
+			"mappedBy": "page"
+		},
+		"SEO": {
+			"type": "component",
+			"component": "seo.seo",
+			"repeatable": false
+		}
+	}
 }

@@ -2,6 +2,8 @@
  * tutoring-profile service
  */
 
-import { factories } from '@strapi/strapi';
+import { factories } from "@strapi/strapi";
 
-export default factories.createCoreService('api::tutoring-profile.tutoring-profile');
+export default factories.createCoreService(
+	"api::tutoring-profile.tutoring-profile",
+);

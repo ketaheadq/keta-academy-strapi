@@ -1,61 +1,59 @@
 {
-  "kind": "collectionType",
-  "collectionName": "tutoring_profiles",
-  "info": {
-    "singularName": "tutoring-profile",
-    "pluralName": "tutoring-profiles",
-    "displayName": "Tutoring Profile"
-  },
-  "options": {
-    "draftAndPublish": true
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "name": {
-      "type": "string",
-      "required": true,
-      "unique": true
-    },
-    "title": {
-      "type": "string",
-      "required": true
-    },
-    "subjects": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::subject.subject"
-    },
-    "content": {
-      "type": "blocks",
-      "required": false
-    },
-    "experties": {
-      "type": "string"
-    },
-    "price": {
-      "type": "integer",
-      "required": true
-    },
-    "successRate": {
-      "type": "integer",
-      "required": true,
-      "min": 0,
-      "max": 100
-    },
-    "profilePicture": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": [
-        "images"
-      ]
-    },
-    "studentCount": {
-      "type": "integer",
-      "required": true
-    },
-    "exprienceYears": {
-      "type": "integer",
-      "required": true
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "tutoring_profiles",
+	"info": {
+		"singularName": "tutoring-profile",
+		"pluralName": "tutoring-profiles",
+		"displayName": "Tutoring Profile"
+	},
+	"options": {
+		"draftAndPublish": true
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"name": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"title": {
+			"type": "string",
+			"required": true
+		},
+		"subjects": {
+			"type": "relation",
+			"relation": "oneToMany",
+			"target": "api::subject.subject"
+		},
+		"content": {
+			"type": "blocks",
+			"required": false
+		},
+		"experties": {
+			"type": "string"
+		},
+		"price": {
+			"type": "integer",
+			"required": true
+		},
+		"successRate": {
+			"type": "integer",
+			"required": true,
+			"min": 0,
+			"max": 100
+		},
+		"profilePicture": {
+			"type": "media",
+			"multiple": false,
+			"allowedTypes": ["images"]
+		},
+		"studentCount": {
+			"type": "integer",
+			"required": true
+		},
+		"exprienceYears": {
+			"type": "integer",
+			"required": true
+		}
+	}
 }

@@ -1,32 +1,32 @@
 {
-  "collectionName": "components_shared_icons",
-  "info": {
-    "displayName": "icon"
-  },
-  "options": {},
-  "attributes": {
-    "name": {
-      "type": "enumeration",
-      "required": true,
-      "enum": [
-        "math",
-        "physics",
-        "chemistry",
-        "biology",
-        "science",
-        "coding",
-        "programming",
-        "literature",
-        "english",
-        "history",
-        "geography",
-        "art",
-        "music",
-        "health",
-        "social",
-        "technology"
-      ]
-    }
-  },
-  "config": {}
+	"collectionName": "components_shared_icons",
+	"info": {
+		"displayName": "icon"
+	},
+	"options": {},
+	"attributes": {
+		"name": {
+			"type": "enumeration",
+			"required": true,
+			"enum": [
+				"math",
+				"physics",
+				"chemistry",
+				"biology",
+				"science",
+				"coding",
+				"programming",
+				"literature",
+				"english",
+				"history",
+				"geography",
+				"art",
+				"music",
+				"health",
+				"social",
+				"technology"
+			]
+		}
+	},
+	"config": {}
 }

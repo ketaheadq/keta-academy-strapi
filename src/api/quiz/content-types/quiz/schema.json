@@ -1,33 +1,33 @@
 {
-  "kind": "collectionType",
-  "collectionName": "quizzes",
-  "info": {
-    "singularName": "quiz",
-    "pluralName": "quizzes",
-    "displayName": "Quiz"
-  },
-  "options": {
-    "draftAndPublish": true
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "title": {
-      "type": "string",
-      "required": true
-    },
-    "description": {
-      "type": "string"
-    },
-    "lessons": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::lesson.lesson",
-      "mappedBy": "quiz"
-    },
-    "questions": {
-      "type": "component",
-      "component": "shared.question",
-      "repeatable": true
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "quizzes",
+	"info": {
+		"singularName": "quiz",
+		"pluralName": "quizzes",
+		"displayName": "Quiz"
+	},
+	"options": {
+		"draftAndPublish": true
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"title": {
+			"type": "string",
+			"required": true
+		},
+		"description": {
+			"type": "string"
+		},
+		"lessons": {
+			"type": "relation",
+			"relation": "oneToMany",
+			"target": "api::lesson.lesson",
+			"mappedBy": "quiz"
+		},
+		"questions": {
+			"type": "component",
+			"component": "shared.question",
+			"repeatable": true
+		}
+	}
 }

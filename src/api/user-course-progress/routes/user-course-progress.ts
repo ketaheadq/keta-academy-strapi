@@ -2,6 +2,8 @@
  * user-course-progress router
  */
 
-import { factories } from '@strapi/strapi';
+import { factories } from "@strapi/strapi";
 
-export default factories.createCoreRouter('api::user-course-progress.user-course-progress');
+export default factories.createCoreRouter(
+	"api::user-course-progress.user-course-progress",
+);

@@ -2,6 +2,6 @@
  * privacy-policy router
  */
 
-import { factories } from '@strapi/strapi';
+import { factories } from "@strapi/strapi";
 
-export default factories.createCoreRouter('api::privacy-policy.privacy-policy');
+export default factories.createCoreRouter("api::privacy-policy.privacy-policy");

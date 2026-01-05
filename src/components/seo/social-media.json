@@ -1,36 +1,29 @@
 {
-  "collectionName": "components_seo_social_medias",
-  "info": {
-    "displayName": "Social Media",
-    "icon": "globe"
-  },
-  "options": {},
-  "attributes": {
-    "title": {
-      "type": "string",
-      "required": true
-    },
-    "socialNetwork": {
-      "type": "enumeration",
-      "required": true,
-      "enum": [
-        "Facebook",
-        "Twitter",
-        "Instagram",
-        "TikTok"
-      ]
-    },
-    "description": {
-      "type": "text",
-      "required": true
-    },
-    "image": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": [
-        "videos"
-      ]
-    }
-  },
-  "config": {}
+	"collectionName": "components_seo_social_medias",
+	"info": {
+		"displayName": "Social Media",
+		"icon": "globe"
+	},
+	"options": {},
+	"attributes": {
+		"title": {
+			"type": "string",
+			"required": true
+		},
+		"socialNetwork": {
+			"type": "enumeration",
+			"required": true,
+			"enum": ["Facebook", "Twitter", "Instagram", "TikTok"]
+		},
+		"description": {
+			"type": "text",
+			"required": true
+		},
+		"image": {
+			"type": "media",
+			"multiple": false,
+			"allowedTypes": ["videos"]
+		}
+	},
+	"config": {}
 }

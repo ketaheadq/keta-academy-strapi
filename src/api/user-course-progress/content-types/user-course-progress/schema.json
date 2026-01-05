@@ -1,29 +1,25 @@
 {
-  "kind": "collectionType",
-  "collectionName": "user_course_progresses",
-  "info": {
-    "singularName": "user-course-progress",
-    "pluralName": "user-course-progresses",
-    "displayName": "CourseProgress"
-  },
-  "options": {
-    "draftAndPublish": false
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "course_status": {
-      "type": "enumeration",
-      "default": "not_started",
-      "enum": [
-        "not_started",
-        "in_progress",
-        "completed"
-      ]
-    },
-    "user_plus_course_id": {
-      "type": "string",
-      "required": true,
-      "unique": true
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "user_course_progresses",
+	"info": {
+		"singularName": "user-course-progress",
+		"pluralName": "user-course-progresses",
+		"displayName": "CourseProgress"
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"course_status": {
+			"type": "enumeration",
+			"default": "not_started",
+			"enum": ["not_started", "in_progress", "completed"]
+		},
+		"user_plus_course_id": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		}
+	}
 }

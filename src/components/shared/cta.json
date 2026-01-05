@@ -1,36 +1,27 @@
 {
-  "collectionName": "components_shared_ctas",
-  "info": {
-    "displayName": "cta"
-  },
-  "options": {},
-  "attributes": {
-    "title": {
-      "type": "string"
-    },
-    "href": {
-      "type": "string"
-    },
-    "isExternal": {
-      "type": "boolean"
-    },
-    "color": {
-      "type": "enumeration",
-      "enum": [
-        "primary",
-        "secondary",
-        "text",
-        "success",
-        "danger"
-      ]
-    },
-    "textColor": {
-      "type": "enumeration",
-      "enum": [
-        "text-white",
-        "text-black"
-      ]
-    }
-  },
-  "config": {}
+	"collectionName": "components_shared_ctas",
+	"info": {
+		"displayName": "cta"
+	},
+	"options": {},
+	"attributes": {
+		"title": {
+			"type": "string"
+		},
+		"href": {
+			"type": "string"
+		},
+		"isExternal": {
+			"type": "boolean"
+		},
+		"color": {
+			"type": "enumeration",
+			"enum": ["primary", "secondary", "text", "success", "danger"]
+		},
+		"textColor": {
+			"type": "enumeration",
+			"enum": ["text-white", "text-black"]
+		}
+	},
+	"config": {}
 }

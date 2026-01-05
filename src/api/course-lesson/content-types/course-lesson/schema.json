@@ -1,31 +1,31 @@
 {
-  "kind": "collectionType",
-  "collectionName": "course_lessons",
-  "info": {
-    "singularName": "course-lesson",
-    "pluralName": "course-lessons",
-    "displayName": "Course Lesson"
-  },
-  "options": {
-    "draftAndPublish": false
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "course": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::course.course",
-      "inversedBy": "course_lessons"
-    },
-    "lesson": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::lesson.lesson",
-      "inversedBy": "course_lessons"
-    },
-    "order": {
-      "type": "integer",
-      "required": true
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "course_lessons",
+	"info": {
+		"singularName": "course-lesson",
+		"pluralName": "course-lessons",
+		"displayName": "Course Lesson"
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"course": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::course.course",
+			"inversedBy": "course_lessons"
+		},
+		"lesson": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::lesson.lesson",
+			"inversedBy": "course_lessons"
+		},
+		"order": {
+			"type": "integer",
+			"required": true
+		}
+	}
 }

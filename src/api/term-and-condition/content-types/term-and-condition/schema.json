@@ -1,18 +1,18 @@
 {
-  "kind": "singleType",
-  "collectionName": "term_and_conditions",
-  "info": {
-    "singularName": "term-and-condition",
-    "pluralName": "term-and-conditions",
-    "displayName": "Term And Condition"
-  },
-  "options": {
-    "draftAndPublish": false
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "text": {
-      "type": "blocks"
-    }
-  }
+	"kind": "singleType",
+	"collectionName": "term_and_conditions",
+	"info": {
+		"singularName": "term-and-condition",
+		"pluralName": "term-and-conditions",
+		"displayName": "Term And Condition"
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"text": {
+			"type": "blocks"
+		}
+	}
 }

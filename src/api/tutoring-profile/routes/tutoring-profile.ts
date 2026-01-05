@@ -2,6 +2,8 @@
  * tutoring-profile router
  */
 
-import { factories } from '@strapi/strapi';
+import { factories } from "@strapi/strapi";
 
-export default factories.createCoreRouter('api::tutoring-profile.tutoring-profile');
+export default factories.createCoreRouter(
+	"api::tutoring-profile.tutoring-profile",
+);

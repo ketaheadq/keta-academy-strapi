@@ -1,22 +1,22 @@
 {
-  "collectionName": "components_shared_answer_options",
-  "info": {
-    "displayName": "AnswerOption",
-    "icon": "check"
-  },
-  "options": {},
-  "attributes": {
-    "text": {
-      "type": "string",
-      "required": true
-    },
-    "isCorrect": {
-      "type": "boolean",
-      "default": false
-    },
-    "order": {
-      "type": "integer"
-    }
-  },
-  "config": {}
+	"collectionName": "components_shared_answer_options",
+	"info": {
+		"displayName": "AnswerOption",
+		"icon": "check"
+	},
+	"options": {},
+	"attributes": {
+		"text": {
+			"type": "string",
+			"required": true
+		},
+		"isCorrect": {
+			"type": "boolean",
+			"default": false
+		},
+		"order": {
+			"type": "integer"
+		}
+	},
+	"config": {}
 }

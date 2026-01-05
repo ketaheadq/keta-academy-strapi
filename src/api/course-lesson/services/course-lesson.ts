@@ -2,6 +2,6 @@
  * course-lesson service
  */
 
-import { factories } from '@strapi/strapi';
+import { factories } from "@strapi/strapi";
 
-export default factories.createCoreService('api::course-lesson.course-lesson');
+export default factories.createCoreService("api::course-lesson.course-lesson");

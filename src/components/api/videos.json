@@ -1,16 +1,16 @@
 {
-  "collectionName": "components_api_videos",
-  "info": {
-    "displayName": "videos"
-  },
-  "options": {},
-  "attributes": {
-    "href": {
-      "type": "string"
-    },
-    "title": {
-      "type": "string"
-    }
-  },
-  "config": {}
+	"collectionName": "components_api_videos",
+	"info": {
+		"displayName": "videos"
+	},
+	"options": {},
+	"attributes": {
+		"href": {
+			"type": "string"
+		},
+		"title": {
+			"type": "string"
+		}
+	},
+	"config": {}
 }

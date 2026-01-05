@@ -1,61 +1,61 @@
 {
-  "kind": "collectionType",
-  "collectionName": "admission_scores",
-  "info": {
-    "singularName": "admission-score",
-    "pluralName": "admission-scores",
-    "displayName": "Admission Score"
-  },
-  "options": {
-    "draftAndPublish": true
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "title": {
-      "type": "string"
-    },
-    "slug": {
-      "type": "string"
-    },
-    "content": {
-      "type": "blocks",
-      "required": true
-    },
-    "tableData": {
-      "type": "text",
-      "required": true
-    },
-    "related_datas": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::admission-score.admission-score"
-    },
-    "page": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::page.page",
-      "inversedBy": "admission_scores"
-    },
-    "isPopular": {
-      "type": "boolean",
-      "default": false
-    },
-    "university": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::university.university",
-      "inversedBy": "admission_score"
-    },
-    "department": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::department.department",
-      "inversedBy": "admission_score"
-    },
-    "SEO": {
-      "type": "component",
-      "component": "seo.seo",
-      "repeatable": false
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "admission_scores",
+	"info": {
+		"singularName": "admission-score",
+		"pluralName": "admission-scores",
+		"displayName": "Admission Score"
+	},
+	"options": {
+		"draftAndPublish": true
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"title": {
+			"type": "string"
+		},
+		"slug": {
+			"type": "string"
+		},
+		"content": {
+			"type": "blocks",
+			"required": true
+		},
+		"tableData": {
+			"type": "text",
+			"required": true
+		},
+		"related_datas": {
+			"type": "relation",
+			"relation": "oneToMany",
+			"target": "api::admission-score.admission-score"
+		},
+		"page": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::page.page",
+			"inversedBy": "admission_scores"
+		},
+		"isPopular": {
+			"type": "boolean",
+			"default": false
+		},
+		"university": {
+			"type": "relation",
+			"relation": "oneToOne",
+			"target": "api::university.university",
+			"inversedBy": "admission_score"
+		},
+		"department": {
+			"type": "relation",
+			"relation": "oneToOne",
+			"target": "api::department.department",
+			"inversedBy": "admission_score"
+		},
+		"SEO": {
+			"type": "component",
+			"component": "seo.seo",
+			"repeatable": false
+		}
+	}
 }

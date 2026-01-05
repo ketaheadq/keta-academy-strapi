@@ -2,6 +2,6 @@
  * university controller
  */
 
-import { factories } from '@strapi/strapi'
+import { factories } from "@strapi/strapi";
 
-export default factories.createCoreController('api::university.university');
+export default factories.createCoreController("api::university.university");

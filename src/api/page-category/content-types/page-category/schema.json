@@ -1,32 +1,32 @@
 {
-  "kind": "collectionType",
-  "collectionName": "page_categories",
-  "info": {
-    "singularName": "page-category",
-    "pluralName": "page-categories",
-    "displayName": "Page Category"
-  },
-  "options": {
-    "draftAndPublish": true
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "title": {
-      "type": "string"
-    },
-    "slug": {
-      "type": "string"
-    },
-    "icon": {
-      "type": "component",
-      "component": "shared.icon",
-      "repeatable": false
-    },
-    "pages": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::page.page",
-      "mappedBy": "page_category"
-    }
-  }
+	"kind": "collectionType",
+	"collectionName": "page_categories",
+	"info": {
+		"singularName": "page-category",
+		"pluralName": "page-categories",
+		"displayName": "Page Category"
+	},
+	"options": {
+		"draftAndPublish": true
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"title": {
+			"type": "string"
+		},
+		"slug": {
+			"type": "string"
+		},
+		"icon": {
+			"type": "component",
+			"component": "shared.icon",
+			"repeatable": false
+		},
+		"pages": {
+			"type": "relation",
+			"relation": "oneToMany",
+			"target": "api::page.page",
+			"mappedBy": "page_category"
+		}
+	}
 }
