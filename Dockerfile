@@ -2,8 +2,8 @@
 FROM node:20-alpine AS dependencies
 RUN apk update && apk add --no-cache \
     build-base gcc autoconf automake python3 make g++ \
-    cairo-dev jpeg-dev png-dev vips-dev pixman-dev \
-    pangomm-dev libjpeg-turbo-dev giflib-dev
+    cairo-dev jpeg-dev libpng-dev vips-dev pixman-dev \
+    pango-dev giflib-dev zlib-dev
 WORKDIR /opt/app
 COPY package*.json ./
 RUN npm ci
@@ -11,21 +11,19 @@ RUN npm ci
 # STAGE 2: Builder
 FROM node:20-alpine AS builder
 WORKDIR /opt/app
-# Just copy the modules and tools from Stage 1
 COPY --from=dependencies /opt/app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-# STAGE 3: Production dependencies (The fix is here!)
+# STAGE 3: Production dependencies
 FROM node:20-alpine AS production-dependencies
 WORKDIR /opt/app
-# YOU NEED THESE TWO LINES BELOW
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-# STAGE 4: Production (The final small image)
+# STAGE 4: Production (final runtime image)
 FROM node:20-alpine AS production
-RUN apk add --no-cache vips curl libpng zlib && rm -rf /var/cache/apk/*
+RUN apk add --no-cache vips curl && rm -rf /var/cache/apk/*
 
 WORKDIR /opt/app
 ENV NODE_ENV=production
