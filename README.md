@@ -1,206 +1,83 @@
 # 🎓 Keta Academy - Strapi Backend
 
-A comprehensive Strapi-based content management system for Keta Academy, an educational platform that manages courses, lessons, units, quizzes, and student progress tracking.
+A high-performance Strapi 5 backend for Keta Academy, managing courses, interactive quizzes, and student learning progress.
 
-## 📋 Features
+---
 
-- **Course Management**: Create and manage educational courses with structured content
-- **Lesson & Unit Organization**: Hierarchical content organization with lessons and units
-- **Quiz System**: Interactive quizzes with progress tracking
-- **Progress Tracking**: Monitor student progress across courses, lessons, units, and quizzes
-- **User Management**: Built-in user authentication and permissions
-- **Content API**: RESTful API endpoints for frontend integration
-- **Cloudinary Integration**: Cloud-based media management
-- **PostgreSQL Database**: Robust data storage with Docker support
+## 🚀 Deployment (Docker & Ubuntu)
 
-## 🚀 Quick Start
+This project is optimized for deployment on Ubuntu servers using Docker Compose with a Supabase PostgreSQL backend.
 
-### Prerequisites
+### Standard Production Workflow
+To deploy updates or perform a first-time setup:
 
-- Node.js (>=18.0.0 <=22.x.x)
-- npm (>=6.0.0)
-- Docker & Docker Compose (for database)
+```bash
+# 1. Build and start (Zero Downtime Build)
+docker compose up -d --build
 
-### Installation
+# 2. To force a fresh build without cache
+docker compose build --no-cache && docker compose up -d
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd keta-academy-strapi
-   ```
+### Advanced Operations
+- **View Logs**: `docker compose logs -f`
+- **Stop Services**: `docker compose down`
+- **Shell Access**: `docker exec -it strapi sh`
 
-2. **Install dependencies**
+---
+
+## �️ Local Development
+
+If you prefer to run Strapi natively for development:
+
+1. **Install Dependencies**:
    ```bash
    npm install
    ```
-
-3. **Start the database**
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **Start the development server**
+2. **Environment Setup**:
+   Copy `.env.example` to `.env` and fill in your Supabase and Cloudinary credentials.
+3. **Run Dev Server**:
    ```bash
    npm run develop
    ```
 
-5. **Access the admin panel**
-   - Open your browser and navigate to `http://localhost:1337/admin`
-   - Create your first administrator account
+---
 
-## 📚 Available Commands
+## �️ Security & Performance
 
-### Development
+We prioritize security through several layers:
 
-```bash
-npm run develop
-# or
-yarn develop
-```
+- **Non-Root Execution**: The Docker container runs under a dedicated `strapi` user rather than `root`.
+- **Privilege Limitation**: `no-new-privileges:true` is set to prevent escalation attacks.
+- **Resource Guarding**: CPU and Memory limits are enforced via Docker Compose to prevent server lockups.
+- **Dependency Isolation**: Production builds are pruned of development tools and compilers.
+- **Health Monitoring**: Integrated Docker healthchecks monitor service availability.
 
-Start your Strapi application with autoReload enabled for development.
-
-### Production
-
-```bash
-npm run start
-# or
-yarn start
-```
-
-Start your Strapi application with autoReload disabled for production.
-
-### Build
-
-```bash
-npm run build
-# or
-yarn build
-```
-
-Build your admin panel for production deployment.
-
-### Console
-
-```bash
-npm run console
-# or
-yarn console
-```
-
-Access the Strapi console for debugging and management tasks.
-
-## 🗄️ Database Configuration
-
-The project uses PostgreSQL as the primary database. The database configuration is set up via Docker Compose:
-
-- **Host**: localhost
-- **Port**: 5433
-- **Database**: strapi
-- **Username**: strapi
-- **Password**: strapi
-
-## 📊 Content Types
-
-The API includes the following content types:
-
-- **Course**: Main educational courses
-- **Unit**: Course sections and modules
-- **Lesson**: Individual learning units
-- **Quiz**: Interactive assessments
-- **Progress Tracking**:
-  - User Course Progress
-  - Unit Progress
-  - Lesson Progress
-  - Quiz Progress
-- **Settings**: Platform configuration
-- **Contact Page**: Contact information management
-
-## 🔧 Configuration
-
-### Environment Variables
-
-Create a `.env` file in the root directory with the following variables:
-
-```env
-HOST=0.0.0.0
-PORT=1337
-APP_KEYS=your-app-keys
-API_TOKEN_SALT=your-api-token-salt
-ADMIN_JWT_SECRET=your-admin-jwt-secret
-JWT_SECRET=your-jwt-secret
-```
-
-### Database Configuration
-
-The database configuration is handled through Strapi's configuration files in the `config/` directory.
-
-## 🚀 Deployment
-
-### Using Strapi Cloud
-
-```bash
-yarn strapi deploy
-```
-
-### Manual Deployment
-
-1. Build the application:
-   ```bash
-   npm run build
-   ```
-
-2. Start the production server:
-   ```bash
-   npm run start
-   ```
-
-For more deployment options, check the [Strapi deployment documentation](https://docs.strapi.io/dev-docs/deployment).
-
-## 🔌 Plugins
-
-This project includes the following Strapi plugins:
-
-- **@strapi/plugin-cloud**: Cloud deployment support
-- **@strapi/plugin-documentation**: API documentation
-- **@strapi/plugin-users-permissions**: User authentication and authorization
-- **@strapi/provider-upload-cloudinary**: Cloudinary media upload integration
-- **strapi-plugin-slugify**: Automatic slug generation for content
-
-## 📚 API Documentation
-
-Once the server is running, you can access:
-
-- **Admin Panel**: `http://localhost:1337/admin`
-- **API Documentation**: `http://localhost:1337/documentation`
-- **API Endpoints**: `http://localhost:1337/api`
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📖 Learn More
-
-- [Strapi Documentation](https://docs.strapi.io) - Official Strapi documentation
-- [Strapi Tutorials](https://strapi.io/tutorials) - Community tutorials
-- [Strapi Blog](https://strapi.io/blog) - Latest updates and articles
-
-## ✨ Community
-
-- [Discord](https://discord.strapi.io) - Chat with the Strapi community
-- [Forum](https://forum.strapi.io/) - Ask questions and get help
-- [Awesome Strapi](https://github.com/strapi/awesome-strapi) - Curated list of Strapi resources
+### 🔒 Vulnerability Management
+*Current Status: Maintenance ongoing.*
+As with all large Node.js projects, dependencies are regularly audited. 
+- **Internal Audit**: Run `npm audit` locally to see details.
+- **Automated Fixes**: We use `npm audit fix` during the build pipeline where safe.
 
 ---
 
-## Vulnerabilities
+## �️ Roadmap & TODOs
 
-41 vulnerabilities (22 low, 8 moderate, 11 high) 5.24.0
-42 vulnerabilities (20 low, 10 moderate, 12 high) 5.30.0
-34 vulnerabilities found, Severity: 10 low | 20 moderate | 4 high 5.31.0
+### 🎯 High Priority
+- [ ] **Automated Backups**: Implement daily scripts to back up the Supabase DB and local uploads.
+- [ ] **Sentry Integration**: Add error tracking for the production environment.
+- [ ] **Cache Layer**: Implement Redis for faster API responses on heavy course endpoints.
 
-<sub>🎓 Built with ❤️ for Keta Academy</sub>
+### ⚙️ Improvements
+- [ ] **Unit Tests**: Add Jest suites for custom controllers and services.
+- [ ] **Media Optimization**: Configure automated WebP conversion for all uploads via Cloudinary.
+- [ ] **CI/CD Pipeline**: Set up GitHub Actions to auto-deploy to Ubuntu server on push to `main`.
+
+### 🛠️ Maintenance
+- [ ] **Dependency Update**: Keep Strapi 5 and its plugins on the latest stable versions.
+- [ ] **Log Analytics**: Integrate with a logging service (like ELK or BetterStack) for better Ubuntu server monitoring.
+
+---
+
+<sub>🎓 Built for Keta Academy | Managed by Docker</sub>
+
