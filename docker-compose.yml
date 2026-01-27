@@ -1,8 +1,30 @@
 services:
   strapi:
-    build: .
+    build:
+      context: .
+      target: production
     container_name: strapi
-    restart: always
+    restart: unless-stopped
     env_file: .env
+    environment:
+      NODE_ENV: production
     ports:
-      - "1337:1337"
+      - "1337:1337" # Bind to "127.0.0.1:1337:1337" if using Nginx/Caddy proxy
+    volumes:
+      - ./public/uploads:/opt/app/public/uploads
+      - ./.tmp:/opt/app/.tmp
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "com.keta.description=Strapi Academy CMS"
+      - "com.keta.environment=production"
