@@ -4,12 +4,12 @@ RUN apk add --no-cache tini vips curl python3 make g++
 
 WORKDIR /opt/app
 
-COPY package*.json ./
-RUN npm ci --omit=dev
+COPY package.json yarn.lock ./
+RUN yarn install --production
 
 COPY . .
 
-RUN npm run build
+RUN yarn run build
 
 RUN addgroup -g 1001 -S nodejs && \
   adduser -S strapi -u 1001 -G nodejs && \
@@ -19,4 +19,4 @@ RUN addgroup -g 1001 -S nodejs && \
 USER strapi
 ENTRYPOINT ["/sbin/tini", "--"]
 EXPOSE 1337
-CMD ["npm", "run", "start"]
+CMD ["yarn", "run", "start"]
