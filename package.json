@@ -1,51 +1,51 @@
 {
-	"name": "keta-academy-strapi",
-	"version": "1.0.0",
-	"private": true,
-	"description": "Keta Academy Strapi",
-	"scripts": {
-		"check": "biome check .",
-		"format": "biome format . --write",
-		"lint": "biome lint .",
-		"build": "strapi build",
-		"console": "strapi console",
-		"deploy": "strapi deploy",
-		"dev": "strapi develop",
-		"develop": "strapi develop",
-		"start": "strapi start",
-		"strapi": "strapi",
-		"upgrade": "npx @strapi/upgrade latest",
-		"upgrade:dry": "npx @strapi/upgrade latest --dry"
-	},
-	"dependencies": {
-		"@strapi/plugin-cloud": "5.36.1",
-		"@strapi/plugin-documentation": "^5.36.1",
-		"@strapi/plugin-users-permissions": "5.36.1",
-		"@strapi/provider-upload-cloudinary": "^5.36.1",
-		"@strapi/strapi": "5.36.1",
-		"better-sqlite3": "11.10.0",
-		"googleapis": "^152.0.0",
-		"jsonwebtoken": "^9.0.3",
-		"pg": "^8.18.0",
-		"react": "^18.3.1",
-		"react-dom": "^18.3.1",
-		"react-router-dom": "^6.30.3",
-		"strapi-plugin-slugify": "^2.3.8",
-		"styled-components": "^6.3.11"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "2.4.4",
-		"@types/node": "^20.19.33",
-		"@types/react": "^18.3.28",
-		"@types/react-dom": "^18.3.7",
-		"typescript": "^5.9.3"
-	},
-	"engines": {
-		"node": ">=18.0.0 <=22.x.x",
-		"npm": ">=6.0.0"
-	},
-	"strapi": {
-		"uuid": "8a8e9f11-c6d4-41ba-8484-e4e9af831525",
-		"installId": "821467e32d4f8abd89d3eac123b7f4c34138e602088c1ada52f5ee09219d671f"
-	}
+  "name": "keta-academy-strapi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Keta Academy Strapi",
+  "scripts": {
+    "check": "biome check .",
+    "format": "biome format . --write",
+    "lint": "biome lint .",
+    "build": "strapi build",
+    "console": "strapi console",
+    "deploy": "strapi deploy",
+    "dev": "strapi develop",
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "strapi": "strapi",
+    "upgrade": "npx @strapi/upgrade latest",
+    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+  },
+  "dependencies": {
+    "@strapi/plugin-cloud": "5.39.0",
+    "@strapi/plugin-documentation": "^5.39.0",
+    "@strapi/plugin-users-permissions": "5.39.0",
+    "@strapi/provider-upload-cloudinary": "^5.39.0",
+    "@strapi/strapi": "5.39.0",
+    "better-sqlite3": "12.8.0",
+    "googleapis": "^171.4.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.3",
+    "strapi-plugin-slugify": "^2.3.8",
+    "styled-components": "^6.3.11"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.7",
+    "@types/node": "^24.12.0",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=20.0.0 <=25.x.x",
+    "npm": ">=11.0.0"
+  },
+  "strapi": {
+    "uuid": "8a8e9f11-c6d4-41ba-8484-e4e9af831525",
+    "installId": "821467e32d4f8abd89d3eac123b7f4c34138e602088c1ada52f5ee09219d671f"
+  }
 }
