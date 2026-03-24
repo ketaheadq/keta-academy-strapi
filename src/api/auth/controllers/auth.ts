@@ -1,270 +1,306 @@
 import { factories } from "@strapi/strapi";
 import { google } from "googleapis";
 
-
 export default factories.createCoreController(
-	"plugin::users-permissions.user",
-	({ strapi }) => ({
-		async googleAuth(ctx) {
-			try {
-				const redirectUri =
-					process.env.GOOGLE_REDIRECT_URI ||
-					"http://localhost:1337/api/auth/google/callback";
+  "plugin::users-permissions.user",
+  ({ strapi }) => ({
+    async googleAuth(ctx) {
+      try {
+        const redirectUri =
+          process.env.GOOGLE_REDIRECT_URI ||
+          "http://localhost:1337/api/auth/google/callback";
 
-				console.log("🔍 Debug Info:");
-				console.log(
-					"GOOGLE_CLIENT_ID:",
-					process.env.GOOGLE_CLIENT_ID ? "SET" : "NOT SET",
-				);
-				console.log(
-					"GOOGLE_CLIENT_SECRET:",
-					process.env.GOOGLE_CLIENT_SECRET ? "SET" : "NOT SET",
-				);
-				console.log("GOOGLE_REDIRECT_URI:", redirectUri);
+        // ✅ Capture mobile params
+        const { redirect: appRedirect, mobile } = ctx.query;
 
-				const oauth2Client = new google.auth.OAuth2(
-					process.env.GOOGLE_CLIENT_ID,
-					process.env.GOOGLE_CLIENT_SECRET,
-					redirectUri,
-				);
+        console.log("🔍 Debug Info:");
+        console.log(
+          "GOOGLE_CLIENT_ID:",
+          process.env.GOOGLE_CLIENT_ID ? "SET" : "NOT SET",
+        );
+        console.log(
+          "GOOGLE_CLIENT_SECRET:",
+          process.env.GOOGLE_CLIENT_SECRET ? "SET" : "NOT SET",
+        );
+        console.log("GOOGLE_REDIRECT_URI:", redirectUri);
+        console.log("App Redirect:", appRedirect);
+        console.log("Mobile:", mobile);
 
-				const scopes = [
-					"https://www.googleapis.com/auth/userinfo.email",
-					"https://www.googleapis.com/auth/userinfo.profile",
-				];
+        const oauth2Client = new google.auth.OAuth2(
+          process.env.GOOGLE_CLIENT_ID,
+          process.env.GOOGLE_CLIENT_SECRET,
+          redirectUri,
+        );
 
-				const authUrl = oauth2Client.generateAuthUrl({
-					access_type: "offline",
-					scope: scopes,
-					state: "some_random_state",
-				});
+        const scopes = [
+          "https://www.googleapis.com/auth/userinfo.email",
+          "https://www.googleapis.com/auth/userinfo.profile",
+        ];
 
-				console.log("🔗 Generated Auth URL:", authUrl);
+        // ✅ Encode mobile params in state (survives Google redirect)
+        const statePayload = {
+          mobile: mobile === "true",
+          redirect: appRedirect,
+        };
+        const state = Buffer.from(JSON.stringify(statePayload)).toString("base64");
 
-				// Redirect directly to Google instead of returning URL
-				ctx.redirect(authUrl);
-			} catch (error) {
-				console.error("❌ Google Auth Error:", error);
-				ctx.badRequest("Failed to generate Google auth URL", {
-					error: error.message,
-				});
-			}
-		},
+        const authUrl = oauth2Client.generateAuthUrl({
+          access_type: "offline",
+          scope: scopes,
+          state, // ✅ Use encoded state
+        });
 
-		async googleCallback(ctx) {
-			try {
-				const { code } = ctx.request.query;
+        console.log("🔗 Generated Auth URL:", authUrl);
+        ctx.redirect(authUrl);
+      } catch (error) {
+        console.error("❌ Google Auth Error:", error);
+        ctx.badRequest("Failed to generate Google auth URL", {
+          error: error.message,
+        });
+      }
+    },
 
-				if (!code || typeof code !== "string") {
-					return ctx.badRequest("Authorization code is required");
-				}
+    async googleCallback(ctx) {
+      try {
+        const { code, state } = ctx.request.query;
 
-				const redirectUri =
-					process.env.GOOGLE_REDIRECT_URI ||
-					"http://localhost:1337/api/auth/google/callback";
+        if (!code || typeof code !== "string") {
+          return ctx.badRequest("Authorization code is required");
+        }
 
-				console.log("🔄 Callback - Using redirect URI:", redirectUri);
+        // ✅ Decode mobile params from state
+        let isMobile = false;
+        let appRedirect = null;
+        try {
+          if (state && typeof state === "string") {
+            const stateData = JSON.parse(
+              Buffer.from(state, "base64").toString("utf-8"),
+            );
+            isMobile = stateData.mobile === true;
+            appRedirect = stateData.redirect;
+          }
+        } catch (e) {
+          console.log("⚠️ Could not parse state:", e);
+        }
 
-				// Initialize OAuth2 client
-				const oauth2Client = new google.auth.OAuth2(
-					process.env.GOOGLE_CLIENT_ID,
-					process.env.GOOGLE_CLIENT_SECRET,
-					redirectUri,
-				);
+        const redirectUri =
+          process.env.GOOGLE_REDIRECT_URI ||
+          "http://localhost:1337/api/auth/google/callback";
 
-				// Exchange code for tokens
-				const tokenResponse = await oauth2Client.getToken(code);
-				const tokens = tokenResponse.tokens;
-				oauth2Client.setCredentials(tokens);
+        console.log("🔄 Callback - Using redirect URI:", redirectUri);
 
-				// Get user info from Google
-				const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
-				const { data: googleUser } = await oauth2.userinfo.get();
+        const oauth2Client = new google.auth.OAuth2(
+          process.env.GOOGLE_CLIENT_ID,
+          process.env.GOOGLE_CLIENT_SECRET,
+          redirectUri,
+        );
 
-				if (!googleUser.email) {
-					return ctx.badRequest("Email not provided by Google");
-				}
+        const tokenResponse = await oauth2Client.getToken(code);
+        const tokens = tokenResponse.tokens;
+        oauth2Client.setCredentials(tokens);
 
-				console.log("👤 Google User:", googleUser);
+        const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
+        const { data: googleUser } = await oauth2.userinfo.get();
 
-				// Check if user already exists
-				let user = await strapi.db
-					.query("plugin::users-permissions.user")
-					.findOne({
-						where: { email: googleUser.email },
-					});
+        if (!googleUser.email) {
+          return ctx.badRequest("Email not provided by Google");
+        }
 
-				if (!user) {
-					// Create new user
-					const defaultRole = await strapi.db
-						.query("plugin::users-permissions.role")
-						.findOne({
-							where: { type: "authenticated" },
-						});
+        console.log("👤 Google User:", googleUser);
 
-					user = await strapi.db
-						.query("plugin::users-permissions.user")
-						.create({
-							data: {
-								username: googleUser.email.split("@")[0], // Ensure unique username
-								email: googleUser.email,
-								confirmed: true,
-								blocked: false,
-								provider: "google",
-								role: defaultRole.id,
-								// Add additional fields from Google profile
-								...(googleUser.given_name && {
-									firstName: googleUser.given_name,
-								}),
-								...(googleUser.family_name && {
-									lastName: googleUser.family_name,
-								}),
-								...(googleUser.picture && {
-									profilePicture: googleUser.picture,
-								}),
-							},
-						});
+        let user = await strapi.db
+          .query("plugin::users-permissions.user")
+          .findOne({
+            where: { email: googleUser.email },
+          });
 
-					console.log("✅ Created new user:", user.email);
-				} else {
-					console.log("✅ Found existing user:", user.email);
-				}
+        if (!user) {
+          const defaultRole = await strapi.db
+            .query("plugin::users-permissions.role")
+            .findOne({
+              where: { type: "authenticated" },
+            });
 
-				// Generate JWT token
-				const jwtToken = strapi
-					.plugin("users-permissions")
-					.service("jwt")
-					.issue({
-						id: user.id,
-					});
+          user = await strapi.db
+            .query("plugin::users-permissions.user")
+            .create({
+              data: {
+                username: googleUser.email.split("@")[0],
+                email: googleUser.email,
+                confirmed: true,
+                blocked: false,
+                provider: "google",
+                role: defaultRole.id,
+                ...(googleUser.given_name && {
+                  firstName: googleUser.given_name,
+                }),
+                ...(googleUser.family_name && {
+                  lastName: googleUser.family_name,
+                }),
+                ...(googleUser.picture && {
+                  profilePicture: googleUser.picture,
+                }),
+              },
+            });
 
-				// Remove sensitive data manually instead of using sanitizeOutput
-				const sanitizedUser = {
-					id: user.id,
-					username: user.username,
-					email: user.email,
-					provider: user.provider,
-					confirmed: user.confirmed,
-					blocked: user.blocked,
-					createdAt: user.createdAt,
-					updatedAt: user.updatedAt,
-					...(user.firstName && { firstName: user.firstName }),
-					...(user.lastName && { lastName: user.lastName }),
-					...(user.profilePicture && { profilePicture: user.profilePicture }),
-				};
+          console.log("✅ Created new user:", user.email);
+        } else {
+          console.log("✅ Found existing user:", user.email);
+        }
 
-				console.log("🎉 Authentication successful for:", sanitizedUser.email);
+        const jwtToken = strapi
+          .plugin("users-permissions")
+          .service("jwt")
+          .issue({
+            id: user.id,
+          });
 
-				// Redirect to frontend with token and user data
-				const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-				const callbackUrl = new URL("/auth/callback", frontendUrl);
+        const sanitizedUser = {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          provider: user.provider,
+          confirmed: user.confirmed,
+          blocked: user.blocked,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          ...(user.firstName && { firstName: user.firstName }),
+          ...(user.lastName && { lastName: user.lastName }),
+          ...(user.profilePicture && { profilePicture: user.profilePicture }),
+        };
 
-				// Add token and user data as query parameters
-				callbackUrl.searchParams.set("token", jwtToken);
-				callbackUrl.searchParams.set("user", JSON.stringify(sanitizedUser));
-				callbackUrl.searchParams.set("success", "true");
+        console.log("🎉 Authentication successful for:", sanitizedUser.email);
 
-				console.log("🔗 Redirecting to frontend:", callbackUrl.toString());
+        // ✅ MOBILE REDIRECT: Check if mobile + custom scheme
+        if (isMobile && appRedirect?.startsWith("ketaakademi://")) {
+          const mobileUrl = `${appRedirect}?token=${jwtToken}&user=${encodeURIComponent(
+            JSON.stringify(sanitizedUser),
+          )}&success=true`;
+          console.log("📱 Redirecting to mobile:", mobileUrl);
+          return ctx.redirect(mobileUrl);
+        }
 
-				// Redirect to frontend
-				ctx.redirect(callbackUrl.toString());
-			} catch (error) {
-				console.error("❌ Google OAuth error:", error);
+        // 🌐 Default web redirect (your original logic)
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+        const callbackUrl = new URL("/auth/callback", frontendUrl);
 
-				// Redirect to frontend with error
-				const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-				const errorUrl = new URL("/auth/callback", frontendUrl);
-				errorUrl.searchParams.set("error", "authentication_failed");
-				errorUrl.searchParams.set("message", error.message);
-				errorUrl.searchParams.set("success", "false");
+        callbackUrl.searchParams.set("token", jwtToken);
+        callbackUrl.searchParams.set("user", JSON.stringify(sanitizedUser));
+        callbackUrl.searchParams.set("success", "true");
 
-				ctx.redirect(errorUrl.toString());
-			}
-		},
+        console.log("🔗 Redirecting to frontend:", callbackUrl.toString());
+        ctx.redirect(callbackUrl.toString());
+      } catch (error) {
+        console.error("❌ Google OAuth error:", error);
 
-		// Verify Strapi JWT token and return user info
-		async verifyToken(ctx) {
-			try {
-				// Get token from Authorization header
-				const authHeader = ctx.request.headers.authorization;
+        // ✅ Also handle mobile for error case
+        const { state } = ctx.request.query;
+        let isMobile = false;
+        let appRedirect = null;
+        try {
+          if (state && typeof state === "string") {
+            const stateData = JSON.parse(
+              Buffer.from(state, "base64").toString("utf-8"),
+            );
+            isMobile = stateData.mobile === true;
+            appRedirect = stateData.redirect;
+          }
+        } catch (_e) { }
 
-				console.log("🔍 Auth Header:", authHeader);
+        if (isMobile && appRedirect?.startsWith("ketaakademi://")) {
+          const errorUrl = `${appRedirect}?error=authentication_failed&message=${encodeURIComponent(
+            error.message,
+          )}&success=false`;
+          return ctx.redirect(errorUrl);
+        }
 
-				if (!authHeader?.startsWith("Bearer ")) {
-					console.log("❌ No valid Authorization header");
-					return ctx.unauthorized(
-						"Authorization header with Bearer token is required",
-					);
-				}
+        // Default web error redirect
+        const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+        const errorUrl = new URL("/auth/callback", frontendUrl);
+        errorUrl.searchParams.set("error", "authentication_failed");
+        errorUrl.searchParams.set("message", error.message);
+        errorUrl.searchParams.set("success", "false");
 
-				const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-				console.log("🔍 Extracted Token:", `${token.substring(0, 50)}...`);
+        ctx.redirect(errorUrl.toString());
+      }
+    },
 
-				// Verify JWT token using Strapi's JWT service
-				console.log("🔍 Attempting to verify token...");
-				const decoded = await strapi
-					.plugin("users-permissions")
-					.service("jwt")
-					.verify(token);
-				console.log("✅ Token decoded successfully:", decoded);
+    async verifyToken(ctx) {
+      try {
+        const authHeader = ctx.request.headers.authorization;
 
-				if (!decoded?.id) {
-					console.log("❌ Invalid decoded token:", decoded);
-					return ctx.unauthorized("Invalid token");
-				}
+        console.log("🔍 Auth Header:", authHeader);
 
-				// Get user from database
-				console.log("🔍 Looking for user with ID:", decoded.id);
-				const user = await strapi.db
-					.query("plugin::users-permissions.user")
-					.findOne({
-						where: { id: decoded.id },
-						populate: ["role"],
-					});
+        if (!authHeader?.startsWith("Bearer ")) {
+          console.log("❌ No valid Authorization header");
+          return ctx.unauthorized(
+            "Authorization header with Bearer token is required",
+          );
+        }
 
-				if (!user) {
-					console.log("❌ User not found with ID:", decoded.id);
-					return ctx.unauthorized("User not found");
-				}
+        const token = authHeader.substring(7);
+        console.log("🔍 Extracted Token:", `${token.substring(0, 50)}...`);
 
-				if (user.blocked) {
-					console.log("❌ User is blocked:", user.email);
-					return ctx.unauthorized("User is blocked");
-				}
+        const decoded = await strapi
+          .plugin("users-permissions")
+          .service("jwt")
+          .verify(token);
+        console.log("✅ Token decoded successfully:", decoded);
 
-				console.log("✅ User found:", user.email);
+        if (!decoded?.id) {
+          console.log("❌ Invalid decoded token:", decoded);
+          return ctx.unauthorized("Invalid token");
+        }
 
-				// Return sanitized user data
-				const sanitizedUser = {
-					id: user.id,
-					username: user.username,
-					email: user.email,
-					provider: user.provider,
-					confirmed: user.confirmed,
-					blocked: user.blocked,
-					role: user.role?.name || "authenticated",
-					createdAt: user.createdAt,
-					updatedAt: user.updatedAt,
-					...(user.firstName && { firstName: user.firstName }),
-					...(user.lastName && { lastName: user.lastName }),
-					...(user.profilePicture && { profilePicture: user.profilePicture }),
-				};
+        const user = await strapi.db
+          .query("plugin::users-permissions.user")
+          .findOne({
+            where: { id: decoded.id },
+            populate: ["role"],
+          });
 
-				ctx.send({
-					message: "🎉 JWT Authentication successful!",
-					user: sanitizedUser,
-					tokenInfo: {
-						issuedAt: new Date(decoded.iat * 1000),
-						expiresAt: new Date(decoded.exp * 1000),
-						isValid: true,
-					},
-					timestamp: new Date().toISOString(),
-				});
-			} catch (error) {
-				console.error("❌ Token verification error:", error);
-				console.error("❌ Error details:", error.message);
-				ctx.unauthorized("Invalid or expired token", { error: error.message });
-			}
-		},
-	}),
+        if (!user) {
+          console.log("❌ User not found with ID:", decoded.id);
+          return ctx.unauthorized("User not found");
+        }
+
+        if (user.blocked) {
+          console.log("❌ User is blocked:", user.email);
+          return ctx.unauthorized("User is blocked");
+        }
+
+        console.log("✅ User found:", user.email);
+
+        const sanitizedUser = {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          provider: user.provider,
+          confirmed: user.confirmed,
+          blocked: user.blocked,
+          role: user.role?.name || "authenticated",
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+          ...(user.firstName && { firstName: user.firstName }),
+          ...(user.lastName && { lastName: user.lastName }),
+          ...(user.profilePicture && { profilePicture: user.profilePicture }),
+        };
+
+        ctx.send({
+          message: "🎉 JWT Authentication successful!",
+          user: sanitizedUser,
+          tokenInfo: {
+            issuedAt: new Date(decoded.iat * 1000),
+            expiresAt: new Date(decoded.exp * 1000),
+            isValid: true,
+          },
+          timestamp: new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error("❌ Token verification error:", error);
+        console.error("❌ Error details:", error.message);
+        ctx.unauthorized("Invalid or expired token", { error: error.message });
+      }
+    },
+  }),
 );
