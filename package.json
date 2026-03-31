@@ -33,7 +33,7 @@
     "styled-components": "^6.3.12"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.9",
+    "@biomejs/biome": "2.4.10",
     "@types/node": "^20.19.37",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",

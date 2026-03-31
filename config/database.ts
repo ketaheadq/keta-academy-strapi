@@ -1,5 +1,3 @@
-import path from "node:path";
-
 export default ({ env }) => {
   const client = env("DATABASE_CLIENT", "postgres");
 
