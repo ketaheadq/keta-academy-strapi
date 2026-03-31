@@ -15,6 +15,9 @@
     "noEmitOnError": true,
     "noImplicitThis": true,
     "outDir": "dist",
+    "types": [
+      "node"
+    ],
     "rootDir": "."
   },
   "include": [

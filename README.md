@@ -32,18 +32,18 @@ If you prefer to run Strapi natively for development:
 
 1. **Install Dependencies**:
    ```bash
-   npm install
+   yarn install
    ```
 2. **Environment Setup**:
    Copy `.env.example` to `.env` and fill in your Supabase and Cloudinary credentials.
 3. **Run Dev Server**:
    ```bash
-   npm run develop
+   yarn run develop
    ```
 
 ---
 
-## �️ Security & Performance
+## ️ Security & Performance
 
 We prioritize security through several layers:
 
@@ -55,13 +55,13 @@ We prioritize security through several layers:
 
 ### 🔒 Vulnerability Management
 *Current Status: Maintenance ongoing.*
-As with all large Node.js projects, dependencies are regularly audited. 
-- **Internal Audit**: Run `npm audit` locally to see details.
-- **Automated Fixes**: We use `npm audit fix` during the build pipeline where safe.
+As with all large Node.js projects, dependencies are regularly audited.
+- **Internal Audit**: Run `yarn audit` locally to see details.
+- **Automated Fixes**: We use `yarn audit fix` during the build pipeline where safe.
 
 ---
 
-## �️ Roadmap & TODOs
+## ️ Roadmap & TODOs
 
 ### 🎯 High Priority
 - [ ] **Automated Backups**: Implement daily scripts to back up the Supabase DB and local uploads.
