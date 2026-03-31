@@ -68,7 +68,7 @@ export default {
 		const settings = (await pluginStore.get({
 			key: "advanced",
 		})) as AdvancedSettings | null;
-		if (!settings || !settings.default_role) {
+		if (!settings?.default_role) {
 			const defaultRole = await strapi
 				.query("plugin::users-permissions.role")
 				.findOne({ where: { type: "authenticated" } });
