@@ -11,12 +11,25 @@
 	},
 	"pluginOptions": {},
 	"attributes": {
+		"learner": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "plugin::users-permissions.user",
+			"private": true
+		},
+		"course": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::course.course"
+		},
+		"completedAt": { "type": "datetime" },
 		"course_status": {
 			"type": "enumeration",
 			"default": "not_started",
 			"enum": ["not_started", "in_progress", "completed"]
 		},
 		"user_plus_course_id": {
+			"private": true,
 			"type": "string",
 			"required": true,
 			"unique": true

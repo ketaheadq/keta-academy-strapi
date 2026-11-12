@@ -1,6 +1,5 @@
 # STAGE 1: Build
 FROM node:20-alpine AS builder
-RUN apk add --no-cache python3 make g++ vips-dev
 
 WORKDIR /opt/app
 COPY package.json yarn.lock ./
@@ -18,7 +17,7 @@ RUN --mount=type=cache,target=/root/.yarn \
 
 # STAGE 2: Runtime
 FROM node:20-alpine
-RUN apk add --no-cache tini vips curl
+RUN apk add --no-cache tini curl
 
 RUN addgroup -g 1001 -S nodejs && adduser -S strapi -u 1001 -G nodejs
 WORKDIR /opt/app

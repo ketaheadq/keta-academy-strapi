@@ -15,7 +15,8 @@
 			"enum": ["multipleChoice", "trueFalse"]
 		},
 		"explanation": {
-			"type": "blocks"
+			"type": "blocks",
+			"private": true
 		},
 		"order": {
 			"type": "integer"

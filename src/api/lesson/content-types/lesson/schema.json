@@ -21,9 +21,10 @@
 			"required": true
 		},
 		"videoURL": {
-			"type": "string",
-			"required": true
+			"type": "string"
 		},
+		"content": { "type": "blocks" },
+		"attachments": { "type": "media", "multiple": true, "allowedTypes": ["files"] },
 		"quiz": {
 			"type": "relation",
 			"relation": "manyToOne",

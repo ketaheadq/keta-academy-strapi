@@ -1,7 +1,9 @@
 export default ({ env }) => ({
 	// Upload provider for actual file uploads
 	upload: {
-		config: {
+		config: env("UPLOAD_PROVIDER", "cloudinary") === "local" ? {
+			provider: "local",
+		} : {
 			provider: "cloudinary",
 			providerOptions: {
 				cloud_name: env("CLOUDINARY_CLOUD_NAME"),

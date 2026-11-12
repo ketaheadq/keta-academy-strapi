@@ -11,11 +11,24 @@
 	},
 	"pluginOptions": {},
 	"attributes": {
+		"learner": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "plugin::users-permissions.user",
+			"private": true
+		},
+		"lesson": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::lesson.lesson"
+		},
+		"completedAt": { "type": "datetime" },
 		"isCompleted": {
 			"type": "boolean",
 			"default": false
 		},
 		"user_plus_lesson_id": {
+			"private": true,
 			"type": "string",
 			"required": true,
 			"unique": true

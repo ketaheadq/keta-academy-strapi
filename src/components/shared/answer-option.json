@@ -12,6 +12,7 @@
 		},
 		"isCorrect": {
 			"type": "boolean",
+			"private": true,
 			"default": false
 		},
 		"order": {

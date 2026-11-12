@@ -1,4 +1,6 @@
 import type { Core } from "@strapi/strapi";
+import { seedDevelopment } from "./seed-development";
+import { migrateQuizProgress } from "./migrate-quiz-progress";
 
 interface AdvancedSettings {
 	default_role?: number;
@@ -84,6 +86,20 @@ export default {
 
 				strapi.log.info("✅ Set default role for new users");
 			}
+		}
+		await migrateQuizProgress(strapi);
+		const role = await strapi.db.query("plugin::users-permissions.role").findOne({
+			where: { type: "authenticated" },
+		});
+		const permissions = strapi.db.query("plugin::users-permissions.permission");
+		for (const handler of ["listLessons", "completeLesson", "courseProgress", "listAttempts", "submitQuiz"]) {
+			const action = "api::learning.learning." + handler;
+			if (!await permissions.findOne({ where: { action, role: role.id } })) {
+				await permissions.create({ data: { action, role: role.id } });
+			}
+		}
+		if (process.env.KETA_SEED_DEMO === "true") {
+			await seedDevelopment(strapi);
 		}
 	},
 };

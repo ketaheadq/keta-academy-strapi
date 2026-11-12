@@ -11,6 +11,19 @@
 	},
 	"pluginOptions": {},
 	"attributes": {
+		"learner": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "plugin::users-permissions.user",
+			"private": true
+		},
+		"quiz": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::quiz.quiz"
+		},
+		"result": { "type": "json", "private": true },
+		"completedAt": { "type": "datetime" },
 		"score": {
 			"type": "integer"
 		},
@@ -19,6 +32,7 @@
 			"enum": ["not_started", "in_progress", "completed"]
 		},
 		"user_plus_quiz_id": {
+			"private": true,
 			"type": "string",
 			"required": true,
 			"unique": true
