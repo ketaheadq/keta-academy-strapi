@@ -36,6 +36,9 @@ COPY --from=builder --chown=strapi:nodejs /opt/app/package.json ./package.json
 # If you have other folders like public, copy them too
 COPY --from=builder --chown=strapi:nodejs /opt/app/public ./public
 
+# Copy root-level assets required at runtime
+COPY --from=builder --chown=strapi:nodejs /opt/app/favicon.png ./favicon.png
+
 USER strapi
 ENV NODE_ENV=production
 EXPOSE 1337
