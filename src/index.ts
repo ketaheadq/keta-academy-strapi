@@ -26,13 +26,27 @@ async function grantPermission(
 }
 
 /**
+ * Content types that must NEVER be exposed through the generic REST API.
+ * Progress records belong to a single learner and are only read/written
+ * through the ownership-checked `api::learning.learning.*` endpoints.
+ */
+const PRIVATE_CONTENT_TYPES = new Set([
+	"api::lesson-progress.lesson-progress",
+	"api::quiz-progress.quiz-progress",
+	"api::user-course-progress.user-course-progress",
+]);
+
+/**
  * Sets up all API permissions automatically on every startup.
  * This is idempotent — safe to run repeatedly without duplicating grants.
  *
- * PUBLIC role  → read-only access to published content (find + findOne)
- * AUTHENTICATED role → read-only content + user profile + learning actions
+ * PUBLIC role        → read-only access to published content
+ *                      (collection types: find + findOne, single types: find)
+ * AUTHENTICATED role → same read access + own profile + learning actions
+ *                      (lesson completion, quiz submission, progress)
  *
- * To add a new content type, just add its name to the lists below and redeploy.
+ * Every `api::*` content type is picked up automatically. To hide a new
+ * content type from the public API, add it to PRIVATE_CONTENT_TYPES.
  */
 async function bootstrapPermissions(strapi: Core.Strapi) {
 	const roles = strapi.db.query("plugin::users-permissions.role");
@@ -45,30 +59,13 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 	}
 
 	// ─── Content types readable by EVERYONE (public + authenticated) ───────────
-	const publicReadableAPIs = [
-		"admission-score",
-		"blog",
-		"contact-page",
-		"course",
-		"course-lesson",
-		"department",
-		"grade",
-		"lesson",
-		"page",
-		"page-category",
-		"privacy-policy",
-		"quiz",
-		"setting",
-		"subject",
-		"term-and-condition",
-		"tutoring-profile",
-		"university",
-		"video",
-	];
+	for (const [uid, contentType] of Object.entries(strapi.contentTypes)) {
+		if (!uid.startsWith("api::") || PRIVATE_CONTENT_TYPES.has(uid)) continue;
 
-	for (const name of publicReadableAPIs) {
-		for (const method of ["find", "findOne"]) {
-			const action = `api::${name}.${name}.${method}`;
+		// Single types only expose `find` (GET /api/<name>); there is no findOne.
+		const methods = contentType.kind === "singleType" ? ["find"] : ["find", "findOne"];
+		for (const method of methods) {
+			const action = `${uid}.${method}`;
 			await grantPermission(strapi, action, publicRole.id);
 			await grantPermission(strapi, action, authenticated.id);
 		}
@@ -81,21 +78,34 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 		"plugin::users-permissions.auth.register",       // POST /auth/local/register
 		"plugin::users-permissions.auth.forgotPassword", // POST /auth/forgot-password
 		"plugin::users-permissions.auth.resetPassword",  // POST /auth/reset-password
-		"plugin::users-permissions.auth.emailConfirmation",
+		"plugin::users-permissions.auth.emailConfirmation",     // GET /auth/email-confirmation
+		"plugin::users-permissions.auth.sendEmailConfirmation", // POST /auth/send-email-confirmation
 	];
 	for (const action of publicAuthActions) {
 		await grantPermission(strapi, action, publicRole.id);
 	}
 
-	// ─── Authenticated-only: user profile & learning actions ──────────────────
-	await grantPermission(strapi, "plugin::users-permissions.user.me", authenticated.id);
+	// ─── Authenticated-only: own account ──────────────────────────────────────
+	// NOTE: `user.update` / `user.find` / `user.findOne` are intentionally NOT
+	// granted — Strapi does no ownership check there, so any logged-in user could
+	// read or edit other accounts (including their role).
+	const accountActions = [
+		"plugin::users-permissions.user.me",            // GET  /users/me
+		"plugin::users-permissions.auth.changePassword", // POST /auth/change-password (own password)
+	];
+	for (const action of accountActions) {
+		await grantPermission(strapi, action, authenticated.id);
+	}
 
+	// ─── Authenticated-only: learning actions (ownership-checked) ─────────────
+	// These are the ONLY write paths for progress data; each handler scopes
+	// reads/writes to ctx.state.user.
 	const learningActions = [
-		"listLessons",
-		"completeLesson",
-		"courseProgress",
-		"listAttempts",
-		"submitQuiz",
+		"listLessons",    // GET  /learning/lesson-progress
+		"completeLesson", // PUT  /learning/lesson-progress/:documentId
+		"courseProgress", // GET  /learning/course-progress/:documentId
+		"listAttempts",   // GET  /learning/quizzes/:documentId/attempts
+		"submitQuiz",     // POST /learning/quizzes/:documentId/attempts
 	];
 	for (const handler of learningActions) {
 		await grantPermission(strapi, `api::learning.learning.${handler}`, authenticated.id);
