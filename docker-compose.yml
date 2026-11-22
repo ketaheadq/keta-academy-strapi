@@ -11,6 +11,27 @@ services:
       - "127.0.0.1:1337:1337"
     volumes:
       - ./public/uploads:/opt/app/public/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ketalearn
+      POSTGRES_USER: ketalearn
+      POSTGRES_PASSWORD: "${LOCAL_POSTGRES_PASSWORD:?Set LOCAL_POSTGRES_PASSWORD in .env}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "ketalearn", "-d", "ketalearn"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+volumes:
+  postgres_data:
 
 networks:
   default:
