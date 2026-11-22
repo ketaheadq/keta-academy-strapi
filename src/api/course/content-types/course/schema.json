@@ -63,6 +63,11 @@
 			"type": "media",
 			"multiple": false,
 			"allowedTypes": ["images"]
+		},
+		"SEO": {
+			"type": "component",
+			"component": "seo.seo",
+			"repeatable": false
 		}
 	}
 }

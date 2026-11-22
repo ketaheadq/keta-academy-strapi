@@ -35,6 +35,11 @@
 			"type": "component",
 			"component": "shared.icon",
 			"repeatable": false
+		},
+		"SEO": {
+			"type": "component",
+			"component": "seo.seo",
+			"repeatable": false
 		}
 	}
 }
