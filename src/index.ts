@@ -143,6 +143,8 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 		"listLessons",    // GET  /learning/lesson-progress
 		"completeLesson", // PUT  /learning/lesson-progress/:documentId
 		"courseProgress", // GET  /learning/course-progress/:documentId
+		"listCourses",    // GET  /learning/courses
+		"startCourse",    // POST /learning/courses/:documentId/start
 		"listAttempts",   // GET  /learning/quizzes/:documentId/attempts
 		"submitQuiz",     // POST /learning/quizzes/:documentId/attempts
 	];
