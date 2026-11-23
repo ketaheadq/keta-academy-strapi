@@ -48,7 +48,7 @@ export async function seedDevelopment(strapi: Core.Strapi) {
     slug: "demo-matematik", title: "Demo Matematik", description: "KetaLearn örnek konu kataloğu.",
   });
   const grade = await seed("api::grade.grade", { slug: "demo-9-sinif" }, {
-    slug: "demo-9-sinif", title: "Demo 9. Sınıf", order: 9,
+    slug: "demo-9-sinif", title: "Demo 9. Sınıf",
   });
   const course = await seed("api::course.course", { slug: "demo-kesirler" }, {
     slug: "demo-kesirler", title: "Demo: Kesirlerle İşlemler",

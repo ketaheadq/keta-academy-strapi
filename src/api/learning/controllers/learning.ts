@@ -78,6 +78,76 @@ export default {
     } };
   },
 
+  // Records that the user started a course (idempotent; never downgrades a completed course).
+  async startCourse(ctx) {
+    const user = ctx.state.user;
+    if (!user) return ctx.unauthorized();
+    const documentId = ctx.params.documentId;
+    const course = await strapi.documents("api::course.course").findOne({ documentId, status: "published" });
+    if (!course) return ctx.notFound();
+
+    const key = user.id + "_" + documentId;
+    const status = await strapi.db.transaction(async ({ trx }) => {
+      await trx.raw("select pg_advisory_xact_lock(hashtext(?))", [courseProgress + ":" + key]);
+      const query = strapi.db.query(courseProgress);
+      const existing = await query.findOne({ where: { user_plus_course_id: key } });
+      if (!existing) {
+        await query.create({ data: {
+          user_plus_course_id: key, learner: user.id, course: course.id, course_status: "in_progress",
+        } });
+        return "in_progress";
+      }
+      if (existing.course_status === "not_started") {
+        await query.update({ where: { id: existing.id }, data: { course_status: "in_progress" } });
+        return "in_progress";
+      }
+      return existing.course_status;
+    });
+    ctx.body = { data: { documentId, status } };
+  },
+
+  // Courses the user started, most recent first. Courses with a completed lesson but no start
+  // record (progress from before start records existed) are included as well.
+  async listCourses(ctx) {
+    const user = ctx.state.user;
+    if (!user) return ctx.unauthorized();
+
+    const started = await strapi.db.query(courseProgress).findMany({
+      where: { learner: { id: user.id } },
+      populate: { course: { select: ["documentId"] } },
+      orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+    });
+    const courses = new Map<string, string>();
+    for (const row of started) {
+      if (row.course?.documentId) courses.set(row.course.documentId, row.course_status);
+    }
+
+    // Same matching as listLessons: older rows only carry the user in their key.
+    const prefix = user.id + "_";
+    const completed = await strapi.db.query(lessonProgress).findMany({
+      where: { isCompleted: true, $or: [
+        { learner: { id: user.id } },
+        { learner: { id: { $null: true } }, user_plus_lesson_id: { $startsWith: prefix } },
+      ] },
+      populate: { lesson: { select: ["documentId"] } },
+    });
+    const lessonIds = [...new Set(completed
+      .filter(row => row.user_plus_lesson_id.startsWith(prefix))
+      .map(row => row.lesson?.documentId ?? row.user_plus_lesson_id.slice(prefix.length)))];
+    if (lessonIds.length) {
+      const links = await strapi.db.query("api::course-lesson.course-lesson").findMany({
+        where: { lesson: { documentId: { $in: lessonIds } } },
+        populate: { course: { select: ["documentId"] } },
+      });
+      for (const link of links) {
+        const id = link.course?.documentId;
+        if (id && !courses.has(id)) courses.set(id, "in_progress");
+      }
+    }
+
+    ctx.body = { data: [...courses].map(([documentId, status]) => ({ documentId, status })) };
+  },
+
   async listAttempts(ctx) {
     const user = ctx.state.user;
     if (!user) return ctx.unauthorized();
