@@ -16,9 +16,16 @@
 			"required": true,
 			"unique": true
 		},
+		"slug": {
+			"type": "string",
+			"unique": true
+		},
 		"title": {
 			"type": "string",
 			"required": true
+		},
+		"phone": {
+			"type": "string"
 		},
 		"subjects": {
 			"type": "relation",
@@ -38,7 +45,6 @@
 		},
 		"successRate": {
 			"type": "integer",
-			"required": true,
 			"min": 0,
 			"max": 100
 		},
