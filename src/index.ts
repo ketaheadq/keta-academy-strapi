@@ -25,6 +25,45 @@ async function grantPermission(
 	}
 }
 
+const COURSE_LESSON = "api::course-lesson.course-lesson";
+
+/**
+ * Strapi doesn't cascade deletes: removing a lesson or course leaves its
+ * course-lesson links behind with an empty relation, which breaks the course
+ * page. Delete those links together with the lesson/course.
+ *
+ * Only `delete` is handled. Unpublishing keeps the links on purpose, so that
+ * publishing the lesson again puts it back in the course.
+ */
+function cascadeCourseLessonDeletes(strapi: Core.Strapi) {
+	const relationFor: Record<string, "lesson" | "course"> = {
+		"api::lesson.lesson": "lesson",
+		"api::course.course": "course",
+	};
+
+	strapi.documents.use(async (context, next) => {
+		const relation = relationFor[context.uid];
+		const documentId = (context.params as { documentId?: string })?.documentId;
+		if (context.action !== "delete" || !relation || !documentId) return next();
+
+		// Look the links up first: once the document is gone the relation is gone too.
+		const links = await strapi.db.query(COURSE_LESSON).findMany({
+			where: { [relation]: { documentId } },
+			select: ["documentId"],
+		});
+		const result = await next();
+
+		const linkIds = [...new Set(links.map((link) => link.documentId))];
+		for (const linkId of linkIds) {
+			await strapi.documents(COURSE_LESSON).delete({ documentId: linkId });
+		}
+		if (linkIds.length) {
+			strapi.log.info(`🧹 Removed ${linkIds.length} course-lesson link(s) of deleted ${relation} ${documentId}`);
+		}
+		return result;
+	});
+}
+
 /**
  * Content types that must NEVER be exposed through the generic REST API.
  * Progress records belong to a single learner and are only read/written
@@ -121,7 +160,9 @@ export default {
 	 *
 	 * This gives you an opportunity to extend code.
 	 */
-	register(/* { strapi }: { strapi: Core.Strapi } */) { },
+	register({ strapi }: { strapi: Core.Strapi }) {
+		cascadeCourseLessonDeletes(strapi);
+	},
 
 	/**
 	 * An asynchronous bootstrap function that runs before
