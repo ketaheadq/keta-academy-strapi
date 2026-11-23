@@ -21,9 +21,6 @@
 			"required": true,
 			"unique": true
 		},
-		"order": {
-			"type": "integer"
-		},
 		"courses": {
 			"type": "relation",
 			"relation": "manyToMany",
