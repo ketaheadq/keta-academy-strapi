@@ -267,7 +267,7 @@ for (const row of rows) {
 			stats.created++;
 		}
 
-		order++;
+		order = order + 10;
 		if (!dryRun) {
 			await api("course-lessons", {
 				method: "POST",
