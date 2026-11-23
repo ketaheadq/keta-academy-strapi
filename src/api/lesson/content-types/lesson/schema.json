@@ -40,6 +40,11 @@
 		"slug": {
 			"type": "string",
 			"required": true
+		},
+		"SEO": {
+			"type": "component",
+			"component": "seo.seo",
+			"repeatable": false
 		}
 	}
 }
