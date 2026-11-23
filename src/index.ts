@@ -73,6 +73,8 @@ const PRIVATE_CONTENT_TYPES = new Set([
 	"api::lesson-progress.lesson-progress",
 	"api::quiz-progress.quiz-progress",
 	"api::user-course-progress.user-course-progress",
+	// Reviews are read and written only through the custom tutor-review routes.
+	"api::tutor-review.tutor-review",
 ]);
 
 /**
@@ -150,6 +152,18 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 	];
 	for (const handler of learningActions) {
 		await grantPermission(strapi, `api::learning.learning.${handler}`, authenticated.id);
+	}
+
+	// ─── Tutor reviews: anyone can read, members can rate (one review per tutor) ─
+	const reviewReadActions = ["summary", "list"];
+	const reviewMemberActions = ["mine", "upsert", "remove"];
+	for (const handler of reviewReadActions) {
+		const action = `api::tutor-review.tutor-review.${handler}`;
+		await grantPermission(strapi, action, publicRole.id);
+		await grantPermission(strapi, action, authenticated.id);
+	}
+	for (const handler of reviewMemberActions) {
+		await grantPermission(strapi, `api::tutor-review.tutor-review.${handler}`, authenticated.id);
 	}
 
 	strapi.log.info("✅ Permission bootstrap complete");

@@ -1,0 +1,42 @@
+{
+	"kind": "collectionType",
+	"collectionName": "tutor_reviews",
+	"info": {
+		"singularName": "tutor-review",
+		"pluralName": "tutor-reviews",
+		"displayName": "Tutor Review",
+		"description": "Member ratings of tutors. One review per member per tutor."
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"tutorDocumentId": {
+			"type": "string",
+			"required": true
+		},
+		"rating": {
+			"type": "integer",
+			"required": true,
+			"min": 1,
+			"max": 5
+		},
+		"comment": {
+			"type": "text",
+			"maxLength": 1000
+		},
+		"author": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "plugin::users-permissions.user",
+			"private": true
+		},
+		"user_plus_tutor_id": {
+			"type": "string",
+			"required": true,
+			"unique": true,
+			"private": true
+		}
+	}
+}

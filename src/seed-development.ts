@@ -113,7 +113,7 @@ export async function seedDevelopment(strapi: Core.Strapi) {
     slug: "demo-kesir-videosu", title: "Demo Kesir Videosu", href: "https://www.youtube.com/watch?v=DnFrOetuUKg", page: videoPage.documentId,
   });
   await seed("api::tutoring-profile.tutoring-profile", { name: "Demo Eğitmen" }, {
-    name: "Demo Eğitmen", title: "Matematik Eğitmeni", price: 500, successRate: 95,
+    name: "Demo Eğitmen", slug: "demo-egitmen", title: "Matematik Eğitmeni", phone: "0555 000 00 00", price: 500,
     studentCount: 24, exprienceYears: 4, content: blocks("Kurgusal eğitmen profili."), profilePicture: cover,
   });
   await seed("api::setting.setting", {}, { siteName: "KetaLearn", defaultSEODescription: "KetaLearn geliştirme ortamı." });
