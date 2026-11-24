@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import type { Core } from "@strapi/strapi";
-import { findUnknownLinks, writeComment } from "./ai";
+import { type CommentInput, type ReportComment, writeComment } from "./ai";
 import {
 	MANUAL_APPROVAL_COUNT,
 	RANK_THRESHOLD,
@@ -12,11 +12,28 @@ import {
 } from "./config";
 import { sendSms, sendTeacherEmail } from "./notify";
 import { maskMobile } from "./phone";
-import { type TopicStat, weakestTopics } from "./scoring";
+import { LETTERS, type TopicStat, weakestTopics } from "./scoring";
+import { blocksToText } from "./text";
 
 export const newKey = () => randomBytes(24).toString("base64url");
 
 type Video = { baslik: string; url: string };
+
+/** One wrong or blank question, with everything the PDF shows about it. */
+export type QuestionReview = {
+	no: number;
+	konu: string;
+	konuSlug: string;
+	durum: "yanlis" | "bos";
+	soru: string;
+	gorselUrl: string | null;
+	secenekler: { harf: string; metin: string; gorselUrl: string | null }[];
+	ogrenciCevabi: string | null;
+	dogruCevap: string;
+	cozum: string;
+	video: Video | null;
+};
+
 export type ReportData = {
 	deneme: { baslik: string; slug: string; sinavTuru: string };
 	dogru: number;
@@ -26,8 +43,47 @@ export type ReportData = {
 	soruSayisi: number;
 	konular: TopicStat[];
 	zayifKonular: { ad: string; slug: string; oran: number; videolar: Video[] }[];
+	sorular: QuestionReview[];
 	siralama: { yuzde: number; katilimci: number } | null;
 };
+
+/** Strapi local uploads are relative ("/uploads/…"); make them absolute so the PDF can fetch them. */
+function absoluteMedia(strapi: Core.Strapi, media: { url?: string } | null | undefined) {
+	if (!media?.url) return null;
+	if (/^https?:\/\//.test(media.url)) return media.url;
+	const base = String(strapi.config.get("server.url") || "http://localhost:1337").replace(/\/$/, "");
+	return `${base}${media.url}`;
+}
+
+/** Wrong and blank questions of a result, with solution and the student's answer. */
+// biome-ignore lint/suspicious/noExplicitAny: populated components
+function reviewQuestions(strapi: Core.Strapi, sorular: any[], cevaplar: Record<string, string | null>) {
+	const reviews: Omit<QuestionReview, "video">[] = [];
+	sorular.forEach((soru, index) => {
+		const optionCount = Math.max(2, soru.secenekler?.length ?? 4);
+		const answer = cevaplar?.[index] ?? null;
+		const valid = answer && LETTERS.indexOf(answer as (typeof LETTERS)[number]) < optionCount ? answer : null;
+		if (valid === soru.dogruSecenek) return;
+		reviews.push({
+			no: index + 1,
+			konu: soru.konu?.ad ?? "Diğer",
+			konuSlug: soru.konu?.slug ?? "diger",
+			durum: valid ? "yanlis" : "bos",
+			soru: blocksToText(soru.metin),
+			gorselUrl: absoluteMedia(strapi, soru.gorsel),
+			// biome-ignore lint/suspicious/noExplicitAny: component
+			secenekler: (soru.secenekler ?? []).slice(0, LETTERS.length).map((s: any, i: number) => ({
+				harf: LETTERS[i],
+				metin: s.metin ?? "",
+				gorselUrl: absoluteMedia(strapi, s.gorsel),
+			})),
+			ogrenciCevabi: valid,
+			dogruCevap: soru.dogruSecenek,
+			cozum: blocksToText(soru.cozum),
+		});
+	});
+	return reviews;
+}
 
 const turkishLower = (s: string) => s.toLocaleLowerCase("tr-TR");
 const STOP_WORDS = new Set(["ve", "ile", "ile", "için", "veya", "ya", "da", "de"]);
@@ -127,20 +183,41 @@ export async function prepareReport(strapi: Core.Strapi, talepId: number) {
 	});
 
 	let data: ReportData;
-	let comment: string | null = null;
+	let yorum: ReportComment | null = null;
 	let aiLabel: string | null = null;
 	let aiError: string | null = null;
 
 	if (sibling?.raporVerisi) {
 		data = sibling.raporVerisi;
-		comment = sibling.raporMetni ?? null;
+		yorum = sibling.yapayZekaYorumu ?? null;
 		aiLabel = sibling.yapayZeka ?? null;
-		aiError = comment ? null : "Aynı sonucun diğer talebinde yorum yok";
+		aiError = yorum ? null : "Aynı sonucun diğer talebinde yorum yok";
 	} else {
 		const konular: TopicStat[] = sonuc.konuOranlari ?? [];
 		const weak = weakestTopics(konular, WEAK_TOPIC_COUNT);
-		const videos = await videosForTopics(strapi, weak);
 		const deneme = sonuc.deneme ?? { documentId: "", baslik: sonuc.denemeBaslik, slug: "", sinavTuru: "" };
+		const published = deneme.documentId
+			? await strapi.documents(UIDS.deneme).findOne({
+					documentId: deneme.documentId,
+					status: "published",
+					populate: {
+						sorular: { populate: { gorsel: true, secenekler: { populate: { gorsel: true } }, konu: true } },
+						// biome-ignore lint/suspicious/noExplicitAny: populate typing doesn't cover nested components
+					} as any,
+				})
+			: null;
+		// biome-ignore lint/suspicious/noExplicitAny: populated component
+		const reviews = reviewQuestions(strapi, ((published as any)?.sorular ?? []) as any[], sonuc.cevaplar ?? {});
+
+		// Videos for the weak topics and for every topic with a wrong/blank question.
+		const topicsNeedingVideos = new Map<string, TopicStat>(weak.map((t) => [t.slug, t]));
+		for (const r of reviews) {
+			if (r.konuSlug !== "diger" && !topicsNeedingVideos.has(r.konuSlug)) {
+				topicsNeedingVideos.set(r.konuSlug, { slug: r.konuSlug, ad: r.konu, toplam: 0, dogru: 0, oran: 0 });
+			}
+		}
+		const videos = await videosForTopics(strapi, [...topicsNeedingVideos.values()]);
+
 		data = {
 			deneme: { baslik: deneme.baslik, slug: deneme.slug, sinavTuru: deneme.sinavTuru },
 			dogru: sonuc.dogru,
@@ -150,30 +227,36 @@ export async function prepareReport(strapi: Core.Strapi, talepId: number) {
 			soruSayisi: sonuc.dogru + sonuc.yanlis + sonuc.bos,
 			konular,
 			zayifKonular: weak.map((t) => ({ ad: t.ad, slug: t.slug, oran: t.oran, videolar: videos.get(t.slug) ?? [] })),
+			sorular: reviews.map((r) => ({ ...r, video: videos.get(r.konuSlug)?.[0] ?? null })),
 			siralama: deneme.documentId ? await rank(strapi, deneme.documentId, Number(sonuc.net)) : null,
 		};
 
+		// The AI gets exam data only: no links (the template adds them), no name or phone.
+		const input: CommentInput = {
+			denemeBaslik: data.deneme.baslik,
+			sinavTuru: data.deneme.sinavTuru,
+			dogru: data.dogru,
+			yanlis: data.yanlis,
+			bos: data.bos,
+			net: data.net,
+			soruSayisi: data.soruSayisi,
+			konular: data.konular.map(({ ad, oran, dogru, toplam }) => ({ ad, oran, dogru, toplam })),
+			zayifKonular: data.zayifKonular.map(({ ad, oran }) => ({ ad, oran })),
+			sorular: data.sorular.map((q) => ({
+				no: q.no,
+				konu: q.konu,
+				durum: q.durum,
+				soru: q.soru.slice(0, 600),
+				ogrenciCevabi: q.ogrenciCevabi
+					? `${q.ogrenciCevabi}) ${q.secenekler.find((o) => o.harf === q.ogrenciCevabi)?.metin ?? ""}`
+					: null,
+				dogruCevap: `${q.dogruCevap}) ${q.secenekler.find((o) => o.harf === q.dogruCevap)?.metin ?? ""}`,
+			})),
+		};
 		try {
-			const result = await writeComment({
-				denemeBaslik: data.deneme.baslik,
-				sinavTuru: data.deneme.sinavTuru,
-				dogru: data.dogru,
-				yanlis: data.yanlis,
-				bos: data.bos,
-				net: data.net,
-				soruSayisi: data.soruSayisi,
-				konular: data.konular.map(({ ad, oran, dogru, toplam }) => ({ ad, oran, dogru, toplam })),
-				zayifKonular: data.zayifKonular.map(({ ad, oran, videolar }) => ({ ad, oran, videolar })),
-			});
+			const result = await writeComment(input);
+			yorum = result.yorum;
 			aiLabel = `${result.provider}/${result.model}`;
-			const unknown = findUnknownLinks(result.text, data.zayifKonular.flatMap((t) => t.videolar.map((v) => v.url)));
-			if (unknown.length) {
-				// Keep the draft for the teacher, but never send it automatically.
-				comment = result.text;
-				aiError = `Listede olmayan link: ${unknown.join(", ")}`;
-			} else {
-				comment = result.text;
-			}
 		} catch (error) {
 			aiError = (error as Error).message;
 			strapi.log.error(`[deneme] AI comment failed for request #${talep.id}: ${aiError}`);
@@ -181,13 +264,13 @@ export async function prepareReport(strapi: Core.Strapi, talepId: number) {
 	}
 
 	const sentCount = await strapi.db.query(UIDS.talep).count({ where: { gonderimDurumu: "Gonderildi" } });
-	const autoSend = !aiError && Boolean(comment) && sentCount >= MANUAL_APPROVAL_COUNT;
+	const autoSend = !aiError && Boolean(yorum) && sentCount >= MANUAL_APPROVAL_COUNT;
 
 	await strapi.db.query(UIDS.talep).update({
 		where: { id: talep.id },
 		data: {
 			raporVerisi: data,
-			raporMetni: comment,
+			yapayZekaYorumu: yorum,
 			yapayZeka: aiLabel,
 			yapayZekaHatasi: aiError,
 			zayifKonular: data.zayifKonular.map((t) => `${t.ad} (%${t.oran})`).join(", "),
@@ -204,7 +287,7 @@ export async function sendReport(strapi: Core.Strapi, talepId: number) {
 	const talep = await strapi.db.query(UIDS.talep).findOne({ where: { id: talepId } });
 	if (!talep || talep.gonderimDurumu === "Gonderildi" || talep.gonderimDurumu === "Gonderilmeyecek") return;
 	const firstName = String(talep.adSoyad).trim().split(/\s+/)[0];
-	const message = `Merhaba ${firstName}, KetaLearn ${talep.denemeBaslik} deneme raporunuz hazır: ${talep.raporLinki}`;
+	const message = `Merhaba ${firstName}, KetaLearn ${talep.denemeBaslik} deneme raporunuz (PDF) hazır: ${talep.raporLinki}`;
 	try {
 		await sendSms(talep.telefon, message);
 		await strapi.db.query(UIDS.talep).update({

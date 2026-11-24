@@ -173,7 +173,7 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 	}
 
 	// ─── Mock exams: solved without sign-up, so everything is public ───────────
-	const denemeActions = ["list", "detail", "submit", "requestReport", "report", "addParent", "lessonExams"];
+	const denemeActions = ["list", "detail", "submit", "requestReport", "report", "reportPdf", "addParent", "lessonExams"];
 	for (const handler of denemeActions) {
 		const action = `api::deneme.deneme.${handler}`;
 		await grantPermission(strapi, action, publicRole.id);
