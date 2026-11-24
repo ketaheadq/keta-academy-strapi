@@ -1,0 +1,75 @@
+{
+	"kind": "collectionType",
+	"collectionName": "denemeler",
+	"info": {
+		"singularName": "deneme",
+		"pluralName": "denemeler",
+		"displayName": "Deneme Sınavı",
+		"description": "Ücretsiz deneme sınavı. Cevap anahtarı yalnızca sunucuda kullanılır."
+	},
+	"options": {
+		"draftAndPublish": true
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"baslik": {
+			"type": "string",
+			"required": true
+		},
+		"slug": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"aciklama": {
+			"type": "text"
+		},
+		"sinavTuru": {
+			"type": "enumeration",
+			"enum": [
+				"LGS",
+				"TYT",
+				"AYT",
+				"Okul"
+			],
+			"required": true,
+			"default": "Okul"
+		},
+		"sinif": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::grade.grade"
+		},
+		"ders": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::subject.subject"
+		},
+		"konular": {
+			"type": "relation",
+			"relation": "manyToMany",
+			"target": "api::konu.konu"
+		},
+		"sureDakika": {
+			"type": "integer",
+			"required": true,
+			"min": 1,
+			"default": 40
+		},
+		"oneCikan": {
+			"type": "boolean",
+			"default": false
+		},
+		"sorular": {
+			"type": "component",
+			"component": "deneme.soru",
+			"repeatable": true,
+			"min": 1
+		},
+		"SEO": {
+			"type": "component",
+			"component": "seo.seo",
+			"repeatable": false
+		}
+	}
+}

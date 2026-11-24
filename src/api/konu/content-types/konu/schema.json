@@ -1,0 +1,41 @@
+{
+	"kind": "collectionType",
+	"collectionName": "konular",
+	"info": {
+		"singularName": "konu",
+		"pluralName": "konular",
+		"displayName": "Konu",
+		"description": "MEB programındaki konu adları. Sorular ve ders videoları bu listeyle etiketlenir."
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"ad": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"slug": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"ders": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::subject.subject"
+		},
+		"siniflar": {
+			"type": "relation",
+			"relation": "manyToMany",
+			"target": "api::grade.grade"
+		},
+		"dersVideolari": {
+			"type": "relation",
+			"relation": "manyToMany",
+			"target": "api::lesson.lesson"
+		}
+	}
+}

@@ -1,4 +1,5 @@
 import type { Core } from "@strapi/strapi";
+import { registerPanelRoute, sendReportOnApproval } from "./deneme/admin";
 import { seedDevelopment } from "./seed-development";
 import { migrateQuizProgress } from "./migrate-quiz-progress";
 
@@ -75,6 +76,11 @@ const PRIVATE_CONTENT_TYPES = new Set([
 	"api::user-course-progress.user-course-progress",
 	// Reviews are read and written only through the custom tutor-review routes.
 	"api::tutor-review.tutor-review",
+	// Mock exams: the answer key, results and phone numbers stay behind the custom deneme routes.
+	"api::deneme.deneme",
+	"api::sinav-sonucu.sinav-sonucu",
+	"api::rapor-talebi.rapor-talebi",
+	"api::konu.konu",
 ]);
 
 /**
@@ -166,6 +172,14 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 		await grantPermission(strapi, `api::tutor-review.tutor-review.${handler}`, authenticated.id);
 	}
 
+	// ─── Mock exams: solved without sign-up, so everything is public ───────────
+	const denemeActions = ["list", "detail", "submit", "requestReport", "report", "addParent", "lessonExams"];
+	for (const handler of denemeActions) {
+		const action = `api::deneme.deneme.${handler}`;
+		await grantPermission(strapi, action, publicRole.id);
+		await grantPermission(strapi, action, authenticated.id);
+	}
+
 	strapi.log.info("✅ Permission bootstrap complete");
 }
 
@@ -178,6 +192,8 @@ export default {
 	 */
 	register({ strapi }: { strapi: Core.Strapi }) {
 		cascadeCourseLessonDeletes(strapi);
+		sendReportOnApproval(strapi);
+		registerPanelRoute(strapi);
 	},
 
 	/**

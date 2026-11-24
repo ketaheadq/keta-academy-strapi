@@ -1,0 +1,17 @@
+{
+	"collectionName": "components_rapor_arama_notu",
+	"info": {
+		"displayName": "Arama notu",
+		"description": ""
+	},
+	"options": {},
+	"attributes": {
+		"tarih": {
+			"type": "datetime",
+			"required": true
+		},
+		"not": {
+			"type": "text"
+		}
+	}
+}

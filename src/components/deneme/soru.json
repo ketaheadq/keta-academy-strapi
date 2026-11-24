@@ -1,0 +1,56 @@
+{
+	"collectionName": "components_deneme_soru",
+	"info": {
+		"displayName": "Soru",
+		"description": "Şıklar sırayla A, B, C, D, E olur."
+	},
+	"options": {},
+	"attributes": {
+		"metin": {
+			"type": "blocks",
+			"required": true
+		},
+		"gorsel": {
+			"type": "media",
+			"multiple": false,
+			"allowedTypes": [
+				"images"
+			]
+		},
+		"secenekler": {
+			"type": "component",
+			"component": "deneme.secenek",
+			"repeatable": true,
+			"min": 2,
+			"max": 5
+		},
+		"dogruSecenek": {
+			"type": "enumeration",
+			"enum": [
+				"A",
+				"B",
+				"C",
+				"D",
+				"E"
+			],
+			"required": true
+		},
+		"zorluk": {
+			"type": "enumeration",
+			"enum": [
+				"Kolay",
+				"Orta",
+				"Zor"
+			],
+			"default": "Orta"
+		},
+		"konu": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::konu.konu"
+		},
+		"cozum": {
+			"type": "blocks"
+		}
+	}
+}

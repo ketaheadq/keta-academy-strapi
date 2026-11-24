@@ -1,0 +1,128 @@
+{
+	"kind": "collectionType",
+	"collectionName": "rapor_talepleri",
+	"info": {
+		"singularName": "rapor-talebi",
+		"pluralName": "rapor-talepleri",
+		"displayName": "Rapor Talebi",
+		"description": "Deneme raporu için bırakılan numaralar (hocanın arama listesi)."
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"adSoyad": {
+			"type": "string",
+			"required": true
+		},
+		"telefon": {
+			"type": "string",
+			"required": true
+		},
+		"yakinlik": {
+			"type": "enumeration",
+			"enum": [
+				"Veli",
+				"Ogrenci",
+				"Diger"
+			],
+			"required": true
+		},
+		"durum": {
+			"type": "enumeration",
+			"enum": [
+				"Aranacak",
+				"Arandi",
+				"Ulasilamadi",
+				"Gorusme_yapildi",
+				"Paket_aldi",
+				"Uygun_degil"
+			],
+			"default": "Aranacak"
+		},
+		"raporLinki": {
+			"type": "string"
+		},
+		"denemeBaslik": {
+			"type": "string"
+		},
+		"net": {
+			"type": "decimal"
+		},
+		"zayifKonular": {
+			"type": "text"
+		},
+		"kaynak": {
+			"type": "string"
+		},
+		"raporIzni": {
+			"type": "boolean",
+			"default": false
+		},
+		"aramaIzni": {
+			"type": "boolean",
+			"default": false
+		},
+		"aramaNotlari": {
+			"type": "component",
+			"component": "rapor.arama-notu",
+			"repeatable": true
+		},
+		"raporMetni": {
+			"type": "text"
+		},
+		"hocaOnayi": {
+			"type": "boolean",
+			"default": false
+		},
+		"gonderimDurumu": {
+			"type": "enumeration",
+			"enum": [
+				"Onay_bekliyor",
+				"Gonderildi",
+				"Hata",
+				"Gonderilmeyecek"
+			],
+			"default": "Onay_bekliyor"
+		},
+		"gonderimZamani": {
+			"type": "datetime"
+		},
+		"gonderimHatasi": {
+			"type": "text"
+		},
+		"ornekKontrol": {
+			"type": "boolean",
+			"default": false
+		},
+		"yapayZeka": {
+			"type": "string"
+		},
+		"yapayZekaHatasi": {
+			"type": "text"
+		},
+		"bildirimHatasi": {
+			"type": "text"
+		},
+		"raporAcilmaSayisi": {
+			"type": "integer",
+			"default": 0
+		},
+		"ilkAcilma": {
+			"type": "datetime"
+		},
+		"sinavSonucu": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::sinav-sonucu.sinav-sonucu"
+		},
+		"raporVerisi": {
+			"type": "json"
+		},
+		"raporAnahtari": {
+			"type": "string",
+			"unique": true
+		}
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"collectionName": "components_deneme_secenek",
+	"info": {
+		"displayName": "Şık",
+		"description": ""
+	},
+	"options": {},
+	"attributes": {
+		"metin": {
+			"type": "text"
+		},
+		"gorsel": {
+			"type": "media",
+			"multiple": false,
+			"allowedTypes": [
+				"images"
+			]
+		}
+	}
+}
