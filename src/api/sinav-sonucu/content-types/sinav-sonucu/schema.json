@@ -1,0 +1,59 @@
+{
+	"kind": "collectionType",
+	"collectionName": "sinav_sonuclari",
+	"info": {
+		"singularName": "sinav-sonucu",
+		"pluralName": "sinav-sonuclari",
+		"displayName": "Sınav Sonucu",
+		"description": "Kayıtsız çözülen denemelerin sonuçları."
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"deneme": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "api::deneme.deneme"
+		},
+		"denemeBaslik": {
+			"type": "string"
+		},
+		"cevaplar": {
+			"type": "json"
+		},
+		"dogru": {
+			"type": "integer"
+		},
+		"yanlis": {
+			"type": "integer"
+		},
+		"bos": {
+			"type": "integer"
+		},
+		"net": {
+			"type": "decimal"
+		},
+		"konuOranlari": {
+			"type": "json"
+		},
+		"kaynak": {
+			"type": "string"
+		},
+		"utm": {
+			"type": "json"
+		},
+		"oturumId": {
+			"type": "string"
+		},
+		"sureSaniye": {
+			"type": "integer"
+		},
+		"sonucAnahtari": {
+			"type": "string",
+			"unique": true,
+			"private": true
+		}
+	}
+}

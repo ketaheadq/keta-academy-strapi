@@ -1,0 +1,44 @@
+{
+	"kind": "collectionType",
+	"collectionName": "anasayfa_slaytlari",
+	"info": {
+		"singularName": "anasayfa-slayti",
+		"pluralName": "anasayfa-slaytlari",
+		"displayName": "Anasayfa Slaytı",
+		"description": "Ana sayfanın üstündeki kayan slaytlar."
+	},
+	"options": {
+		"draftAndPublish": false
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"baslik": {
+			"type": "string",
+			"required": true
+		},
+		"altMetin": {
+			"type": "text"
+		},
+		"gorsel": {
+			"type": "media",
+			"multiple": false,
+			"allowedTypes": [
+				"images"
+			]
+		},
+		"butonYazisi": {
+			"type": "string"
+		},
+		"link": {
+			"type": "string"
+		},
+		"sira": {
+			"type": "integer",
+			"default": 0
+		},
+		"aktif": {
+			"type": "boolean",
+			"default": true
+		}
+	}
+}
