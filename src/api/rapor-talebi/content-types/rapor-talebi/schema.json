@@ -69,7 +69,10 @@
 			"component": "rapor.arama-notu",
 			"repeatable": true
 		},
-		"raporMetni": {
+		"yapayZekaYorumu": {
+			"type": "json"
+		},
+		"hocaNotu": {
 			"type": "text"
 		},
 		"hocaOnayi": {

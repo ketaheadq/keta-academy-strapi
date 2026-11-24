@@ -8,6 +8,7 @@ export default {
 		{ method: "GET", path: "/denemeler/:slug", handler: "deneme.detail" },
 		{ method: "POST", path: "/denemeler/:slug/sonuc", handler: "deneme.submit" },
 		{ method: "GET", path: "/raporlar/:key", handler: "deneme.report" },
+		{ method: "GET", path: "/raporlar/:key/pdf", handler: "deneme.reportPdf" },
 		{ method: "POST", path: "/raporlar/:key/veli", handler: "deneme.addParent" },
 	],
 };

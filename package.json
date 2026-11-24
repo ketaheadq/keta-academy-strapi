@@ -18,15 +18,16 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^1.13.0",
     "@strapi/plugin-cloud": "5.40.0",
     "@strapi/plugin-documentation": "^5.40.0",
     "@strapi/plugin-users-permissions": "5.40.0",
     "@strapi/provider-upload-cloudinary": "^5.40.0",
     "@strapi/strapi": "5.40.0",
+    "dejavu-fonts-ttf": "^2.37.3",
     "googleapis": "^152.0.0",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^10.6.1",
+    "pdfkit": "^0.21.0",
     "pg": "^8.20.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -38,6 +39,7 @@
     "@biomejs/biome": "2.4.10",
     "@types/node": "^20.19.37",
     "@types/nodemailer": "^8.0.2",
+    "@types/pdfkit": "^0.17.7",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
     "typescript": "^5.9.3"

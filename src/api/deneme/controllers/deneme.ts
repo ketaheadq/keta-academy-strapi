@@ -1,4 +1,5 @@
-import { MAX_REQUESTS_PER_PHONE_PER_DAY, SOLVED_COUNTER_THRESHOLD, UIDS, whatsappNumber } from "../../../deneme/config";
+import { MAX_REQUESTS_PER_PHONE_PER_DAY, SOLVED_COUNTER_THRESHOLD, UIDS } from "../../../deneme/config";
+import { renderReportPdf } from "../../../deneme/pdf";
 import { normalizeMobile } from "../../../deneme/phone";
 import { createRequest, newKey, type ReportData } from "../../../deneme/report";
 import { LETTERS, parseAnswers, type QuestionForScoring, scoreExam } from "../../../deneme/scoring";
@@ -168,30 +169,53 @@ export default {
 		return handleNewRequest(ctx, sonuc, body);
 	},
 
-	/** Public report page data, by its unguessable key. */
-	async report(ctx) {
+	/**
+	 * The report PDF, by its unguessable key (the SMS link opens it through the site).
+	 * `?onizleme=1` (teacher's preview) doesn't count as an open.
+	 */
+	async reportPdf(ctx) {
 		const talep = await strapi.db.query(UIDS.talep).findOne({ where: { raporAnahtari: ctx.params.key } });
 		if (!talep) return ctx.notFound();
 		const data = talep.raporVerisi as ReportData | null;
 		if (!data) {
-			ctx.body = { data: { hazir: false } };
+			ctx.status = 409;
+			ctx.body = { error: { status: 409, name: "NotReady", message: "Rapor hazırlanıyor" } };
 			return;
 		}
+		const pdf = await renderReportPdf({
+			ad: String(talep.adSoyad).trim().split(/\s+/)[0],
+			yakinlik: talep.yakinlik,
+			aramaIzni: Boolean(talep.aramaIzni) && talep.yakinlik !== "Ogrenci",
+			raporAnahtari: talep.raporAnahtari,
+			data,
+			yorum: talep.yapayZekaYorumu ?? null,
+			hocaNotu: talep.hocaNotu ?? null,
+			tarih: new Date(talep.createdAt),
+		});
 		if (ctx.query.onizleme !== "1") {
 			await strapi.db.query(UIDS.talep).update({
 				where: { id: talep.id },
 				data: { raporAcilmaSayisi: (talep.raporAcilmaSayisi ?? 0) + 1, ilkAcilma: talep.ilkAcilma ?? new Date() },
 			});
 		}
+		const fileName = `ketalearn-${data.deneme.slug || "deneme"}-raporu.pdf`;
+		ctx.set("Content-Type", "application/pdf");
+		ctx.set("Content-Disposition", `inline; filename="${fileName}"`);
+		ctx.set("Cache-Control", "private, no-store");
+		ctx.set("X-Robots-Tag", "noindex");
+		ctx.body = pdf;
+	},
+
+	/** Minimal info for the "add a parent's number" page. */
+	async report(ctx) {
+		const talep = await strapi.db.query(UIDS.talep).findOne({ where: { raporAnahtari: ctx.params.key } });
+		if (!talep) return ctx.notFound();
 		ctx.body = {
 			data: {
-				hazir: true,
+				hazir: Boolean(talep.raporVerisi),
 				ad: String(talep.adSoyad).trim().split(/\s+/)[0],
 				yakinlik: talep.yakinlik,
-				...data,
-				hocaYorumu: talep.raporMetni || null,
-				aramaIzni: Boolean(talep.aramaIzni) && talep.yakinlik !== "Ogrenci",
-				whatsappNumarasi: whatsappNumber() || null,
+				denemeBaslik: talep.denemeBaslik,
 				veliNumarasiIstenir: talep.yakinlik === "Ogrenci",
 			},
 		};
