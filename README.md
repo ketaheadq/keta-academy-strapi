@@ -120,7 +120,7 @@ Existing content types are unchanged; the new types point to them (one-way relat
 
 ### Setup
 
-1. Copy the new variables from `.env.example` and fill them in (`DEEPSEEK_API_KEY` or another provider's key, Netgsm, SMTP, WhatsApp number, `PUBLIC_SITE_URL`).
+1. Copy the new variables from `.env.example` and fill them in (`OPENROUTER_API_KEY`, Netgsm, SMTP, WhatsApp number, `PUBLIC_SITE_URL`).
 2. Netgsm: an API user and an approved sender name (`NETGSM_MSGHEADER`).
 3. Rebuild: `docker compose up -d --build --force-recreate strapi`. Permissions are granted on start.
 4. Add topics (Konu), link lesson videos to them, then create exams.
@@ -134,10 +134,10 @@ Decisions the plan left open, taken as the simplest option:
 - **Net:** correct − wrong ÷ (options − 1) per question (4 options → 3 wrong cancel 1 correct, 5 options → 4). Unanswered = blank.
 - **Report delivery:** a PDF, linked by SMS (Netgsm REST v2, `iysfilter: "0"`: informational, a report the person asked for); SMS can't carry files. Sales calls/messages need İYS consent and are separate. WhatsApp is the `wa.me` link in the PDF.
 - **PDF:** generated on request with `pdfkit` and the DejaVu Sans font (`dejavu-fonts-ttf`: Turkish letters and √, ², ⁻). Not stored; built from the saved report data each time. Includes question and option images (PNG/JPEG; others get a note). Lesson links carry `utm_source=rapor&utm_medium=pdf`, so visits from the PDF show up in Analytics.
-- **AI's part:** it returns JSON only (general assessment, per-topic comments, a tip per wrong/blank question, a one-week plan, closing). Numbers, answers, solutions and links are placed by the template, never by the AI; links in its text are stripped, and topics/questions it invents are dropped. Provider JSON modes: Anthropic structured outputs (schema), DeepSeek/OpenAI `response_format: json_object`, Gemini `responseMimeType`.
+- **AI's part:** it returns JSON only (general assessment, per-topic comments, a tip per wrong/blank question, a one-week plan, closing). Numbers, answers, solutions and links are placed by the template, never by the AI; links in its text are stripped, and topics/questions it invents are dropped. JSON mode: `response_format: json_object`; the reply is still validated against the expected shape.
 - **Approval:** the first 30 sent reports need `Hoca onayı`; after that reports go out automatically, and about 10% are flagged `Örnek kontrol` for spot checks. A report whose AI comment failed is never sent automatically; it waits for the teacher (who can write the JSON or a `Hoca notu`, or approve without them).
 - **Answers in the PDF:** the PDF shows the question text, correct answer and solution of every wrong/blank question (full analysis). If a PDF is shared, those answers are visible.
-- **AI:** default `deepseek` / `deepseek-flash` with thinking off (a short, data-bound note needs no strong model). Others, via `AI_PROVIDER`: `anthropic` (`claude-haiku-5-5`, low effort), `gemini` (`gemini-2.5-flash`), `openai` (`gpt-4.1-mini`); override the model with `AI_MODEL`. Only net, topic rates and the selected videos are sent; never name, phone or session id.
+- **AI:** through [OpenRouter](https://openrouter.ai) with one key (`OPENROUTER_API_KEY`). Default model `deepseek/deepseek-v3.2` with reasoning off (a data-bound note needs no strong model); switch with `AI_MODEL` to any OpenRouter model id that supports JSON output (e.g. `google/gemini-2.5-flash`, `openai/gpt-4.1-mini`). Only exam data is sent (scores, topic rates, the text of wrong/blank questions with the answers); never name, phone or session id.
 - **Video fallback:** a lesson matches a topic by title when it contains a 6-letter stem of a topic word of 4+ letters (e.g. "Denklem" → "denkle"). Max 2 videos per topic; only lessons that belong to a published course (the link opens the course page).
 - **Students' numbers:** a request with relation "Öğrenci" is set to `Uygun değil` with a system note (minors aren't called for sales); the report asks for a parent's number. No call consent → also `Uygun değil`.
 - **Thresholds:** "X öğrenci çözdü" from 50 results; rank among participants from 30 results.

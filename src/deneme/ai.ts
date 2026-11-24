@@ -1,12 +1,12 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { siteUrl } from "./config";
 
 /**
  * Report comment writers ("hocanın notu"). The AI returns JSON in a fixed shape; the PDF template
  * places it next to the data the system computed. Numbers, answers and links are never taken from
  * the AI: it only writes sentences.
  *
- * One adapter per provider, chosen with AI_PROVIDER (deepseek | anthropic | gemini | openai) and
- * AI_MODEL. Default: DeepSeek (deepseek-flash, thinking off) — a data-bound comment needs no strong model.
+ * Goes through OpenRouter (one key, any model): OPENROUTER_API_KEY, model from AI_MODEL.
+ * Default: DeepSeek V3.2 without reasoning — a data-bound comment needs no strong model.
  *
  * Only exam data goes in. Name, phone number and session id are never sent.
  */
@@ -41,17 +41,13 @@ export type ReportComment = {
 
 export type CommentResult = { yorum: ReportComment; provider: string; model: string };
 
-const DEFAULT_MODELS: Record<string, string> = {
-	deepseek: "deepseek-flash",
-	anthropic: "claude-haiku-5-5",
-	gemini: "gemini-2.5-flash",
-	openai: "gpt-4.1-mini",
-};
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const DEFAULT_MODEL = "deepseek/deepseek-v3.2";
 
 const MAX_OUTPUT_TOKENS = 4000;
 const TIMEOUT_MS = 90_000;
 
-/** JSON Schema of the comment; used for Anthropic structured outputs and in the prompt for the others. */
+/** JSON Schema of the comment; given to the model in the prompt and checked again by parseComment. */
 export const COMMENT_SCHEMA = {
 	type: "object",
 	additionalProperties: false,
@@ -115,30 +111,6 @@ function requireKey(name: string) {
 	return value;
 }
 
-async function anthropicComment(model: string, input: CommentInput): Promise<string> {
-	const client = new Anthropic({ apiKey: requireKey("ANTHROPIC_API_KEY"), timeout: TIMEOUT_MS });
-	try {
-		const response = await client.messages.create({
-			model,
-			max_tokens: MAX_OUTPUT_TOKENS,
-			// Data-bound writing: low effort keeps it fast and cheap; the schema guarantees valid JSON.
-			output_config: { effort: "low", format: { type: "json_schema", schema: COMMENT_SCHEMA } },
-			system: SYSTEM_PROMPT,
-			messages: [{ role: "user", content: buildUserMessage(input) }],
-		});
-		if (response.stop_reason === "refusal") {
-			throw new Error(`Model yanıtı reddetti (${response.stop_details?.category ?? "kategori yok"})`);
-		}
-		if (response.stop_reason === "max_tokens") throw new Error("Yanıt max_tokens sınırında kesildi");
-		return response.content.map((block) => (block.type === "text" ? block.text : "")).join("");
-	} catch (error) {
-		if (error instanceof Anthropic.AuthenticationError) throw new Error("Anthropic: API anahtarı geçersiz");
-		if (error instanceof Anthropic.RateLimitError) throw new Error("Anthropic: istek sınırı aşıldı");
-		if (error instanceof Anthropic.APIError) throw new Error(`Anthropic API hatası ${error.status}: ${error.message}`);
-		throw error;
-	}
-}
-
 async function postJson(url: string, headers: Record<string, string>, body: unknown) {
 	let response: Response;
 	try {
@@ -158,78 +130,38 @@ async function postJson(url: string, headers: Record<string, string>, body: unkn
 	return JSON.parse(text);
 }
 
-/** OpenAI-style chat completions (OpenAI and DeepSeek) with JSON output mode. */
-async function chatCompletion(
-	url: string,
-	keyName: string,
-	label: string,
-	params: Record<string, unknown>,
-	input: CommentInput,
-) {
-	const data = await postJson(url, { Authorization: `Bearer ${requireKey(keyName)}` }, {
-		...params,
-		response_format: { type: "json_object" },
-		messages: [
-			{ role: "system", content: SYSTEM_PROMPT },
-			{ role: "user", content: buildUserMessage(input) },
-		],
-	});
-	const choice = data.choices?.[0];
-	if (choice?.finish_reason && choice.finish_reason !== "stop") {
-		throw new Error(`${label} yanıtı tamamlanmadı (${choice.finish_reason})`);
-	}
-	return choice?.message?.content ?? "";
-}
-
-function deepseekComment(model: string, input: CommentInput) {
-	return chatCompletion(
-		"https://api.deepseek.com/chat/completions",
-		"DEEPSEEK_API_KEY",
-		"DeepSeek",
+/** OpenRouter chat completions in JSON mode; returns the model's raw text. */
+async function openRouterComment(model: string, input: CommentInput): Promise<string> {
+	const key = process.env.OPENROUTER_API_KEY;
+	if (!key) throw new Error("OPENROUTER_API_KEY tanımlı değil");
+	const data = await postJson(
+		OPENROUTER_URL,
+		{
+			Authorization: `Bearer ${key}`,
+			// Optional app attribution on openrouter.ai
+			"HTTP-Referer": siteUrl(),
+			"X-Title": "KetaLearn",
+		},
 		{
 			model,
 			max_tokens: MAX_OUTPUT_TOKENS,
 			// No reasoning step for a data-bound comment: faster and fewer billed tokens.
-			thinking: { type: "disabled" },
-		},
-		input,
-	);
-}
-
-function openaiComment(model: string, input: CommentInput) {
-	return chatCompletion(
-		"https://api.openai.com/v1/chat/completions",
-		"OPENAI_API_KEY",
-		"OpenAI",
-		{ model, max_completion_tokens: MAX_OUTPUT_TOKENS },
-		input,
-	);
-}
-
-async function geminiComment(model: string, input: CommentInput): Promise<string> {
-	const data = await postJson(
-		`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
-		{ "x-goog-api-key": requireKey("GEMINI_API_KEY") },
-		{
-			systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-			contents: [{ role: "user", parts: [{ text: buildUserMessage(input) }] }],
-			generationConfig: { maxOutputTokens: MAX_OUTPUT_TOKENS, responseMimeType: "application/json" },
+			reasoning: { enabled: false },
+			response_format: { type: "json_object" },
+			messages: [
+				{ role: "system", content: SYSTEM_PROMPT },
+				{ role: "user", content: buildUserMessage(input) },
+			],
 		},
 	);
-	const candidate = data.candidates?.[0];
-	if (!candidate) throw new Error(`Gemini yanıt vermedi (${data.promptFeedback?.blockReason ?? "neden yok"})`);
-	if (candidate.finishReason && !["STOP", "FINISH_REASON_UNSPECIFIED"].includes(candidate.finishReason)) {
-		throw new Error(`Gemini yanıtı tamamlanmadı (${candidate.finishReason})`);
+	if (data.error) throw new Error(`OpenRouter hatası: ${data.error.message ?? JSON.stringify(data.error)}`);
+	const choice = data.choices?.[0];
+	if (!choice) throw new Error("OpenRouter yanıt vermedi");
+	if (choice.finish_reason && choice.finish_reason !== "stop") {
+		throw new Error(`Yanıt tamamlanmadı (${choice.finish_reason})`);
 	}
-	return (candidate.content?.parts ?? []).map((p: { text?: string }) => p.text ?? "").join("");
+	return choice.message?.content ?? "";
 }
-
-const ADAPTERS: Record<string, (model: string, input: CommentInput) => Promise<string>> = {
-	deepseek: deepseekComment,
-	anthropic: anthropicComment,
-	gemini: geminiComment,
-	openai: openaiComment,
-};
 
 const URL_PATTERN = /(https?:\/\/|www\.)\S+/gi;
 
@@ -273,12 +205,7 @@ export function parseComment(raw: string, input: CommentInput): ReportComment {
 }
 
 export async function writeComment(input: CommentInput): Promise<CommentResult> {
-	const provider = (process.env.AI_PROVIDER || "deepseek").trim().toLowerCase();
-	const adapter = ADAPTERS[provider];
-	if (!adapter) {
-		throw new Error(`Bilinmeyen AI_PROVIDER: ${provider} (deepseek, anthropic, gemini veya openai olmalı)`);
-	}
-	const model = (process.env.AI_MODEL || "").trim() || DEFAULT_MODELS[provider];
-	const raw = await adapter(model, input);
-	return { yorum: parseComment(raw, input), provider, model };
+	const model = (process.env.AI_MODEL || "").trim() || DEFAULT_MODEL;
+	const raw = await openRouterComment(model, input);
+	return { yorum: parseComment(raw, input), provider: "openrouter", model };
 }

@@ -18,7 +18,6 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^1.13.0",
     "@strapi/plugin-cloud": "5.40.0",
     "@strapi/plugin-documentation": "^5.40.0",
     "@strapi/plugin-users-permissions": "5.40.0",
