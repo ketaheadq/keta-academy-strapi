@@ -2,7 +2,8 @@ import Anthropic from "@anthropic-ai/sdk";
 
 /**
  * Report comment ("hocanın notu") writers. One adapter per provider, chosen with
- * AI_PROVIDER (anthropic | gemini | openai) and AI_MODEL, so the three can be compared.
+ * AI_PROVIDER (deepseek | anthropic | gemini | openai) and AI_MODEL, so they can be compared.
+ * Default: DeepSeek (deepseek-flash, thinking off) — a short, data-bound note needs no strong model.
  *
  * Only exam data goes in: net, topic percentages and the video list the system picked.
  * Name, phone number and session id are never sent.
@@ -23,6 +24,7 @@ export type CommentInput = {
 export type CommentResult = { text: string; provider: string; model: string };
 
 const DEFAULT_MODELS: Record<string, string> = {
+	deepseek: "deepseek-flash",
 	anthropic: "claude-haiku-5-5",
 	gemini: "gemini-2.5-flash",
 	openai: "gpt-4.1-mini",
@@ -141,16 +143,44 @@ async function openaiComment(model: string, input: CommentInput): Promise<string
 	return text;
 }
 
+/** DeepSeek's API is OpenAI-compatible (chat completions). */
+async function deepseekComment(model: string, input: CommentInput): Promise<string> {
+	const data = await postJson(
+		"https://api.deepseek.com/chat/completions",
+		{ Authorization: `Bearer ${requireKey("DEEPSEEK_API_KEY")}` },
+		{
+			model,
+			max_tokens: MAX_OUTPUT_TOKENS,
+			// No reasoning step for a short note: faster and fewer billed tokens.
+			thinking: { type: "disabled" },
+			messages: [
+				{ role: "system", content: SYSTEM_PROMPT },
+				{ role: "user", content: buildUserMessage(input) },
+			],
+		},
+	);
+	const choice = data.choices?.[0];
+	if (choice?.finish_reason && choice.finish_reason !== "stop") {
+		throw new Error(`DeepSeek yanıtı tamamlanmadı (${choice.finish_reason})`);
+	}
+	const text = (choice?.message?.content ?? "").trim();
+	if (!text) throw new Error("Boş yanıt");
+	return text;
+}
+
 const ADAPTERS: Record<string, (model: string, input: CommentInput) => Promise<string>> = {
+	deepseek: deepseekComment,
 	anthropic: anthropicComment,
 	gemini: geminiComment,
 	openai: openaiComment,
 };
 
 export async function writeComment(input: CommentInput): Promise<CommentResult> {
-	const provider = (process.env.AI_PROVIDER || "anthropic").trim().toLowerCase();
+	const provider = (process.env.AI_PROVIDER || "deepseek").trim().toLowerCase();
 	const adapter = ADAPTERS[provider];
-	if (!adapter) throw new Error(`Bilinmeyen AI_PROVIDER: ${provider} (anthropic, gemini veya openai olmalı)`);
+	if (!adapter) {
+		throw new Error(`Bilinmeyen AI_PROVIDER: ${provider} (deepseek, anthropic, gemini veya openai olmalı)`);
+	}
 	const model = (process.env.AI_MODEL || "").trim() || DEFAULT_MODELS[provider];
 	const text = await adapter(model, input);
 	return { text, provider, model };

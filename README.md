@@ -120,7 +120,7 @@ Existing content types are unchanged; the new types point to them (one-way relat
 
 ### Setup
 
-1. Copy the new variables from `.env.example` and fill them in (AI key, Netgsm, SMTP, WhatsApp number, `PUBLIC_SITE_URL`).
+1. Copy the new variables from `.env.example` and fill them in (`DEEPSEEK_API_KEY` or another provider's key, Netgsm, SMTP, WhatsApp number, `PUBLIC_SITE_URL`).
 2. Netgsm: an API user and an approved sender name (`NETGSM_MSGHEADER`).
 3. Rebuild: `docker compose up -d --build --force-recreate strapi`. Permissions are granted on start.
 4. Add topics (Konu), link lesson videos to them, then create exams.
@@ -134,7 +134,7 @@ Decisions the plan left open, taken as the simplest option:
 - **Net:** correct − wrong ÷ (options − 1) per question (4 options → 3 wrong cancel 1 correct, 5 options → 4). Unanswered = blank.
 - **Report delivery:** SMS (Netgsm REST v2) with `iysfilter: "0"` (informational: a report the person asked for). Sales calls/messages need İYS consent and are separate. WhatsApp is only the `wa.me` button on the report.
 - **Approval:** the first 30 sent reports need `Hoca onayı`; after that reports go out automatically, and about 10% are flagged `Örnek kontrol` for spot checks. A report whose AI comment failed or contains a link outside the system's list is never sent automatically; it waits for the teacher.
-- **AI:** default `anthropic` / `claude-haiku-5-5` (low effort). Defaults for the others: `gemini-2.5-flash`, `gpt-4.1-mini`; override with `AI_MODEL`. Only net, topic rates and the selected videos are sent; never name, phone or session id.
+- **AI:** default `deepseek` / `deepseek-flash` with thinking off (a short, data-bound note needs no strong model). Others, via `AI_PROVIDER`: `anthropic` (`claude-haiku-5-5`, low effort), `gemini` (`gemini-2.5-flash`), `openai` (`gpt-4.1-mini`); override the model with `AI_MODEL`. Only net, topic rates and the selected videos are sent; never name, phone or session id.
 - **Video fallback:** a lesson matches a topic by title when it contains a 6-letter stem of a topic word of 4+ letters (e.g. "Denklem" → "denkle"). Max 2 videos per topic; only lessons that belong to a published course (the link opens the course page).
 - **Students' numbers:** a request with relation "Öğrenci" is set to `Uygun değil` with a system note (minors aren't called for sales); the report asks for a parent's number. No call consent → also `Uygun değil`.
 - **Thresholds:** "X öğrenci çözdü" from 50 results; rank among participants from 30 results.
