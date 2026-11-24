@@ -8,7 +8,7 @@ type Talep = {
 	telefon: string;
 	yakinlik: string;
 	durum: string;
-	gonderimDurumu: string;
+	raporAcilmaSayisi: number;
 	denemeBaslik: string;
 	net: number;
 	zayifKonular: string | null;
@@ -20,7 +20,7 @@ type Talep = {
 type PanelData = {
 	talepler: Talep[];
 	aranacak: number;
-	onayBekleyen: number;
+	yorumsuz: number;
 	konusuzVideolar: { documentId: string; title: string }[];
 	konusuzVideoSayisi: number;
 };
@@ -35,13 +35,6 @@ const DURUM: Record<string, string> = {
 	Paket_aldi: "Paket aldı",
 	Uygun_degil: "Uygun değil",
 };
-const GONDERIM: Record<string, string> = {
-	Onay_bekliyor: "Onay bekliyor",
-	Gonderildi: "Gönderildi",
-	Hata: "SMS hatası",
-	Gonderilmeyecek: "Gönderilmeyecek",
-};
-
 export const DenemePanelWidget = () => {
 	const { get } = useFetchClient();
 	const [data, setData] = useState<PanelData | null>(null);
@@ -63,7 +56,7 @@ export const DenemePanelWidget = () => {
 					<strong>{data.aranacak}</strong> aranacak
 				</Typography>
 				<Typography variant="omega">
-					<strong>{data.onayBekleyen}</strong> rapor onay/SMS bekliyor
+					<strong>{data.yorumsuz}</strong> rapor yapay zeka yorumu olmadan açılıyor
 				</Typography>
 				<a style={linkStyle} href="/admin/content-manager/collection-types/api::rapor-talebi.rapor-talebi">
 					Tüm talepler
@@ -86,7 +79,7 @@ export const DenemePanelWidget = () => {
 								{t.adSoyad} ({t.yakinlik === "Ogrenci" ? "Öğrenci" : t.yakinlik === "Diger" ? "Diğer" : "Veli"}) · 0{t.telefon}
 							</Typography>
 							<Typography variant="pi" textColor="neutral600">
-								{DURUM[t.durum] ?? t.durum} · {GONDERIM[t.gonderimDurumu] ?? t.gonderimDurumu}
+								{DURUM[t.durum] ?? t.durum} · {t.raporAcilmaSayisi ? `rapor ${t.raporAcilmaSayisi} kez açıldı` : "rapor açılmadı"}
 								{t.aramaIzni ? "" : " · arama izni yok"}
 							</Typography>
 						</Flex>
@@ -100,7 +93,7 @@ export const DenemePanelWidget = () => {
 								Raporu aç
 							</a>
 							<a style={linkStyle} href={editUrl("api::rapor-talebi.rapor-talebi", t.documentId)}>
-								Kaydı aç (not / onay)
+								Kaydı aç (not)
 							</a>
 						</Flex>
 					</Box>

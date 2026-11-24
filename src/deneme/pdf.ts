@@ -307,7 +307,7 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 		.text("Bu raporu birlikte değerlendirelim", left + 16, ctaY + 14, { width: width - 32 });
 	const offer =
 		input.yakinlik === "Ogrenci"
-			? "Raporu velinle paylaş: velinin numarasını eklersen rapor ona da gider ve Çağlar Hoca raporu velinle 15 dakikada ücretsiz değerlendirebilir."
+			? "Velinin numarasını ekle: Çağlar Hoca velini arayıp raporu birlikte 15 dakikada ücretsiz değerlendirsin."
 			: `Çağlar Hoca bu raporu sizinle 15 dakikada ücretsiz değerlendirsin.${input.aramaIzni ? " Sizi bu numaradan arayacağız." : ""}`;
 	doc.font("regular").fontSize(10.5).fillColor(C.ink).text(offer, left + 16, ctaY + 36, { width: width - 32, lineGap: 2 });
 	const ctaLinkY = ctaY + 84;
