@@ -1,16 +1,8 @@
 import { randomBytes } from "node:crypto";
 import type { Core } from "@strapi/strapi";
 import { type CommentInput, type ReportComment, writeComment } from "./ai";
-import {
-	MANUAL_APPROVAL_COUNT,
-	RANK_THRESHOLD,
-	SAMPLE_CHECK_RATE,
-	siteUrl,
-	UIDS,
-	VIDEOS_PER_TOPIC,
-	WEAK_TOPIC_COUNT,
-} from "./config";
-import { sendSms, sendTeacherEmail } from "./notify";
+import { RANK_THRESHOLD, siteUrl, UIDS, VIDEOS_PER_TOPIC, WEAK_TOPIC_COUNT } from "./config";
+import { sendTeacherEmail } from "./notify";
 import { maskMobile } from "./phone";
 import { LETTERS, type TopicStat, weakestTopics } from "./scoring";
 import { blocksToText } from "./text";
@@ -263,9 +255,6 @@ export async function prepareReport(strapi: Core.Strapi, talepId: number) {
 		}
 	}
 
-	const sentCount = await strapi.db.query(UIDS.talep).count({ where: { gonderimDurumu: "Gonderildi" } });
-	const autoSend = !aiError && Boolean(yorum) && sentCount >= MANUAL_APPROVAL_COUNT;
-
 	await strapi.db.query(UIDS.talep).update({
 		where: { id: talep.id },
 		data: {
@@ -274,45 +263,15 @@ export async function prepareReport(strapi: Core.Strapi, talepId: number) {
 			yapayZeka: aiLabel,
 			yapayZekaHatasi: aiError,
 			zayifKonular: data.zayifKonular.map((t) => `${t.ad} (%${t.oran})`).join(", "),
-			ornekKontrol: autoSend && Math.random() < SAMPLE_CHECK_RATE,
 		},
 	});
 
-	if (autoSend) await sendReport(strapi, talep.id);
 	await notifyTeacher(strapi, talep.id);
-}
-
-/** Sends the report link by SMS and records the outcome on the request. */
-export async function sendReport(strapi: Core.Strapi, talepId: number) {
-	const talep = await strapi.db.query(UIDS.talep).findOne({ where: { id: talepId } });
-	if (!talep || talep.gonderimDurumu === "Gonderildi" || talep.gonderimDurumu === "Gonderilmeyecek") return;
-	const firstName = String(talep.adSoyad).trim().split(/\s+/)[0];
-	const message = `Merhaba ${firstName}, KetaLearn ${talep.denemeBaslik} deneme raporunuz (PDF) hazır: ${talep.raporLinki}`;
-	try {
-		await sendSms(talep.telefon, message);
-		await strapi.db.query(UIDS.talep).update({
-			where: { id: talepId },
-			data: { gonderimDurumu: "Gonderildi", gonderimZamani: new Date(), gonderimHatasi: null },
-		});
-	} catch (error) {
-		const message = (error as Error).message;
-		strapi.log.error(`[deneme] SMS failed for request #${talepId}: ${message}`);
-		await strapi.db.query(UIDS.talep).update({
-			where: { id: talepId },
-			data: { gonderimDurumu: "Hata", gonderimHatasi: message },
-		});
-	}
 }
 
 async function notifyTeacher(strapi: Core.Strapi, talepId: number) {
 	const talep = await strapi.db.query(UIDS.talep).findOne({ where: { id: talepId } });
 	if (!talep) return;
-	const status =
-		talep.gonderimDurumu === "Gonderildi"
-			? "Rapor SMS ile gönderildi."
-			: talep.gonderimDurumu === "Hata"
-				? `SMS gönderilemedi: ${talep.gonderimHatasi}`
-				: "Rapor onayınızı bekliyor (panelde 'Hoca onayı'nı işaretleyip kaydedin).";
 	const lines = [
 		`Ad soyad: ${talep.adSoyad} (${talep.yakinlik})`,
 		`Telefon: 0${talep.telefon}`,
@@ -321,9 +280,9 @@ async function notifyTeacher(strapi: Core.Strapi, talepId: number) {
 		`Kaynak: ${talep.kaynak || "doğrudan"}`,
 		`Arama izni: ${talep.aramaIzni ? "var" : "YOK (aranmayacak)"}`,
 		`Durum: ${talep.durum}`,
-		"",
-		status,
-		talep.yapayZekaHatasi ? `Yapay zeka: ${talep.yapayZekaHatasi}` : "",
+		talep.yapayZekaHatasi
+			? `\nYapay zeka yorumu yazılamadı (${talep.yapayZekaHatasi}). Rapor yorumsuz açılıyor; panelden 'Hoca notu' ekleyebilirsiniz.`
+			: "",
 		"",
 		`Rapor: ${talep.raporLinki}?onizleme=1`,
 	];
@@ -375,7 +334,7 @@ export async function createRequest(
 							not:
 								input.yakinlik === "Ogrenci"
 									? "Sistem: numara öğrenciye ait, satış araması yapılmaz. Raporda veli numarası istendi."
-									: "Sistem: arama izni verilmedi, yalnızca rapor gönderilir.",
+									: "Sistem: arama izni verilmedi.",
 						},
 					],
 			sinavSonucu: sonuc.documentId,
@@ -384,7 +343,6 @@ export async function createRequest(
 			kaynak: input.kaynak,
 			raporAnahtari,
 			raporLinki: `${siteUrl()}/rapor/${raporAnahtari}`,
-			gonderimDurumu: "Onay_bekliyor",
 		},
 	});
 	setImmediate(() => {
@@ -392,5 +350,5 @@ export async function createRequest(
 			strapi.log.error(`[deneme] Report preparation failed for request #${talep.id}: ${error.message}`),
 		);
 	});
-	return { telefon: maskMobile(input.telefon) };
+	return { telefon: maskMobile(input.telefon), raporAnahtari };
 }

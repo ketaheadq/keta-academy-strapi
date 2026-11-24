@@ -87,7 +87,7 @@ As with all large Node.js projects, dependencies are regularly audited.
 
 ## 📝 Deneme sınavları
 
-Free mock exams that open a detailed report in exchange for a phone number. The report goes to that number by SMS, the request lands in the teacher's call list, and the teacher calls to discuss it. Plan: "KetaLearn – Deneme Sınavları Geliştirme Notu".
+Free mock exams that open a detailed report in exchange for a phone number. The PDF report opens on the site as soon as it is ready (usually within a minute), the request lands in the teacher's call list, and the teacher calls to discuss it. Plan: "KetaLearn – Deneme Sınavları Geliştirme Notu".
 
 ### Content types (admin panel)
 
@@ -97,7 +97,7 @@ Free mock exams that open a detailed report in exchange for a phone number. The 
 | **Deneme Sınavı** | Title, slug, description, exam type (LGS/TYT/AYT/Okul), grade, subject, topics, duration, featured flag, questions, SEO. Draft & publish. |
 | ↳ **Soru** (component) | Text, image, options (A, B, C, D, E in order), correct option, difficulty, topic, solution. |
 | **Sınav Sonucu** | Answers, correct/wrong/blank, net, per-topic rates, source (UTM), anonymous session id. |
-| **Rapor Talebi** | The call list: name, phone, relation, status, report link, net, weakest topics, source, consents, call notes, AI comment JSON (`Yapay zeka yorumu`, editable), optional teacher's note (`Hoca notu`), teacher approval, SMS status and errors. |
+| **Rapor Talebi** | The call list: name, phone, relation, status, report link, net, weakest topics, source, consents, call notes, AI comment JSON (`Yapay zeka yorumu`, editable), optional teacher's note (`Hoca notu`), AI and e-mail errors, how often the report was opened. |
 | **Anasayfa Slaytı** | Home page slides: image, title, text, button text, link, order, active. |
 
 Existing content types are unchanged; the new types point to them (one-way relations).
@@ -108,7 +108,7 @@ Existing content types are unchanged; the new types point to them (one-way relat
 2. `POST /api/denemeler/:slug/sonuc` — scores the exam on the server. Returns correct/wrong/blank/net and a result key; per-topic results stay locked.
 3. `POST /api/denemeler/rapor-talebi` — name + phone + relation + report consent (+ optional call consent) unlock the report. Max 3 requests per number per day.
 4. In the background: wrong and blank questions (text, options, the student's answer, correct answer, solution) + weakest 2–3 topics → videos (lessons linked to the topic; else lessons whose title contains the topic name) → AI comment as JSON → teacher e-mail.
-5. `GET /api/raporlar/:key/pdf` — the report PDF (unguessable key, no login). The SMS link (`<site>/rapor/<key>`) opens it through the frontend. `?onizleme=1` doesn't count as an open. `GET /api/raporlar/:key` returns only what the parent-number page needs.
+5. `GET /api/raporlar/:key/pdf` — the report PDF (unguessable key, no login). The site's `/rapor/<key>` link opens it; the request response returns the key, and the result screen waits for the report and shows the link. `?onizleme=1` doesn't count as an open. `GET /api/raporlar/:key` returns only what the parent-number page needs.
 6. `POST /api/raporlar/:key/veli` — a student who left their own number adds a parent's number.
 7. `GET /api/denemeler/ders-eslesme?dersler=…` — lesson → exam covering one of its topics (the "mini deneme" link on lesson pages).
 
@@ -116,26 +116,25 @@ Existing content types are unchanged; the new types point to them (one-way relat
 
 - **Admin home → "Deneme raporları ve arama listesi"** widget: counts, latest requests with "Raporu aç" / "Kaydı aç", and lessons that have no topic yet.
 - **Rapor Talebi** entries: set `Durum`, add `Arama notları` (date + note), edit `Yapay zeka yorumu` (JSON) or add a `Hoca notu` (shown as a separate box in the PDF). "Raporu aç" in the widget opens the PDF preview.
-- **Approving a report:** tick `Hoca onayı` and save → the SMS is sent. A failed SMS (`Hata`) is retried on the next approved save.
+- Edits to `Yapay zeka yorumu` or `Hoca notu` show up the next time the PDF is opened (it is built on each open).
 
 ### Setup
 
-1. Copy the new variables from `.env.example` and fill them in (`OPENROUTER_API_KEY`, Netgsm, SMTP, WhatsApp number, `PUBLIC_SITE_URL`).
-2. Netgsm: an API user and an approved sender name (`NETGSM_MSGHEADER`).
-3. Rebuild: `docker compose up -d --build --force-recreate strapi`. Permissions are granted on start.
-4. Add topics (Konu), link lesson videos to them, then create exams.
+1. Copy the new variables from `.env.example` and fill them in (`OPENROUTER_API_KEY`, SMTP, WhatsApp number, `PUBLIC_SITE_URL`).
+2. Rebuild: `docker compose up -d --build --force-recreate strapi`. Permissions are granted on start.
+3. Add topics (Konu), link lesson videos to them, then create exams.
 
-A missing key never crashes the app: the error is logged and stored on the request (`Yapay zeka hatası`, `Gönderim hatası`, `Bildirim hatası`) so it shows in the panel.
+A missing key never crashes the app: the error is logged and stored on the request (`Yapay zeka hatası`, `Bildirim hatası`) so it shows in the panel.
 
 ### Alınan kararlar
 
 Decisions the plan left open, taken as the simplest option:
 
 - **Net:** correct − wrong ÷ (options − 1) per question (4 options → 3 wrong cancel 1 correct, 5 options → 4). Unanswered = blank.
-- **Report delivery:** a PDF, linked by SMS (Netgsm REST v2, `iysfilter: "0"`: informational, a report the person asked for); SMS can't carry files. Sales calls/messages need İYS consent and are separate. WhatsApp is the `wa.me` link in the PDF.
+- **Report delivery:** no SMS. After the form, the result screen waits for the PDF and shows "PDF raporunu aç" and "WhatsApp'ta paylaş" (to send the link to oneself or a parent). The phone number is for the teacher's call. Sales calls/messages need İYS consent. WhatsApp to the teacher is the `wa.me` link in the PDF.
 - **PDF:** generated on request with `pdfkit` and the DejaVu Sans font (`dejavu-fonts-ttf`: Turkish letters and √, ², ⁻). Not stored; built from the saved report data each time. Includes question and option images (PNG/JPEG; others get a note). Lesson links carry `utm_source=rapor&utm_medium=pdf`, so visits from the PDF show up in Analytics.
 - **AI's part:** it returns JSON only (general assessment, per-topic comments, a tip per wrong/blank question, a one-week plan, closing). Numbers, answers, solutions and links are placed by the template, never by the AI; links in its text are stripped, and topics/questions it invents are dropped. JSON mode: `response_format: json_object`; the reply is still validated against the expected shape.
-- **Approval:** the first 30 sent reports need `Hoca onayı`; after that reports go out automatically, and about 10% are flagged `Örnek kontrol` for spot checks. A report whose AI comment failed is never sent automatically; it waits for the teacher (who can write the JSON or a `Hoca notu`, or approve without them).
+- **No approval step:** the report opens right away with the AI comment. If the AI fails, it opens without the comment (scores, topics, question analysis and videos are still there); the teacher gets the error in the e-mail and the widget counts these, so a `Hoca notu` can be added.
 - **Answers in the PDF:** the PDF shows the question text, correct answer and solution of every wrong/blank question (full analysis). If a PDF is shared, those answers are visible.
 - **AI:** through [OpenRouter](https://openrouter.ai) with one key (`OPENROUTER_API_KEY`). Default model `deepseek/deepseek-v3.2` with reasoning off (a data-bound note needs no strong model); switch with `AI_MODEL` to any OpenRouter model id that supports JSON output (e.g. `google/gemini-2.5-flash`, `openai/gpt-4.1-mini`). Only exam data is sent (scores, topic rates, the text of wrong/blank questions with the answers); never name, phone or session id.
 - **Video fallback:** a lesson matches a topic by title when it contains a 6-letter stem of a topic word of 4+ letters (e.g. "Denklem" → "denkle"). Max 2 videos per topic; only lessons that belong to a published course (the link opens the course page).

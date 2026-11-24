@@ -75,30 +75,6 @@
 		"hocaNotu": {
 			"type": "text"
 		},
-		"hocaOnayi": {
-			"type": "boolean",
-			"default": false
-		},
-		"gonderimDurumu": {
-			"type": "enumeration",
-			"enum": [
-				"Onay_bekliyor",
-				"Gonderildi",
-				"Hata",
-				"Gonderilmeyecek"
-			],
-			"default": "Onay_bekliyor"
-		},
-		"gonderimZamani": {
-			"type": "datetime"
-		},
-		"gonderimHatasi": {
-			"type": "text"
-		},
-		"ornekKontrol": {
-			"type": "boolean",
-			"default": false
-		},
 		"yapayZeka": {
 			"type": "string"
 		},

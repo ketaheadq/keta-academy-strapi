@@ -170,7 +170,7 @@ export default {
 	},
 
 	/**
-	 * The report PDF, by its unguessable key (the SMS link opens it through the site).
+	 * The report PDF, by its unguessable key (opened through the site's /rapor/<key> link).
 	 * `?onizleme=1` (teacher's preview) doesn't count as an open.
 	 */
 	async reportPdf(ctx) {
@@ -278,7 +278,7 @@ async function handleNewRequest(ctx: any, sonuc: { documentId: string; denemeBas
 	const telefon = normalizeMobile(body.telefon);
 	if (!telefon) return bad(ctx, "Geçerli bir cep telefonu numarası girin (05xx xxx xx xx)");
 	if (!["Veli", "Ogrenci", "Diger"].includes(body.yakinlik)) return bad(ctx, "Yakınlık seçin");
-	if (body.raporIzni !== true) return bad(ctx, "Raporun gönderilmesi için onay gerekli");
+	if (body.raporIzni !== true) return bad(ctx, "KVKK aydınlatma metnini onaylayın");
 
 	const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
 	const recent = await strapi.db.query(UIDS.talep).count({ where: { telefon, createdAt: { $gte: since } } });
@@ -293,6 +293,6 @@ async function handleNewRequest(ctx: any, sonuc: { documentId: string; denemeBas
 		aramaIzni: body.aramaIzni === true,
 		kaynak: typeof body.kaynak === "string" ? body.kaynak.slice(0, 100) : "dogrudan",
 	});
-	ctx.body = { data: { telefon: result.telefon } };
+	ctx.body = { data: result };
 }
 

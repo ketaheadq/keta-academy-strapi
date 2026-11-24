@@ -1,9 +1,5 @@
 /** Settings for the free mock exams ("deneme sınavları"). See README → Alınan kararlar. */
 
-/** First N reports wait for the teacher's approval; later ones are sent automatically. */
-export const MANUAL_APPROVAL_COUNT = 30;
-/** Share of automatically sent reports flagged for spot checks ("örnekleme"). */
-export const SAMPLE_CHECK_RATE = 0.1;
 /** The "X öğrenci çözdü" counter appears only from this many results on. */
 export const SOLVED_COUNTER_THRESHOLD = 50;
 /** The student's rank among participants appears only from this many results on. */
@@ -12,7 +8,7 @@ export const RANK_THRESHOLD = 30;
 export const WEAK_TOPIC_COUNT = 3;
 /** Videos suggested per weak topic. */
 export const VIDEOS_PER_TOPIC = 2;
-/** Max report requests per phone number in 24 hours (limits SMS abuse). */
+/** Max report requests per phone number in 24 hours (limits abuse). */
 export const MAX_REQUESTS_PER_PHONE_PER_DAY = 3;
 
 export const siteUrl = () =>

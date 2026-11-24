@@ -11,8 +11,5 @@ export function normalizeMobile(input: unknown): string | null {
 	return /^5\d{9}$/.test(digits) ? digits : null;
 }
 
-/** "5551234567" → "905551234567" (international, as Netgsm and wa.me expect). */
-export const toInternational = (national: string) => `90${national}`;
-
 /** "5551234567" → "0555 *** ** 67" for messages shown back to the user. */
 export const maskMobile = (national: string) => `0${national.slice(0, 3)} *** ** ${national.slice(-2)}`;

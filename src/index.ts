@@ -1,5 +1,5 @@
 import type { Core } from "@strapi/strapi";
-import { registerPanelRoute, sendReportOnApproval } from "./deneme/admin";
+import { registerPanelRoute } from "./deneme/admin";
 import { seedDevelopment } from "./seed-development";
 import { migrateQuizProgress } from "./migrate-quiz-progress";
 
@@ -192,7 +192,6 @@ export default {
 	 */
 	register({ strapi }: { strapi: Core.Strapi }) {
 		cascadeCourseLessonDeletes(strapi);
-		sendReportOnApproval(strapi);
 		registerPanelRoute(strapi);
 	},
 
