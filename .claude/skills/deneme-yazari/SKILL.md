@@ -24,7 +24,7 @@ Eksikse kullanıcıdan iste. Token'ı sohbete yazdırma, ortam değişkeni olara
 
 ## Akış
 
-1. **İsteği netleştir.** Sınav türü (LGS, TYT, AYT, Okul), sınıf, ders, konular, soru sayısı, süre ve zorluk dağılımı. Kullanıcı belirtmediyse makul varsayılanları kullan ve ne seçtiğini tek satırda söyle: LGS matematik 20 soru / 40 dk, 4 şık; TYT/AYT 5 şık; zorluk yaklaşık %30 Kolay, %50 Orta, %20 Zor.
+1. **İsteği netleştir.** Sınav türü (LGS, TYT, AYT, Okul), sınıf, ders, konular, soru sayısı, süre ve zorluk dağılımı. Kullanıcı belirtmediyse makul varsayılanları kullan ve ne seçtiğini tek satırda söyle: LGS matematik 20 soru / 40 dk, 4 şık; TYT/AYT 5 şık; zorluk yaklaşık %30 Kolay, %50 Orta, %20 Zor. Kullanıcı örnek soru ya da adet verdiyse önce "Örnek sorulara ve adetlere göre yazma" bölümüne göre bir soru planı çıkar ve onay al.
 2. **Kataloğu oku.**
    ```bash
    node keta.mjs katalog --ders matematik --sinif 8-sinif
@@ -48,6 +48,17 @@ Eksikse kullanıcıdan iste. Token'ı sohbete yazdırma, ortam değişkeni olara
 8. **Teslim et.** Kullanıcıya şunları ver: admin linki (`adminUrl`), soru sayısı ve konu/zorluk dağılımı, uyarılar, ve hocanın yayından önce bakması gereken şeyler (özellikle görselli sorular).
 
 Var olan bir denemeyi düzeltmek için: `node keta.mjs deneme <id> --cikti deneme.json` → dosyayı düzenle → `kontrol` → `gonder`. Yayındaki bir denemeyi güncellemek yalnızca taslağını değiştirir; hoca yayınlayana kadar sitedeki sürüm aynı kalır.
+
+## Örnek sorulara ve adetlere göre yazma
+
+Kullanıcı genellikle denemeyi şöyle tarif eder: "9. sınıf 1. dönem", "şu konudan", "bu soru tipinden 3 tane, şundan 2 tane yaz" ve yanına örnek sorular koyar (metin, ekran görüntüsü, fotoğraf ya da PDF sayfası).
+
+- **Kapsam.** "1. dönem", "2. ünite" gibi kapsamlar katalogda tutulmaz; konularda yalnızca ders ve sınıf vardır. Kapsamı katalogdaki konularla eşleştir ve hangi konuları seçtiğini kullanıcıya göster. Emin değilsen (ör. bir konunun hangi döneme düştüğü) sor; tahmin etme.
+- **Örnek sorudan soru tipi çıkar.** Her örnek için kısaca yaz: hangi konu (katalog slug'ı), hangi kazanım/beceri, soru biçimi (bağlamlı problem, grafik okuma, şekilli geometri, işlem sorusu, "hangisi yanlıştır" vb.), görsel gerekip gerekmediği, zorluk ve şık sayısı.
+- **Planı onaylat.** Yazmaya başlamadan önce bir tablo göster: sıra, soru tipi (hangi örneğe dayandığı), konu, adet, zorluk, görsel var/yok. Toplam soru sayısı ve süre de olsun. Kullanıcı onaylayınca yaz.
+- **Örneği kopyalama, aynı tipte özgün soru yaz.** Aynı beceriyi ölçen, aynı biçimde ama farklı bağlam, farklı sayılar ve farklı çeldiricilerle yaz. Aynı tipten birden fazla soru istendiyse bunlar da birbirinin sayı değiştirilmiş kopyası olmasın; bağlamı veya istenen şeyi değiştir.
+- **Adetlere uy.** "3 tane" denmişse 3 tane yaz. Bir tip için iyi soru üretemiyorsan sayıyı sessizce değiştirme; nedenini söyle ve seçenek sun.
+- Örnek sorular bir PDF ya da başka bir yayından geliyorsa yalnızca tip ve zorluk için örnek alınır; denemeye girmez. Deneme her zaman dijital olarak (bu JSON ile) girilir; PDF ya da baskı şablonu üretme.
 
 ## deneme.json biçimi
 
