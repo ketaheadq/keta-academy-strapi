@@ -17,7 +17,8 @@ RUN --mount=type=cache,target=/root/.yarn \
 
 # STAGE 2: Runtime
 FROM node:20-alpine
-RUN apk add --no-cache tini curl
+# fontconfig + DejaVu: sharp needs a font to render the text in question SVGs
+RUN apk add --no-cache tini curl fontconfig font-dejavu
 
 RUN addgroup -g 1001 -S nodejs && adduser -S strapi -u 1001 -G nodejs
 WORKDIR /opt/app
