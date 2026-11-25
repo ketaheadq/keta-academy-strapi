@@ -28,6 +28,8 @@ export type CommentInput = {
 		soru: string;
 		ogrenciCevabi: string | null;
 		dogruCevap: string;
+		/** The teacher's own solution; the hint is grounded on it. */
+		cozum: string;
 	}[];
 };
 
@@ -66,7 +68,7 @@ export const COMMENT_SCHEMA = {
 		},
 		soruIpuclari: {
 			type: "array",
-			description: "Yanlış veya boş bırakılan her soru için bir ipucu",
+			description: "Yalnızca verideki çözüme ve soru metnine dayanarak somut bir ipucu yazılabilen sorular için; emin olunamayan sorular eklenmez",
 			items: {
 				type: "object",
 				additionalProperties: false,
@@ -89,14 +91,16 @@ Yanıtı yalnızca şu JSON biçiminde ver:
 {
   "genelDegerlendirme": "2–4 cümle: önce güçlü yan, sonra öncelikli eksikler",
   "konuYorumlari": [{ "konu": "zayıf konunun adı, verideki gibi", "yorum": "2–3 cümle: konu neden önemli, nasıl çalışmalı" }],
-  "soruIpuclari": [{ "no": soru numarası, "ipucu": "1–2 cümle: öğrenci nerede hata yapmış olabilir, neye dikkat etmeli" }],
+  "soruIpuclari": [{ "no": soru numarası, "ipucu": "1–2 cümle: bu soruya özgü, çözümdeki kilit adıma dayanan somut ipucu" }],
   "calismaPlani": ["3–5 madde: bir haftalık kısa ve uygulanabilir plan"],
   "kapanis": "1–2 cümle cesaretlendiren kapanış"
 }
 
 Kurallar:
 - Yalnızca verilen deneme verisine dayan. Tanı koyma, not veya sınav puanı tahmini yapma, kesin sonuç vaat etme.
-- konuYorumlari'nda her zayıf konu için bir öğe yaz; soruIpuclari'nda verilen her soru için bir öğe yaz.
+- konuYorumlari'nda her zayıf konu için bir öğe yaz.
+- soruIpuclari isteğe bağlıdır. Bir soruya ipucu yalnızca o sorunun "cozum" alanına ve metnine dayanarak, o soruya özgü somut bir şey söyleyebiliyorsan yaz: çözümdeki kilit adım, sık yapılan işlem hatası, dikkat edilecek kavram. Çözümü olduğu gibi tekrar etme.
+- Emin değilsen o soruyu soruIpuclari'na hiç ekleme. "Dikkatli oku", "işlemleri kontrol et", "konuyu tekrar et" gibi her soruya uyan genel cümleler yazma; tahmin yürütme, verilmeyen şekil veya şık içeriği uydurma. Boş dizi geçerli bir yanıttır.
 - Hiçbir link, URL, e-posta veya telefon numarası yazma; ders videolarını sistem ekleyecek.
 - Sayıları değiştirme; net, doğru ve yanlış sayılarını verideki gibi kullan.
 - "Öğrencimiz" diye hitap et, isim kullanma. Türkçe yaz.`;
@@ -172,6 +176,17 @@ function cleanText(value: unknown, max: number): string {
 }
 
 /**
+ * Hints that would fit any question ("read carefully", "revise the topic"). They add nothing to
+ * the report, so a hint that is short or built only from such advice is dropped.
+ */
+const GENERIC_HINT =
+	/^(?:[^.!?]*\b(?:dikkatli(?:ce)? oku|soruyu (?:iyi|dikkatle)|işlemleri(?:ni)? kontrol|konuyu tekrar|pratik yap|daha fazla soru çöz|acele etme)\b[^.!?]*[.!?]?\s*)+$/i;
+
+function isSpecificHint(hint: string) {
+	return hint.length >= 30 && !GENERIC_HINT.test(hint);
+}
+
+/**
  * Parses and checks the AI's JSON. Keeps only topics and questions that exist in the input,
  * strips any link, and fails when the essential parts are missing.
  */
@@ -193,7 +208,7 @@ export function parseComment(raw: string, input: CommentInput): ReportComment {
 			.filter((k) => topicNames.has(k.konu) && k.yorum),
 		soruIpuclari: (Array.isArray(data.soruIpuclari) ? data.soruIpuclari : [])
 			.map((s) => ({ no: Number(s?.no), ipucu: cleanText(s?.ipucu, 400) }))
-			.filter((s) => questionNos.has(s.no) && s.ipucu),
+			.filter((s) => questionNos.has(s.no) && isSpecificHint(s.ipucu)),
 		calismaPlani: (Array.isArray(data.calismaPlani) ? data.calismaPlani : [])
 			.map((m) => cleanText(m, 300))
 			.filter(Boolean)
