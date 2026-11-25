@@ -77,6 +77,19 @@ function reviewQuestions(strapi: Core.Strapi, sorular: any[], cevaplar: Record<s
 	return reviews;
 }
 
+/**
+ * Whether the AI has enough to write a question-specific hint. It reads text only, so a question
+ * that lives in an image, or whose answers are images, gets no hint unless the teacher wrote a
+ * solution for it.
+ */
+function hasHintContext(q: Omit<QuestionReview, "video">) {
+	if (q.cozum.trim().length >= 20) return true;
+	const answerTexts = [q.dogruCevap, q.ogrenciCevabi]
+		.filter(Boolean)
+		.map((harf) => q.secenekler.find((o) => o.harf === harf)?.metin.trim() ?? "");
+	return !q.gorselUrl && q.soru.trim().length >= 40 && answerTexts.every(Boolean);
+}
+
 const turkishLower = (s: string) => s.toLocaleLowerCase("tr-TR");
 const STOP_WORDS = new Set(["ve", "ile", "ile", "için", "veya", "ya", "da", "de"]);
 
@@ -234,7 +247,9 @@ export async function prepareReport(strapi: Core.Strapi, talepId: number) {
 			soruSayisi: data.soruSayisi,
 			konular: data.konular.map(({ ad, oran, dogru, toplam }) => ({ ad, oran, dogru, toplam })),
 			zayifKonular: data.zayifKonular.map(({ ad, oran }) => ({ ad, oran })),
-			sorular: data.sorular.map((q) => ({
+			// Only questions the AI can actually reason about get a hint: it sees text, not images,
+			// so a question needs the teacher's solution or a self-contained text with text answers.
+			sorular: data.sorular.filter(hasHintContext).map((q) => ({
 				no: q.no,
 				konu: q.konu,
 				durum: q.durum,
@@ -243,6 +258,7 @@ export async function prepareReport(strapi: Core.Strapi, talepId: number) {
 					? `${q.ogrenciCevabi}) ${q.secenekler.find((o) => o.harf === q.ogrenciCevabi)?.metin ?? ""}`
 					: null,
 				dogruCevap: `${q.dogruCevap}) ${q.secenekler.find((o) => o.harf === q.dogruCevap)?.metin ?? ""}`,
+				cozum: q.cozum.slice(0, 1200),
 			})),
 		};
 		try {
