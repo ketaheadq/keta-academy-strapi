@@ -143,3 +143,24 @@ Decisions the plan left open, taken as the simplest option:
 - **Abuse limit:** max 3 report requests per phone number in 24 hours.
 - **Retention:** a nightly job (03:30 Istanbul) deletes report requests and results older than `DENEME_RETENTION_DAYS` (default 365, minimum 90 so report links stay open at least 90 days). Have a lawyer confirm the period and the KVKK texts before launch.
 - **Topics in the panel:** topics are linked to lessons from the Konu side (lessons themselves are unchanged), so "videos without a topic" are listed in the admin widget.
+
+## 🤖 Soru yazarı API'si (deneme-yazari skill)
+
+Lets Claude write mock exams: it reads the catalogue, draws question figures, uploads them and saves the exam as a **draft**. The teacher reviews and publishes it in the admin panel; the API can't publish.
+
+- **Skill:** `.claude/skills/deneme-yazari/` (`SKILL.md` + the dependency-free CLI `scripts/keta.mjs`). Claude Code picks it up in this repo; for claude.ai, zip the folder and upload it as a skill.
+- **Auth:** every route needs `x-soru-yazari-token: <SORU_YAZARI_TOKEN>`. Without the variable (or with fewer than 32 characters) the API answers 403. The token isn't a Strapi user, so keep it like an admin password.
+- **CLI environment:** `KETA_API_URL` (Strapi address) and `SORU_YAZARI_TOKEN`.
+
+| Route | What it does |
+|---|---|
+| `GET /api/soru-yazari/katalog` | Exam types, difficulties, subjects, grades, topics with their linked lessons and how many questions use each |
+| `GET /api/soru-yazari/dersler?q=&konu=&kurs=&konusuz=1&icerik=1` | Lessons with courses and topics (`icerik=1`: lesson text) |
+| `GET /api/soru-yazari/dersler/:documentId` | One lesson's full text |
+| `GET /api/soru-yazari/denemeler?q=` | All exams, drafts included |
+| `GET /api/soru-yazari/denemeler/:documentId` | One exam's draft with answers and solutions, in the format PUT accepts |
+| `POST /api/soru-yazari/denemeler[?kontrol=1]` | Creates a draft exam (`kontrol=1`: validate only) |
+| `PUT /api/soru-yazari/denemeler/:documentId[?kontrol=1]` | Replaces the exam's draft; the published version stays until the teacher publishes |
+| `POST /api/soru-yazari/gorseller` | multipart `file` + `alt` → media id. SVG/WebP become PNG (the PDF can only draw PNG/JPEG); max 5 MB, longest side 1600 px |
+
+The exam format uses slugs for grade/subject/topics, media ids for images and plain text for question and solution (one paragraph per line, `- ` for list items). Validation returns every problem at once as `{ hatalar: [{ yol, hata }] }`. Code: `src/api/soru-yazari/`, `src/soru-yazari/`.
