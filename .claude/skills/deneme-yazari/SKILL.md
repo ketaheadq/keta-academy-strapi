@@ -15,12 +15,18 @@ node <skill>/scripts/keta.mjs yardim
 
 ## Kurulum
 
-İki ortam değişkeni gerekir:
+İki ayar gerekir:
 
-- `KETA_API_URL`: Strapi adresi (ör. `https://api.ketalearn.com`). Varsayılan `http://localhost:1337`.
+- `KETA_API_URL`: Strapi'nin kök adresi, sonunda `/api` olmadan (ör. `https://admin.ketalearn.cloud`). Varsayılan `http://localhost:1337`.
 - `SORU_YAZARI_TOKEN`: sunucudaki `SORU_YAZARI_TOKEN` ile aynı değer (en az 32 karakter).
 
-Eksikse kullanıcıdan iste. Token'ı sohbete yazdırma, ortam değişkeni olarak tanımlatmasını söyle. 403 alırsan token yanlış ya da sunucuda API kapalıdır.
+CLI bunları sırayla şuradan okur: terminaldeki ortam değişkeni → `--env <dosya>` → `KETA_ENV_FILE` → `ENV_PATH` → çalışılan klasördeki `.env`. Strapi reposunda çalışıyorsan, sunucunun kendi `.env`'i okunur ve token kendiliğinden eşleşir.
+
+**İlk iş `node keta.mjs ayarlar` çalıştır.** Hangi dosyanın, adresin ve token'ın (maskeli) kullanıldığını gösterir ve sunucuya bağlanmayı dener.
+
+- "bağlanılamadı": adres yanlış ya da sunucu kapalı.
+- 403: token, sunucunun başlatıldığı env dosyasındakiyle aynı değil. Kullanıcı sunucuyu başka bir env dosyasıyla başlattıysa (ör. `ENV_PATH=.env.local yarn develop`), her komuta `--env <o dosya>` ekle. Token sonradan değiştiyse sunucu yeniden başlatılmalı.
+- Token hiç yoksa kullanıcıdan env dosyasına yazmasını iste. Token'ı sohbete yazdırma.
 
 ## Akış
 

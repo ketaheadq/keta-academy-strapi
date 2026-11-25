@@ -150,7 +150,7 @@ Lets Claude write mock exams: it reads the catalogue, draws question figures, up
 
 - **Skill:** `.claude/skills/deneme-yazari/` (`SKILL.md` + the dependency-free CLI `scripts/keta.mjs`). Claude Code picks it up in this repo; for claude.ai, zip the folder and upload it as a skill.
 - **Auth:** every route needs `x-soru-yazari-token: <SORU_YAZARI_TOKEN>`. Without the variable (or with fewer than 32 characters) the API answers 403. The token isn't a Strapi user, so keep it like an admin password.
-- **CLI environment:** `KETA_API_URL` (Strapi address) and `SORU_YAZARI_TOKEN`.
+- **CLI settings:** `KETA_API_URL` (Strapi root address, no `/api`) and `SORU_YAZARI_TOKEN`. Read from the shell, else from `--env <file>`, `KETA_ENV_FILE`, `ENV_PATH` or `./.env`. `node .claude/skills/deneme-yazari/scripts/keta.mjs ayarlar` shows which values are used and tests the connection.
 
 | Route | What it does |
 |---|---|

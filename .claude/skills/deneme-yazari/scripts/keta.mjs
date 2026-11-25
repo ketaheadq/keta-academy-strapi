@@ -1,26 +1,70 @@
 #!/usr/bin/env node
-import { spawnSync } from "node:child_process";
 /**
  * KetaLearn question-writer CLI: talks to the Strapi "soru-yazari" API.
  * No dependencies (Node 18+). Run `node keta.mjs yardim` for the commands.
  *
- * Environment:
- *   KETA_API_URL        Strapi address, e.g. https://api.example.com (default http://localhost:1337)
+ * Settings (a variable already set in the shell wins over the file):
+ *   KETA_API_URL        Strapi root address, without /api (default http://localhost:1337)
  *   SORU_YAZARI_TOKEN   the API token (same value as on the server)
+ * They are also read from an env file: --env <file>, else KETA_ENV_FILE, else ENV_PATH
+ * (the variable Strapi itself uses to start with another file), else ./.env.
  */
+import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { basename, dirname, extname, isAbsolute, resolve } from "node:path";
 
-const API = (process.env.KETA_API_URL || "http://localhost:1337").replace(
-	/\/$/,
-	"",
-);
-const TOKEN = process.env.SORU_YAZARI_TOKEN || "";
+const { positional, flags } = parseArgs(process.argv.slice(2));
+
+/** KEY=VALUE lines of a .env file (comments, `export` and quotes handled). */
+function readEnvFile(path) {
+	const values = {};
+	for (const line of readFileSync(path, "utf8").split(/\r?\n/)) {
+		const match = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(
+			line,
+		);
+		if (!match) continue;
+		let value = match[2].trim();
+		const quoted = /^(["'])(.*)\1$/.exec(value);
+		value = quoted ? quoted[2] : value.replace(/\s+#.*$/, "");
+		values[match[1]] = value;
+	}
+	return values;
+}
+
+const ENV_FILE = (() => {
+	const explicit =
+		typeof flags.env === "string"
+			? flags.env
+			: process.env.KETA_ENV_FILE || process.env.ENV_PATH;
+	if (explicit) {
+		const path = resolve(explicit);
+		if (!existsSync(path)) {
+			console.error(`Hata: env dosyası bulunamadı: ${path}`);
+			process.exit(1);
+		}
+		return path;
+	}
+	const local = resolve(".env");
+	return existsSync(local) ? local : null;
+})();
+const fileEnv = ENV_FILE ? readEnvFile(ENV_FILE) : {};
+const setting = (name) => process.env[name] || fileEnv[name] || "";
+const source = (name) =>
+	process.env[name] ? "terminal" : fileEnv[name] ? ENV_FILE : "yok";
+
+const API = (setting("KETA_API_URL") || "http://localhost:1337")
+	.replace(/\/+$/, "")
+	.replace(/\/api$/, "");
+const TOKEN = setting("SORU_YAZARI_TOKEN").trim();
 
 const HELP = `KetaLearn soru yazarı
+
+Ayarlar
+  ayarlar                                                 Kullanılan adres, token ve env dosyası; sunucuya bağlantıyı dener
+  --env <dosya> (her komutta)                             Ayarları bu env dosyasından oku (varsayılan ./.env)
 
 Okuma
   katalog [--ders <slug>] [--sinif <slug>] [--q <metin>]   Sınav türleri, dersler, sınıflar, konular (+ bağlı ders videoları)
@@ -74,7 +118,10 @@ const print = (value) => console.log(JSON.stringify(value, null, 2));
 
 // ── HTTP ─────────────────────────────────────────────────────────────────────
 async function call(method, path, { json, form, query } = {}) {
-	if (!TOKEN) die("SORU_YAZARI_TOKEN tanımlı değil");
+	if (!TOKEN)
+		die(
+			`SORU_YAZARI_TOKEN bulunamadı: terminalde yok, ${ENV_FILE ? `${ENV_FILE} içinde de yok` : ".env dosyası da yok"}. "ayarlar" komutuyla kontrol edin.`,
+		);
 	const url = new URL(`${API}/api/soru-yazari${path}`);
 	for (const [k, v] of Object.entries(query ?? {}))
 		if (v !== undefined && v !== false)
@@ -101,7 +148,9 @@ async function call(method, path, { json, form, query } = {}) {
 		data = text;
 	}
 	if (response.status === 403)
-		die("Yetki yok (403): SORU_YAZARI_TOKEN yanlış ya da sunucuda API kapalı");
+		die(
+			`Yetki yok (403): ${API} adresindeki sunucu token'ı kabul etmedi. Token sunucuyu başlattığınız env dosyasındakiyle aynı olmalı; sunucu SORU_YAZARI_TOKEN olmadan ya da eski değerle başlatıldıysa yeniden başlatın. "ayarlar" komutu hangi değerin kullanıldığını gösterir.`,
+		);
 	return { ok: response.ok, status: response.status, data };
 }
 
@@ -307,7 +356,6 @@ function report(result) {
 }
 
 // ── Commands ─────────────────────────────────────────────────────────────────
-const { positional, flags } = parseArgs(process.argv.slice(2));
 const [command, ...rest] = positional;
 
 switch (command) {
@@ -437,6 +485,24 @@ switch (command) {
 			);
 		}
 		report(result);
+		break;
+	}
+	case "ayarlar": {
+		const masked = TOKEN
+			? `${TOKEN.slice(0, 4)}…${TOKEN.slice(-4)} (${TOKEN.length} karakter)`
+			: "yok";
+		console.log(`Env dosyası:        ${ENV_FILE ?? "yok"}`);
+		console.log(
+			`KETA_API_URL:       ${API}  (kaynak: ${setting("KETA_API_URL") ? source("KETA_API_URL") : "varsayılan"})`,
+		);
+		console.log(
+			`SORU_YAZARI_TOKEN:  ${masked}  (kaynak: ${source("SORU_YAZARI_TOKEN")})`,
+		);
+		if (!TOKEN)
+			die("Token yok: terminalde tanımlayın ya da env dosyasına yazın");
+		const { ok, status } = await call("GET", "/katalog");
+		if (!ok) die(`Sunucu HTTP ${status} döndü`);
+		console.log(`Bağlantı:           tamam (${API}/api/soru-yazari/katalog)`);
 		break;
 	}
 	case undefined:
