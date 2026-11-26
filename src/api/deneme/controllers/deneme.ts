@@ -69,6 +69,15 @@ function summary(deneme: any, counts: Map<string, number>) {
 
 const bad = (ctx, message: string) => ctx.badRequest(message);
 
+/** How many results "my exams" returns. */
+const MY_RESULTS_LIMIT = 50;
+
+/** Id of the signed-in member (a valid JWT was sent), or null for anonymous visitors. */
+const signedInUser = (ctx): number | null => {
+	const id = ctx.state?.user?.id;
+	return typeof id === "number" ? id : null;
+};
+
 export default {
 	async list(ctx) {
 		const [denemeler, counts] = await Promise.all([
@@ -107,7 +116,10 @@ export default {
 		};
 	},
 
-	/** Scores a finished exam. No sign-up: the result is tied to an anonymous session id. */
+	/**
+	 * Scores a finished exam. No sign-up needed: the result is tied to an anonymous session id,
+	 * and also to the member's account when they are signed in (so they see it on any device).
+	 */
 	async submit(ctx) {
 		const deneme = await strapi.documents(UIDS.deneme).findFirst({
 			filters: { slug: ctx.params.slug },
@@ -142,6 +154,7 @@ export default {
 				oturumId,
 				sureSaniye,
 				sonucAnahtari,
+				kullanici: signedInUser(ctx),
 			},
 		});
 		ctx.body = {
@@ -163,10 +176,21 @@ export default {
 		const body = ctx.request.body ?? {};
 		const sonuc =
 			typeof body.sonucAnahtari === "string"
-				? await strapi.db.query(UIDS.sonuc).findOne({ where: { sonucAnahtari: body.sonucAnahtari } })
+				? await strapi.db.query(UIDS.sonuc).findOne({
+						where: { sonucAnahtari: body.sonucAnahtari },
+						populate: { kullanici: { select: ["id"] } },
+					})
 				: null;
 		if (!sonuc) return ctx.notFound("Sonuç bulunamadı");
-		return handleNewRequest(ctx, sonuc, body);
+		// A member who solved the exam signed out and signed in before asking for the report:
+		// the result becomes theirs now. A result that already has an owner keeps it.
+		let owner: number | null = sonuc.kullanici?.id ?? null;
+		const user = signedInUser(ctx);
+		if (!owner && user) {
+			await strapi.db.query(UIDS.sonuc).update({ where: { id: sonuc.id }, data: { kullanici: user } });
+			owner = user;
+		}
+		return handleNewRequest(ctx, { ...sonuc, kullanici: owner }, body);
 	},
 
 	/**
@@ -221,14 +245,70 @@ export default {
 		};
 	},
 
+	/**
+	 * The signed-in member's own exam results, newest first, each with its report link when one
+	 * was asked for. Only for members (the route needs a signed-in user).
+	 */
+	async mine(ctx) {
+		const user = signedInUser(ctx);
+		if (!user) return ctx.unauthorized();
+		const results = await strapi.db.query(UIDS.sonuc).findMany({
+			where: { kullanici: { id: user } },
+			select: ["id", "denemeBaslik", "dogru", "yanlis", "bos", "net", "createdAt"],
+			populate: { deneme: { select: ["slug", "baslik"] } },
+			orderBy: { createdAt: "desc" },
+			limit: MY_RESULTS_LIMIT,
+		});
+		const ids = results.map((r) => r.id);
+		const requests = ids.length
+			? await strapi.db.query(UIDS.talep).findMany({
+					where: { sinavSonucu: { id: { $in: ids } } },
+					select: ["id", "raporAnahtari", "createdAt"],
+					populate: { sinavSonucu: { select: ["id"] } },
+					orderBy: { createdAt: "asc" },
+				})
+			: [];
+		const ready = new Set(
+			requests.length
+				? (
+						await strapi.db.query(UIDS.talep).findMany({
+							where: { id: { $in: requests.map((t) => t.id) }, raporVerisi: { $notNull: true } },
+							select: ["id"],
+						})
+					).map((t) => t.id)
+				: [],
+		);
+		// The first request of a result is the student's own; a parent's number added later
+		// makes a second request for the same report.
+		const reportOf = new Map<number, { raporAnahtari: string; hazir: boolean }>();
+		for (const t of requests) {
+			const id = t.sinavSonucu?.id;
+			if (id && !reportOf.has(id)) reportOf.set(id, { raporAnahtari: t.raporAnahtari, hazir: ready.has(t.id) });
+		}
+		ctx.body = {
+			data: results.map((r) => ({
+				denemeBaslik: r.deneme?.baslik ?? r.denemeBaslik,
+				denemeSlug: r.deneme?.slug ?? null,
+				dogru: r.dogru,
+				yanlis: r.yanlis,
+				bos: r.bos,
+				net: Number(r.net),
+				soruSayisi: r.dogru + r.yanlis + r.bos,
+				tarih: r.createdAt,
+				rapor: reportOf.get(r.id) ?? null,
+			})),
+		};
+	},
+
 	/** A student who left their own number adds a parent's number from the report page. */
 	async addParent(ctx) {
 		const talep = await strapi.db.query(UIDS.talep).findOne({
 			where: { raporAnahtari: ctx.params.key },
-			populate: { sinavSonucu: true },
+			populate: { sinavSonucu: { populate: { kullanici: { select: ["id"] } } } },
 		});
 		if (!talep?.sinavSonucu) return ctx.notFound();
-		return handleNewRequest(ctx, talep.sinavSonucu, { ...(ctx.request.body ?? {}), yakinlik: "Veli" });
+		const sonuc = { ...talep.sinavSonucu, kullanici: talep.sinavSonucu.kullanici?.id ?? null };
+		return handleNewRequest(ctx, sonuc, { ...(ctx.request.body ?? {}), yakinlik: "Veli" });
 	},
 
 	/** For lesson pages: lesson documentId → a published exam covering one of its topics. */
@@ -270,7 +350,11 @@ export default {
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: koa context
-async function handleNewRequest(ctx: any, sonuc: { documentId: string; denemeBaslik: string; net: unknown }, body: any) {
+async function handleNewRequest(
+	ctx: any,
+	sonuc: { documentId: string; denemeBaslik: string; net: unknown; kullanici?: number | null },
+	body: any,
+) {
 	const adSoyad = typeof body.adSoyad === "string" ? body.adSoyad.trim().replace(/\s+/g, " ") : "";
 	if (adSoyad.length < 3 || adSoyad.length > 100 || !adSoyad.includes(" ")) {
 		return bad(ctx, "Ad ve soyad girin");
@@ -292,6 +376,7 @@ async function handleNewRequest(ctx: any, sonuc: { documentId: string; denemeBas
 		yakinlik: body.yakinlik,
 		aramaIzni: body.aramaIzni === true,
 		kaynak: typeof body.kaynak === "string" ? body.kaynak.slice(0, 100) : "dogrudan",
+		kullanici: sonuc.kullanici ?? null,
 	});
 	ctx.body = { data: result };
 }

@@ -181,6 +181,9 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 		await grantPermission(strapi, action, authenticated.id);
 	}
 
+	// Members only: their own exam results (scoped to ctx.state.user in the handler).
+	await grantPermission(strapi, "api::deneme.deneme.mine", authenticated.id);
+
 	strapi.log.info("✅ Permission bootstrap complete");
 }
 

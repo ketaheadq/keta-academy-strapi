@@ -111,6 +111,7 @@ Existing content types are unchanged; the new types point to them (one-way relat
 5. `GET /api/raporlar/:key/pdf` — the report PDF (unguessable key, no login). The site's `/rapor/<key>` link opens it; the request response returns the key, and the result screen waits for the report and shows the link. `?onizleme=1` doesn't count as an open. `GET /api/raporlar/:key` returns only what the parent-number page needs.
 6. `POST /api/raporlar/:key/veli` — a student who left their own number adds a parent's number.
 7. `GET /api/denemeler/ders-eslesme?dersler=…` — lesson → exam covering one of its topics (the "mini deneme" link on lesson pages).
+8. `GET /api/denemeler/benim` — members only: their own results with report links. A signed-in member's result (and its report requests) is linked to their account (`kullanici`, private relation), so their reports show on every device. Anonymous results stay unlinked; a member who asks for the report of an unowned result becomes its owner, an owned result never changes owner.
 
 ### Teacher's panel
 
