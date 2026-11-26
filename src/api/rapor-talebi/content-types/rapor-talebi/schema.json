@@ -102,6 +102,12 @@
 		"raporAnahtari": {
 			"type": "string",
 			"unique": true
+		},
+		"kullanici": {
+			"type": "relation",
+			"relation": "manyToOne",
+			"target": "plugin::users-permissions.user",
+			"private": true
 		}
 	}
 }

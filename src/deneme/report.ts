@@ -320,6 +320,8 @@ export type NewRequest = {
 	yakinlik: "Veli" | "Ogrenci" | "Diger";
 	aramaIzni: boolean;
 	kaynak: string;
+	/** The member the exam result belongs to, if any. */
+	kullanici?: number | null;
 };
 
 /**
@@ -359,6 +361,7 @@ export async function createRequest(
 			kaynak: input.kaynak,
 			raporAnahtari,
 			raporLinki: `${siteUrl()}/rapor/${raporAnahtari}`,
+			kullanici: input.kullanici ?? null,
 		},
 	});
 	setImmediate(() => {

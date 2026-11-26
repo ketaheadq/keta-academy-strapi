@@ -4,6 +4,7 @@ export default {
 	routes: [
 		{ method: "GET", path: "/denemeler", handler: "deneme.list" },
 		{ method: "GET", path: "/denemeler/ders-eslesme", handler: "deneme.lessonExams" },
+		{ method: "GET", path: "/denemeler/benim", handler: "deneme.mine" },
 		{ method: "POST", path: "/denemeler/rapor-talebi", handler: "deneme.requestReport" },
 		{ method: "GET", path: "/denemeler/:slug", handler: "deneme.detail" },
 		{ method: "POST", path: "/denemeler/:slug/sonuc", handler: "deneme.submit" },
