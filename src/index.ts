@@ -1,6 +1,7 @@
 import type { Core } from "@strapi/strapi";
 import { registerPanelRoute } from "./deneme/admin";
 import { seedDefaultTerms } from "./legal/terms";
+import { seedBulk } from "./seed-bulk";
 import { seedDevelopment } from "./seed-development";
 import { migrateQuizProgress } from "./migrate-quiz-progress";
 
@@ -278,6 +279,14 @@ export default {
 		// ── 5. Optional: seed demo data ────────────────────────────────────────
 		if (process.env.KETA_SEED_DEMO === "true") {
 			await seedDevelopment(strapi);
+		}
+
+		// ── 6. Optional: bulk dummy catalog ────────────────────────────────────
+		// KETA_SEED_BULK is the number of generated courses; lessons, quizzes,
+		// blogs, videos, admission scores and tutors scale with it.
+		const bulkCourses = Number.parseInt(process.env.KETA_SEED_BULK ?? "0", 10);
+		if (Number.isFinite(bulkCourses) && bulkCourses > 0) {
+			await seedBulk(strapi, bulkCourses);
 		}
 	},
 };

@@ -1,43 +1,12 @@
-import type { Core, UID } from "@strapi/strapi";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-
-const blocks = (text: string) => [{ type: "paragraph", children: [{ type: "text", text }] }];
+import type { Core } from "@strapi/strapi";
+import { blocks, createSeedKit } from "./seed-support";
 
 export async function seedDevelopment(strapi: Core.Strapi) {
   if (process.env.DATABASE_HOST !== "db" || process.env.UPLOAD_PROVIDER !== "local") {
     throw new Error("Demo data requires the local Docker database and uploads.");
   }
 
-  async function seed(uid: UID.ContentType, match: Record<string, unknown>, data: Record<string, unknown>) {
-    const documents = strapi.documents(uid);
-    const published = strapi.contentTypes[uid].options?.draftAndPublish;
-    const options = published ? { status: "published" as const } : {};
-    if (strapi.contentTypes[uid].kind === "singleType") {
-      const existing = await documents.findFirst();
-      return existing ?? documents.create({ data, ...options });
-    }
-    const existing = await documents.findFirst({ filters: match });
-    return existing ?? documents.create({ data, ...options });
-  }
-
-  const upload = async (name: string, mime: string, bytes: Buffer) => {
-    const existing = await strapi.db.query("plugin::upload.file").findOne({ where: { name } });
-    if (existing) return existing.id;
-    const directory = await mkdtemp(join(tmpdir(), "keta-seed-"));
-    try {
-      const filepath = join(directory, name);
-      await writeFile(filepath, bytes);
-      const [file] = await strapi.plugin("upload").service("upload").upload({
-        data: { fileInfo: { name, alternativeText: "KetaLearn demo" } },
-        files: { filepath, originalFilename: name, mimetype: mime, size: bytes.length },
-      });
-      return file.id;
-    } finally {
-      await rm(directory, { recursive: true, force: true });
-    }
-  };
+  const { seed, upload } = createSeedKit(strapi);
 
   const cover = await upload("keta-demo-cover.png", "image/png", Buffer.from(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aJ2QAAAAASUVORK5CYII=", "base64",
