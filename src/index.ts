@@ -1,5 +1,6 @@
 import type { Core } from "@strapi/strapi";
 import { registerPanelRoute } from "./deneme/admin";
+import { seedDefaultTerms } from "./legal/terms";
 import { seedDevelopment } from "./seed-development";
 import { migrateQuizProgress } from "./migrate-quiz-progress";
 
@@ -263,6 +264,13 @@ export default {
 
 		// ── 4. Bootstrap all API permissions automatically ─────────────────────
 		await bootstrapPermissions(strapi);
+
+		// ── 5. Default terms of service (only while the text is empty) ─────────
+		try {
+			await seedDefaultTerms(strapi);
+		} catch (error) {
+			strapi.log.error(`Could not write the default terms of service: ${(error as Error).message}`);
+		}
 
 		// ── 5. Optional: seed demo data ────────────────────────────────────────
 		if (process.env.KETA_SEED_DEMO === "true") {
