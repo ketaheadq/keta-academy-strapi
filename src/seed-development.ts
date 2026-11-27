@@ -8,11 +8,12 @@ export async function seedDevelopment(strapi: Core.Strapi) {
 
 	const { seed, upload } = createSeedKit(strapi);
 
+	// 1×1 placeholder PNG; one wrong base64 char breaks the IDAT CRC and Strapi rejects the upload.
 	const cover = await upload(
 		"keta-demo-cover.png",
 		"image/png",
 		Buffer.from(
-			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aJ2QAAAAASUVORK5CYII=",
+			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=",
 			"base64",
 		),
 	);
