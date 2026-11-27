@@ -1,4 +1,5 @@
 ---
+
 title: "TYT Matematik’te Hızlı ve Güvenli Çözüm Yöntemleri"
 slug: tyt-matematik-hizli-guvenli-cozum-yontemleri
 category: Lise

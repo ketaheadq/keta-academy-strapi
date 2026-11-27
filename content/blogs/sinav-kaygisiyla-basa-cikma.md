@@ -1,4 +1,5 @@
 ---
+
 title: Sınav Kaygısıyla Başa Çıkma
 slug: sinav-kaygisiyla-basa-cikma
 category: Lise

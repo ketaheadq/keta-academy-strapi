@@ -1,4 +1,5 @@
 ---
+
 title: Pomodoro Tekniği YKS Çalışmasında İşe Yarıyor mu?
 slug: pomodoro-teknigi-yks-calismasi
 category: Lise

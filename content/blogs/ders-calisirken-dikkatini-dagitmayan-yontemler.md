@@ -1,4 +1,5 @@
 ---
+
 title: Ders Çalışırken Dikkatini Dağıtmayan 7 Yöntem
 slug: ders-calisirken-dikkatini-dagitmayan-yontemler
 category: Lise

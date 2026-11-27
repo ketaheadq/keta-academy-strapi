@@ -1,4 +1,8 @@
-import { MAX_REQUESTS_PER_PHONE_PER_DAY, SOLVED_COUNTER_THRESHOLD, UIDS } from "../../../deneme/config";
+import {
+	MAX_REQUESTS_PER_PHONE_PER_DAY,
+	SOLVED_COUNTER_THRESHOLD,
+	UIDS,
+} from "../../../deneme/config";
 import { renderReportPdf } from "../../../deneme/pdf";
 import { normalizeMobile } from "../../../deneme/phone";
 import { createRequest, newKey, type ReportData } from "../../../deneme/report";
@@ -25,11 +29,17 @@ const LIST_POPULATE: any = {
 	SEO: { populate: { metaImage: true } },
 };
 
-type Media = { url: string; alternativeText?: string | null; width?: number; height?: number } | null | undefined;
-const media = (m: Media) => (m?.url ? { url: m.url, alt: m.alternativeText ?? "", width: m.width, height: m.height } : null);
+type Media =
+	| { url: string; alternativeText?: string | null; width?: number; height?: number }
+	| null
+	| undefined;
+const media = (m: Media) =>
+	m?.url ? { url: m.url, alt: m.alternativeText ?? "", width: m.width, height: m.height } : null;
 
 async function solvedCounts() {
-	const rows = await strapi.db.query(UIDS.sonuc).findMany({ populate: { deneme: { select: ["documentId"] } }, select: ["id"] });
+	const rows = await strapi.db
+		.query(UIDS.sonuc)
+		.findMany({ populate: { deneme: { select: ["documentId"] } }, select: ["id"] });
 	const counts = new Map<string, number>();
 	for (const row of rows) {
 		const id = row.deneme?.documentId;
@@ -49,7 +59,10 @@ function summary(deneme: any, counts: Map<string, number>) {
 		sinavTuru: deneme.sinavTuru,
 		sinif: deneme.sinif ? { title: deneme.sinif.title, slug: deneme.sinif.slug } : null,
 		ders: deneme.ders ? { title: deneme.ders.title, slug: deneme.ders.slug } : null,
-		konular: (deneme.konular ?? []).map((k: { ad: string; slug: string }) => ({ ad: k.ad, slug: k.slug })),
+		konular: (deneme.konular ?? []).map((k: { ad: string; slug: string }) => ({
+			ad: k.ad,
+			slug: k.slug,
+		})),
 		sureDakika: deneme.sureDakika,
 		soruSayisi: deneme.sorular?.length ?? 0,
 		oneCikan: Boolean(deneme.oneCikan),
@@ -81,12 +94,18 @@ const signedInUser = (ctx): number | null => {
 export default {
 	async list(ctx) {
 		const [denemeler, counts] = await Promise.all([
-			strapi.documents(UIDS.deneme).findMany({ status: "published", populate: LIST_POPULATE, limit: 200 }),
+			strapi
+				.documents(UIDS.deneme)
+				.findMany({ status: "published", populate: LIST_POPULATE, limit: 200 }),
 			solvedCounts(),
 		]);
 		const data = denemeler
 			.map((d) => summary(d, counts))
-			.sort((a, b) => Number(b.oneCikan) - Number(a.oneCikan) || String(b.publishedAt).localeCompare(String(a.publishedAt)));
+			.sort(
+				(a, b) =>
+					Number(b.oneCikan) - Number(a.oneCikan) ||
+					String(b.publishedAt).localeCompare(String(a.publishedAt)),
+			);
 		ctx.body = { data };
 	},
 
@@ -133,9 +152,11 @@ export default {
 		const answers = parseAnswers(body.cevaplar, questions.length);
 		if (!answers) return bad(ctx, "cevaplar geçersiz");
 		const oturumId = typeof body.oturumId === "string" ? body.oturumId.slice(0, 64) : null;
-		const sureSaniye = Number.isInteger(body.sureSaniye) && body.sureSaniye >= 0 ? body.sureSaniye : null;
+		const sureSaniye =
+			Number.isInteger(body.sureSaniye) && body.sureSaniye >= 0 ? body.sureSaniye : null;
 		const kaynak = typeof body.kaynak === "string" ? body.kaynak.slice(0, 100) : "dogrudan";
-		const utm = body.utm && typeof body.utm === "object" && !Array.isArray(body.utm) ? body.utm : null;
+		const utm =
+			body.utm && typeof body.utm === "object" && !Array.isArray(body.utm) ? body.utm : null;
 
 		const score = scoreExam(questions, answers);
 		const sonucAnahtari = newKey();
@@ -187,7 +208,9 @@ export default {
 		let owner: number | null = sonuc.kullanici?.id ?? null;
 		const user = signedInUser(ctx);
 		if (!owner && user) {
-			await strapi.db.query(UIDS.sonuc).update({ where: { id: sonuc.id }, data: { kullanici: user } });
+			await strapi.db
+				.query(UIDS.sonuc)
+				.update({ where: { id: sonuc.id }, data: { kullanici: user } });
 			owner = user;
 		}
 		return handleNewRequest(ctx, { ...sonuc, kullanici: owner }, body);
@@ -198,7 +221,9 @@ export default {
 	 * `?onizleme=1` (teacher's preview) doesn't count as an open.
 	 */
 	async reportPdf(ctx) {
-		const talep = await strapi.db.query(UIDS.talep).findOne({ where: { raporAnahtari: ctx.params.key } });
+		const talep = await strapi.db
+			.query(UIDS.talep)
+			.findOne({ where: { raporAnahtari: ctx.params.key } });
 		if (!talep) return ctx.notFound();
 		const data = talep.raporVerisi as ReportData | null;
 		if (!data) {
@@ -219,7 +244,10 @@ export default {
 		if (ctx.query.onizleme !== "1") {
 			await strapi.db.query(UIDS.talep).update({
 				where: { id: talep.id },
-				data: { raporAcilmaSayisi: (talep.raporAcilmaSayisi ?? 0) + 1, ilkAcilma: talep.ilkAcilma ?? new Date() },
+				data: {
+					raporAcilmaSayisi: (talep.raporAcilmaSayisi ?? 0) + 1,
+					ilkAcilma: talep.ilkAcilma ?? new Date(),
+				},
 			});
 		}
 		const fileName = `ketalearn-${data.deneme.slug || "deneme"}-raporu.pdf`;
@@ -232,7 +260,9 @@ export default {
 
 	/** Minimal info for the "add a parent's number" page. */
 	async report(ctx) {
-		const talep = await strapi.db.query(UIDS.talep).findOne({ where: { raporAnahtari: ctx.params.key } });
+		const talep = await strapi.db
+			.query(UIDS.talep)
+			.findOne({ where: { raporAnahtari: ctx.params.key } });
 		if (!talep) return ctx.notFound();
 		ctx.body = {
 			data: {
@@ -283,7 +313,8 @@ export default {
 		const reportOf = new Map<number, { raporAnahtari: string; hazir: boolean }>();
 		for (const t of requests) {
 			const id = t.sinavSonucu?.id;
-			if (id && !reportOf.has(id)) reportOf.set(id, { raporAnahtari: t.raporAnahtari, hazir: ready.has(t.id) });
+			if (id && !reportOf.has(id))
+				reportOf.set(id, { raporAnahtari: t.raporAnahtari, hazir: ready.has(t.id) });
 		}
 		ctx.body = {
 			data: results.map((r) => ({
@@ -337,7 +368,9 @@ export default {
 		const map: Record<string, { baslik: string; slug: string }> = {};
 		for (const konu of konular) {
 			// biome-ignore lint/suspicious/noExplicitAny: populated relation
-			const deneme = denemeler.find((d: any) => (d.konular ?? []).some((k: { slug: string }) => k.slug === konu.slug));
+			const deneme = denemeler.find((d: any) =>
+				(d.konular ?? []).some((k: { slug: string }) => k.slug === konu.slug),
+			);
 			if (!deneme) continue;
 			for (const lesson of konu.dersVideolari ?? []) {
 				if (ids.includes(lesson.documentId) && !map[lesson.documentId]) {
@@ -349,11 +382,10 @@ export default {
 	},
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: koa context
 async function handleNewRequest(
-	ctx: any,
+	ctx,
 	sonuc: { documentId: string; denemeBaslik: string; net: unknown; kullanici?: number | null },
-	body: any,
+	body,
 ) {
 	const adSoyad = typeof body.adSoyad === "string" ? body.adSoyad.trim().replace(/\s+/g, " ") : "";
 	if (adSoyad.length < 3 || adSoyad.length > 100 || !adSoyad.includes(" ")) {
@@ -365,9 +397,13 @@ async function handleNewRequest(
 	if (body.raporIzni !== true) return bad(ctx, "KVKK aydınlatma metnini onaylayın");
 
 	const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
-	const recent = await strapi.db.query(UIDS.talep).count({ where: { telefon, createdAt: { $gte: since } } });
+	const recent = await strapi.db
+		.query(UIDS.talep)
+		.count({ where: { telefon, createdAt: { $gte: since } } });
 	if (recent >= MAX_REQUESTS_PER_PHONE_PER_DAY) {
-		return ctx.tooManyRequests("Bu numara için bugün yeterince rapor istendi, yarın tekrar deneyin.");
+		return ctx.tooManyRequests(
+			"Bu numara için bugün yeterince rapor istendi, yarın tekrar deneyin.",
+		);
 	}
 
 	const result = await createRequest(strapi, sonuc, {
@@ -380,4 +416,3 @@ async function handleNewRequest(
 	});
 	ctx.body = { data: result };
 }
-

@@ -1,4 +1,5 @@
 ---
+
 title: Deneme Sınavından Sonra Ne Yapmalı?
 slug: deneme-sinavindan-sonra-ne-yapmali
 category: Lise
@@ -23,7 +24,7 @@ Sınavdan çıktıktan sonra telefonu açıp cevap anahtarını aramak yerine bi
 
 Akşam, en fazla 10–15 dakika ayır. Çözüm kitapçığın veya soru kâğıdın elindeyse yalnızca hatırladığın yerleri işaretle: “Soru 18’de ne istendiğini emin okuyamadım”, “Son bölümde zaman kalmadı”, “Paragrafı iki kez okuyunca düzelttim.” Cevap anahtarını yoksa bile bunları yaz. Amaç puan hesaplamak değil, sabah ilk bakacağın küçük bir not bırakmaktır.
 
-Analiz özellikle zor geliyorsa kendini suçlamaya dönüşmeden şu cümleyi kullanabilirsin: *“Şu an bütün görüntüyü göremiyorum; yarından sonra somut olarak bakacağım.”* Ardından günü sınav dışındaki alışılmış işlerle sürdür.
+Analiz özellikle zor geliyorsa kendini suçlamaya dönüşmeden şu cümleyi kullanabilirsin: _“Şu an bütün görüntüyü göremiyorum; yarından sonra somut olarak bakacağım.”_ Ardından günü sınav dışındaki alışılmış işlerle sürdür.
 
 ## 24–48 saat sonra hataları üç başlıkta ayır
 

@@ -1,4 +1,5 @@
 ---
+
 title: Deepfake Görseller ve Videolar Nasıl Anlaşılır?
 slug: deepfake-gorsel-video-nasil-anlasilir
 category: Lise

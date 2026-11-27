@@ -14,7 +14,13 @@ function requireEnv(...names: string[]) {
 let transporter: Transporter | null = null;
 
 export async function sendTeacherEmail(subject: string, text: string): Promise<void> {
-	const [host, port, user, pass, to] = requireEnv("SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "NOTIFY_EMAIL");
+	const [host, port, user, pass, to] = requireEnv(
+		"SMTP_HOST",
+		"SMTP_PORT",
+		"SMTP_USER",
+		"SMTP_PASS",
+		"NOTIFY_EMAIL",
+	);
 	transporter ??= nodemailer.createTransport({
 		host,
 		port: Number(port),

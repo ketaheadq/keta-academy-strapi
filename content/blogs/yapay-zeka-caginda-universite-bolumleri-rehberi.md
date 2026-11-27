@@ -1,4 +1,5 @@
 ---
+
 title: Yapay Zekâ Çağında Üniversite Bölümleri Rehberi
 slug: yapay-zeka-caginda-universite-bolumleri-rehberi
 category: Üniversite

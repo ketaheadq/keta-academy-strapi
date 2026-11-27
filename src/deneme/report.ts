@@ -43,18 +43,26 @@ export type ReportData = {
 function absoluteMedia(strapi: Core.Strapi, media: { url?: string } | null | undefined) {
 	if (!media?.url) return null;
 	if (/^https?:\/\//.test(media.url)) return media.url;
-	const base = String(strapi.config.get("server.url") || "http://localhost:1337").replace(/\/$/, "");
+	const base = String(strapi.config.get("server.url") || "http://localhost:1337").replace(
+		/\/$/,
+		"",
+	);
 	return `${base}${media.url}`;
 }
 
 /** Wrong and blank questions of a result, with solution and the student's answer. */
-// biome-ignore lint/suspicious/noExplicitAny: populated components
-function reviewQuestions(strapi: Core.Strapi, sorular: any[], cevaplar: Record<string, string | null>) {
+function reviewQuestions(
+	strapi: Core.Strapi,
+	// biome-ignore lint/suspicious/noExplicitAny: populated components
+	sorular: any[],
+	cevaplar: Record<string, string | null>,
+) {
 	const reviews: Omit<QuestionReview, "video">[] = [];
 	sorular.forEach((soru, index) => {
 		const optionCount = Math.max(2, soru.secenekler?.length ?? 4);
 		const answer = cevaplar?.[index] ?? null;
-		const valid = answer && LETTERS.indexOf(answer as (typeof LETTERS)[number]) < optionCount ? answer : null;
+		const valid =
+			answer && LETTERS.indexOf(answer as (typeof LETTERS)[number]) < optionCount ? answer : null;
 		if (valid === soru.dogruSecenek) return;
 		reviews.push({
 			no: index + 1,
@@ -133,10 +141,19 @@ async function videosForTopics(strapi: Core.Strapi, topics: TopicStat[]) {
 
 	const konular = await strapi.db.query(UIDS.konu).findMany({
 		where: { slug: { $in: topics.map((t) => t.slug) } },
-		populate: { dersVideolari: { select: ["documentId"], where: { publishedAt: { $notNull: true } } } },
+		populate: {
+			dersVideolari: { select: ["documentId"], where: { publishedAt: { $notNull: true } } },
+		},
 	});
 	const tagged = new Map<string, string[]>(
-		konular.map((k) => [k.slug, [...new Set<string>((k.dersVideolari ?? []).map((l: { documentId: string }) => l.documentId))]]),
+		konular.map((k) => [
+			k.slug,
+			[
+				...new Set<string>(
+					(k.dersVideolari ?? []).map((l: { documentId: string }) => l.documentId),
+				),
+			],
+		]),
 	);
 
 	let allLessons: { documentId: string; title: string }[] | null = null;
@@ -149,14 +166,21 @@ async function videosForTopics(strapi: Core.Strapi, topics: TopicStat[]) {
 				select: ["documentId", "title"],
 				limit: 2000,
 			});
-			ids = [...new Set(allLessons.filter((l) => titleMatches(topic.ad, l.title)).map((l) => l.documentId))];
+			ids = [
+				...new Set(
+					allLessons.filter((l) => titleMatches(topic.ad, l.title)).map((l) => l.documentId),
+				),
+			];
 		}
 		candidates.set(topic.slug, ids);
 	}
 
 	const urls = await lessonUrls(strapi, [...new Set([...candidates.values()].flat())]);
 	for (const [slug, ids] of candidates) {
-		result.set(slug, ids.flatMap((id) => (urls.has(id) ? [urls.get(id) as Video] : [])).slice(0, VIDEOS_PER_TOPIC));
+		result.set(
+			slug,
+			ids.flatMap((id) => (urls.has(id) ? [urls.get(id) as Video] : [])).slice(0, VIDEOS_PER_TOPIC),
+		);
 	}
 	return result;
 }
@@ -176,14 +200,22 @@ async function rank(strapi: Core.Strapi, denemeDocumentId: string, net: number) 
 export async function prepareReport(strapi: Core.Strapi, talepId: number) {
 	const talep = await strapi.db.query(UIDS.talep).findOne({
 		where: { id: talepId },
-		populate: { sinavSonucu: { populate: { deneme: { select: ["documentId", "baslik", "slug", "sinavTuru"] } } } },
+		populate: {
+			sinavSonucu: {
+				populate: { deneme: { select: ["documentId", "baslik", "slug", "sinavTuru"] } },
+			},
+		},
 	});
 	const sonuc = talep?.sinavSonucu;
 	if (!talep || !sonuc) return;
 
 	// Another request for the same result (e.g. the parent's number) reuses its report.
 	const sibling = await strapi.db.query(UIDS.talep).findOne({
-		where: { sinavSonucu: { id: sonuc.id }, id: { $ne: talep.id }, raporVerisi: { $notNull: true } },
+		where: {
+			sinavSonucu: { id: sonuc.id },
+			id: { $ne: talep.id },
+			raporVerisi: { $notNull: true },
+		},
 		orderBy: { id: "asc" },
 	});
 
@@ -200,25 +232,42 @@ export async function prepareReport(strapi: Core.Strapi, talepId: number) {
 	} else {
 		const konular: TopicStat[] = sonuc.konuOranlari ?? [];
 		const weak = weakestTopics(konular, WEAK_TOPIC_COUNT);
-		const deneme = sonuc.deneme ?? { documentId: "", baslik: sonuc.denemeBaslik, slug: "", sinavTuru: "" };
+		const deneme = sonuc.deneme ?? {
+			documentId: "",
+			baslik: sonuc.denemeBaslik,
+			slug: "",
+			sinavTuru: "",
+		};
 		const published = deneme.documentId
 			? await strapi.documents(UIDS.deneme).findOne({
 					documentId: deneme.documentId,
 					status: "published",
 					populate: {
-						sorular: { populate: { gorsel: true, secenekler: { populate: { gorsel: true } }, konu: true } },
+						sorular: {
+							populate: { gorsel: true, secenekler: { populate: { gorsel: true } }, konu: true },
+						},
 						// biome-ignore lint/suspicious/noExplicitAny: populate typing doesn't cover nested components
 					} as any,
 				})
 			: null;
-		// biome-ignore lint/suspicious/noExplicitAny: populated component
-		const reviews = reviewQuestions(strapi, ((published as any)?.sorular ?? []) as any[], sonuc.cevaplar ?? {});
+		const reviews = reviewQuestions(
+			strapi,
+			// biome-ignore lint/suspicious/noExplicitAny: populated component
+			((published as any)?.sorular ?? []) as any[],
+			sonuc.cevaplar ?? {},
+		);
 
 		// Videos for the weak topics and for every topic with a wrong/blank question.
 		const topicsNeedingVideos = new Map<string, TopicStat>(weak.map((t) => [t.slug, t]));
 		for (const r of reviews) {
 			if (r.konuSlug !== "diger" && !topicsNeedingVideos.has(r.konuSlug)) {
-				topicsNeedingVideos.set(r.konuSlug, { slug: r.konuSlug, ad: r.konu, toplam: 0, dogru: 0, oran: 0 });
+				topicsNeedingVideos.set(r.konuSlug, {
+					slug: r.konuSlug,
+					ad: r.konu,
+					toplam: 0,
+					dogru: 0,
+					oran: 0,
+				});
 			}
 		}
 		const videos = await videosForTopics(strapi, [...topicsNeedingVideos.values()]);
@@ -231,7 +280,12 @@ export async function prepareReport(strapi: Core.Strapi, talepId: number) {
 			net: Number(sonuc.net),
 			soruSayisi: sonuc.dogru + sonuc.yanlis + sonuc.bos,
 			konular,
-			zayifKonular: weak.map((t) => ({ ad: t.ad, slug: t.slug, oran: t.oran, videolar: videos.get(t.slug) ?? [] })),
+			zayifKonular: weak.map((t) => ({
+				ad: t.ad,
+				slug: t.slug,
+				oran: t.oran,
+				videolar: videos.get(t.slug) ?? [],
+			})),
 			sorular: reviews.map((r) => ({ ...r, video: videos.get(r.konuSlug)?.[0] ?? null })),
 			siralama: deneme.documentId ? await rank(strapi, deneme.documentId, Number(sonuc.net)) : null,
 		};
@@ -303,14 +357,21 @@ async function notifyTeacher(strapi: Core.Strapi, talepId: number) {
 		`Rapor: ${talep.raporLinki}?onizleme=1`,
 	];
 	try {
-		await sendTeacherEmail(`Yeni rapor talebi: ${talep.adSoyad} – ${talep.denemeBaslik}`, lines.join("\n"));
+		await sendTeacherEmail(
+			`Yeni rapor talebi: ${talep.adSoyad} – ${talep.denemeBaslik}`,
+			lines.join("\n"),
+		);
 		if (talep.bildirimHatasi) {
-			await strapi.db.query(UIDS.talep).update({ where: { id: talepId }, data: { bildirimHatasi: null } });
+			await strapi.db
+				.query(UIDS.talep)
+				.update({ where: { id: talepId }, data: { bildirimHatasi: null } });
 		}
 	} catch (error) {
 		const message = (error as Error).message;
 		strapi.log.error(`[deneme] Teacher e-mail failed for request #${talepId}: ${message}`);
-		await strapi.db.query(UIDS.talep).update({ where: { id: talepId }, data: { bildirimHatasi: message } });
+		await strapi.db
+			.query(UIDS.talep)
+			.update({ where: { id: talepId }, data: { bildirimHatasi: message } });
 	}
 }
 
@@ -366,7 +427,9 @@ export async function createRequest(
 	});
 	setImmediate(() => {
 		prepareReport(strapi, Number(talep.id)).catch((error) =>
-			strapi.log.error(`[deneme] Report preparation failed for request #${talep.id}: ${error.message}`),
+			strapi.log.error(
+				`[deneme] Report preparation failed for request #${talep.id}: ${error.message}`,
+			),
 		);
 	});
 	return { telefon: maskMobile(input.telefon), raporAnahtari };

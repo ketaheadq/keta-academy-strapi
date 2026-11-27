@@ -25,7 +25,8 @@ type PanelData = {
 	konusuzVideoSayisi: number;
 };
 
-const editUrl = (uid: string, documentId: string) => `/admin/content-manager/collection-types/${uid}/${documentId}`;
+const editUrl = (uid: string, documentId: string) =>
+	`/admin/content-manager/collection-types/${uid}/${documentId}`;
 const linkStyle = { color: "#4945ff", textDecoration: "underline" };
 const DURUM: Record<string, string> = {
 	Aranacak: "Aranacak",
@@ -58,7 +59,10 @@ export const DenemePanelWidget = () => {
 				<Typography variant="omega">
 					<strong>{data.yorumsuz}</strong> rapor yapay zeka yorumu olmadan açılıyor
 				</Typography>
-				<a style={linkStyle} href="/admin/content-manager/collection-types/api::rapor-talebi.rapor-talebi">
+				<a
+					style={linkStyle}
+					href="/admin/content-manager/collection-types/api::rapor-talebi.rapor-talebi"
+				>
 					Tüm talepler
 				</a>
 			</Flex>
@@ -73,13 +77,22 @@ export const DenemePanelWidget = () => {
 					</Typography>
 				)}
 				{data.talepler.map((t) => (
-					<Box key={t.documentId} paddingTop={2} paddingBottom={2} borderColor="neutral150" style={{ borderBottom: "1px solid" }}>
+					<Box
+						key={t.documentId}
+						paddingTop={2}
+						paddingBottom={2}
+						borderColor="neutral150"
+						style={{ borderBottom: "1px solid" }}
+					>
 						<Flex justifyContent="space-between" gap={2} wrap="wrap">
 							<Typography fontWeight="bold">
-								{t.adSoyad} ({t.yakinlik === "Ogrenci" ? "Öğrenci" : t.yakinlik === "Diger" ? "Diğer" : "Veli"}) · 0{t.telefon}
+								{t.adSoyad} (
+								{t.yakinlik === "Ogrenci" ? "Öğrenci" : t.yakinlik === "Diger" ? "Diğer" : "Veli"})
+								· 0{t.telefon}
 							</Typography>
 							<Typography variant="pi" textColor="neutral600">
-								{DURUM[t.durum] ?? t.durum} · {t.raporAcilmaSayisi ? `rapor ${t.raporAcilmaSayisi} kez açıldı` : "rapor açılmadı"}
+								{DURUM[t.durum] ?? t.durum} ·{" "}
+								{t.raporAcilmaSayisi ? `rapor ${t.raporAcilmaSayisi} kez açıldı` : "rapor açılmadı"}
 								{t.aramaIzni ? "" : " · arama izni yok"}
 							</Typography>
 						</Flex>
@@ -89,7 +102,12 @@ export const DenemePanelWidget = () => {
 							{t.kaynak ? ` — kaynak: ${t.kaynak}` : ""}
 						</Typography>
 						<Flex gap={3}>
-							<a style={linkStyle} href={`${t.raporLinki}?onizleme=1`} target="_blank" rel="noreferrer">
+							<a
+								style={linkStyle}
+								href={`${t.raporLinki}?onizleme=1`}
+								target="_blank"
+								rel="noreferrer"
+							>
 								Raporu aç
 							</a>
 							<a style={linkStyle} href={editUrl("api::rapor-talebi.rapor-talebi", t.documentId)}>

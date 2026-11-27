@@ -38,8 +38,7 @@ const adminUrl = (documentId: string) => {
 	return `${base}/admin/content-manager/collection-types/${UIDS.deneme}/${documentId}`;
 };
 
-const text = (value: unknown) =>
-	typeof value === "string" ? value.trim() : "";
+const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 const lower = (s: string) => s.toLocaleLowerCase("tr-TR");
 
 /** documentId → lesson ids linked to each topic, and lesson → topics, from the Konu side. */
@@ -52,8 +51,7 @@ async function topicLessonLinks() {
 	for (const t of topics) {
 		for (const l of t.dersVideolari ?? []) {
 			const list = topicsOfLesson.get(l.documentId) ?? [];
-			if (!list.some((x) => x.slug === t.slug))
-				list.push({ slug: t.slug, ad: t.ad });
+			if (!list.some((x) => x.slug === t.slug)) list.push({ slug: t.slug, ad: t.ad });
 			topicsOfLesson.set(l.documentId, list);
 		}
 	}
@@ -69,10 +67,7 @@ async function lessonCourses() {
 			course: { select: ["slug", "title", "publishedAt"] },
 		},
 	});
-	const map = new Map<
-		string,
-		{ slug: string; title: string; sira: number | null }[]
-	>();
+	const map = new Map<string, { slug: string; title: string; sira: number | null }[]>();
 	for (const link of links) {
 		if (!link.lesson || !link.course) continue;
 		const list = map.get(link.lesson.documentId) ?? [];
@@ -105,8 +100,7 @@ async function lessonRows() {
 	const byDocument = new Map<string, (typeof rows)[number]>();
 	for (const row of rows) {
 		const current = byDocument.get(row.documentId);
-		if (!current || (!current.publishedAt && row.publishedAt))
-			byDocument.set(row.documentId, row);
+		if (!current || (!current.publishedAt && row.publishedAt)) byDocument.set(row.documentId, row);
 	}
 	return [...byDocument.values()];
 }
@@ -148,17 +142,11 @@ export default {
 		// biome-ignore lint/suspicious/noExplicitAny: populated component
 		for (const exam of questions as any[])
 			for (const q of exam.sorular ?? [])
-				if (q.konu?.slug)
-					usage.set(q.konu.slug, (usage.get(q.konu.slug) ?? 0) + 1);
+				if (q.konu?.slug) usage.set(q.konu.slug, (usage.get(q.konu.slug) ?? 0) + 1);
 		// Draft & publish types have one row per version; keep one per document.
-		const unique = <
-			T extends { documentId: string; publishedAt?: string | null },
-		>(
-			rows: T[],
-		) => {
+		const unique = <T extends { documentId: string; publishedAt?: string | null }>(rows: T[]) => {
 			const map = new Map<string, T>();
-			for (const r of rows)
-				if (!map.has(r.documentId) || r.publishedAt) map.set(r.documentId, r);
+			for (const r of rows) if (!map.has(r.documentId) || r.publishedAt) map.set(r.documentId, r);
 			return [...map.values()];
 		};
 		ctx.body = {
@@ -178,12 +166,7 @@ export default {
 				siniflar: (t.siniflar ?? []).map((g: { slug: string }) => g.slug),
 				soruSayisi: usage.get(t.slug) ?? 0,
 				dersVideolari: unique(t.dersVideolari ?? []).map(
-					(l: {
-						documentId: string;
-						title: string;
-						slug: string;
-						publishedAt: string | null;
-					}) => ({
+					(l: { documentId: string; title: string; slug: string; publishedAt: string | null }) => ({
 						documentId: l.documentId,
 						title: l.title,
 						slug: l.slug,
@@ -209,10 +192,7 @@ export default {
 			PAGE_LIMIT,
 			Math.max(1, Number.parseInt(text(ctx.query.limit) || "50", 10) || 50),
 		);
-		const page = Math.max(
-			1,
-			Number.parseInt(text(ctx.query.sayfa) || "1", 10) || 1,
-		);
+		const page = Math.max(1, Number.parseInt(text(ctx.query.sayfa) || "1", 10) || 1);
 
 		const [rows, topicsOfLesson, coursesOfLesson] = await Promise.all([
 			lessonRows(),
@@ -225,8 +205,7 @@ export default {
 			if (topic && !topics.some((t) => t.slug === topic)) return false;
 			if (course && !courses.some((c) => c.slug === course)) return false;
 			if (untopiced && topics.length) return false;
-			if (q && !lower(`${l.title ?? ""} ${l.description ?? ""}`).includes(q))
-				return false;
+			if (q && !lower(`${l.title ?? ""} ${l.description ?? ""}`).includes(q)) return false;
 			return true;
 		});
 		ctx.body = {
@@ -242,9 +221,7 @@ export default {
 				yayinda: Boolean(l.publishedAt),
 				kurslar: coursesOfLesson.get(l.documentId) ?? [],
 				konular: topicsOfLesson.get(l.documentId) ?? [],
-				...(withContent
-					? { icerik: blocksToText(l.content).slice(0, LESSON_CONTENT_LIMIT) }
-					: {}),
+				...(withContent ? { icerik: blocksToText(l.content).slice(0, LESSON_CONTENT_LIMIT) } : {}),
 			})),
 		};
 	},
@@ -252,9 +229,7 @@ export default {
 	/** One lesson with its full text. */
 	// biome-ignore lint/suspicious/noExplicitAny: Koa context
 	async lesson(ctx: any) {
-		const lesson = (await lessonRows()).find(
-			(l) => l.documentId === ctx.params.documentId,
-		);
+		const lesson = (await lessonRows()).find((l) => l.documentId === ctx.params.documentId);
 		if (!lesson) return ctx.notFound("Ders bulunamadı");
 		const [topicsOfLesson, coursesOfLesson] = await Promise.all([
 			topicLessonLinks(),
@@ -283,9 +258,7 @@ export default {
 				sort: "updatedAt:desc",
 				populate: EXAM_POPULATE,
 			}),
-			strapi
-				.documents(UIDS.deneme)
-				.findMany({ status: "published", fields: ["documentId"] }),
+			strapi.documents(UIDS.deneme).findMany({ status: "published", fields: ["documentId"] }),
 		]);
 		const live = new Set(published.map((d) => d.documentId));
 		ctx.body = {
@@ -349,9 +322,7 @@ export default {
 		const created = await strapi
 			.documents(UIDS.deneme)
 			.create({ data: data as never, status: "draft" } as never);
-		strapi.log.info(
-			`[soru-yazari] Draft exam created: ${created.documentId} (${data.slug})`,
-		);
+		strapi.log.info(`[soru-yazari] Draft exam created: ${created.documentId} (${data.slug})`);
 		ctx.status = 201;
 		ctx.body = {
 			tamam: true,
@@ -397,9 +368,7 @@ export default {
 		await strapi
 			.documents(UIDS.deneme)
 			.update({ documentId, data: data as never, status: "draft" } as never);
-		strapi.log.info(
-			`[soru-yazari] Draft exam updated: ${documentId} (${data.slug})`,
-		);
+		strapi.log.info(`[soru-yazari] Draft exam updated: ${documentId} (${data.slug})`);
 		ctx.body = {
 			tamam: true,
 			documentId,
@@ -416,10 +385,7 @@ export default {
 	async uploadImage(ctx: any) {
 		const files = ctx.request.files?.file;
 		const file = Array.isArray(files) ? files[0] : files;
-		if (!file)
-			return ctx.badRequest(
-				"`file` alanında bir görsel gönderin (multipart/form-data)",
-			);
+		if (!file) return ctx.badRequest("`file` alanında bir görsel gönderin (multipart/form-data)");
 		const alt = text(ctx.request.body?.alt).slice(0, 300);
 		if (!alt)
 			return ctx.badRequest(

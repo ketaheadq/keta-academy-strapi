@@ -30,7 +30,9 @@ export function registerPanelRoute(strapi: Core.Strapi) {
 							"createdAt",
 						],
 					});
-					const aranacak = await strapi.db.query(UIDS.talep).count({ where: { durum: "Aranacak" } });
+					const aranacak = await strapi.db
+						.query(UIDS.talep)
+						.count({ where: { durum: "Aranacak" } });
 					const yorumsuz = await strapi.db.query(UIDS.talep).count({
 						where: { yapayZekaHatasi: { $notNull: true }, hocaNotu: { $null: true } },
 					});
@@ -38,7 +40,11 @@ export function registerPanelRoute(strapi: Core.Strapi) {
 					const tagged = await strapi.db.query(UIDS.konu).findMany({
 						populate: { dersVideolari: { select: ["documentId"] } },
 					});
-					const taggedIds = new Set(tagged.flatMap((k) => (k.dersVideolari ?? []).map((l: { documentId: string }) => l.documentId)));
+					const taggedIds = new Set(
+						tagged.flatMap((k) =>
+							(k.dersVideolari ?? []).map((l: { documentId: string }) => l.documentId),
+						),
+					);
 					const lessons = await strapi.db.query(UIDS.lesson).findMany({
 						where: { publishedAt: { $notNull: true } },
 						select: ["documentId", "title"],

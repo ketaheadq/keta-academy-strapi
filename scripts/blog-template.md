@@ -1,9 +1,10 @@
 ---
+
 title: Sınav Kaygısıyla Başa Çıkmanın 5 Yolu
 slug: sinav-kaygisiyla-basa-cikma
 category: Lise
 isPopular: false
-page: demo-yazilar   # ilişkili Page slug'ı — Strapi'de gerçekten var olmalı, yoksa yazı hiçbir listede görünmez
+page: demo-yazilar # ilişkili Page slug'ı — Strapi'de gerçekten var olmalı, yoksa yazı hiçbir listede görünmez
 image: ./kapak.png
 imageAlt: Sakin bir çalışma masası
 metaTitle: Sınav Kaygısıyla Başa Çıkma | KetaLearn
@@ -20,7 +21,7 @@ Belirsizlik kaygının en büyük kaynağıdır. Haftalık bir plan çıkar ve h
 
 - Günlük **45 dakikalık** odak blokları kur
 - Her blok sonunda 10 dakika mola ver
-- Haftada bir *kısa quiz* ile kendini test et
+- Haftada bir _kısa quiz_ ile kendini test et
 
 ## 2. Nefes Egzersizi Yap
 

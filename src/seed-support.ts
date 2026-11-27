@@ -1,7 +1,7 @@
-import type { Core, UID } from "@strapi/strapi";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { Core, UID } from "@strapi/strapi";
 
 export const blocks = (text: string) => [{ type: "paragraph", children: [{ type: "text", text }] }];
 
@@ -18,7 +18,11 @@ export function createRandom(seed: number) {
 }
 
 export function createSeedKit(strapi: Core.Strapi) {
-	async function seed(uid: UID.ContentType, match: Record<string, unknown>, data: Record<string, unknown>) {
+	async function seed(
+		uid: UID.ContentType,
+		match: Record<string, unknown>,
+		data: Record<string, unknown>,
+	) {
 		const documents = strapi.documents(uid);
 		const published = strapi.contentTypes[uid].options?.draftAndPublish;
 		const options = published ? { status: "published" as const } : {};
@@ -43,10 +47,13 @@ export function createSeedKit(strapi: Core.Strapi) {
 		try {
 			const filepath = join(directory, name);
 			await writeFile(filepath, bytes);
-			const [file] = await strapi.plugin("upload").service("upload").upload({
-				data: { fileInfo: { name, alternativeText: "KetaLearn demo" } },
-				files: { filepath, originalFilename: name, mimetype: mime, size: bytes.length },
-			});
+			const [file] = await strapi
+				.plugin("upload")
+				.service("upload")
+				.upload({
+					data: { fileInfo: { name, alternativeText: "KetaLearn demo" } },
+					files: { filepath, originalFilename: name, mimetype: mime, size: bytes.length },
+				});
 			return file.id;
 		} finally {
 			await rm(directory, { recursive: true, force: true });

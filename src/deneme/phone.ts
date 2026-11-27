@@ -12,4 +12,5 @@ export function normalizeMobile(input: unknown): string | null {
 }
 
 /** "5551234567" → "0555 *** ** 67" for messages shown back to the user. */
-export const maskMobile = (national: string) => `0${national.slice(0, 3)} *** ** ${national.slice(-2)}`;
+export const maskMobile = (national: string) =>
+	`0${national.slice(0, 3)} *** ** ${national.slice(-2)}`;

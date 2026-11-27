@@ -1,55 +1,55 @@
 {
-  "name": "keta-academy-strapi",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Keta Academy Strapi",
-  "scripts": {
-    "check": "biome check .",
-    "format": "biome format . --write",
-    "lint": "biome lint .",
-    "build": "strapi build",
-    "console": "strapi console",
-    "deploy": "strapi deploy",
-    "dev": "strapi develop",
-    "develop": "strapi develop",
-    "start": "strapi start",
-    "strapi": "strapi",
-    "upgrade": "npx @strapi/upgrade latest",
-    "upgrade:dry": "npx @strapi/upgrade latest --dry"
-  },
-  "dependencies": {
-    "@strapi/plugin-cloud": "5.64.0",
-    "@strapi/plugin-documentation": "^5.64.0",
-    "@strapi/plugin-users-permissions": "5.64.0",
-    "@strapi/provider-upload-cloudinary": "^5.64.0",
-    "@strapi/strapi": "5.64.0",
-    "dejavu-fonts-ttf": "^2.37.3",
-    "googleapis": "^152.0.0",
-    "jsonwebtoken": "^9.0.3",
-    "nodemailer": "^10.6.1",
-    "pdfkit": "^0.21.0",
-    "pg": "^8.23.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.6",
-    "strapi-plugin-slugify": "^2.3.8",
-    "styled-components": "^6.7.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.6.9",
-    "@types/node": "^20.19.43",
-    "@types/nodemailer": "^8.0.2",
-    "@types/pdfkit": "^0.17.7",
-    "@types/react": "^18.3.32",
-    "@types/react-dom": "^18.3.7",
-    "typescript": "^5.9.3"
-  },
-  "engines": {
-    "node": ">=22.0.0 <=26.x.x",
-    "yarn": ">=1.22.0"
-  },
-  "strapi": {
-    "uuid": "8a8e9f11-c6d4-41ba-8484-e4e9af831525",
-    "installId": "821467e32d4f8abd89d3eac123b7f4c34138e602088c1ada52f5ee09219d671f"
-  }
+	"name": "keta-academy-strapi",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Keta Academy Strapi",
+	"scripts": {
+		"check": "biome check .",
+		"format": "biome format . --write",
+		"lint": "biome lint .",
+		"build": "strapi build",
+		"console": "strapi console",
+		"deploy": "strapi deploy",
+		"dev": "strapi develop",
+		"develop": "strapi develop",
+		"start": "strapi start",
+		"strapi": "strapi",
+		"upgrade": "npx @strapi/upgrade latest",
+		"upgrade:dry": "npx @strapi/upgrade latest --dry"
+	},
+	"dependencies": {
+		"@strapi/plugin-cloud": "5.64.0",
+		"@strapi/plugin-documentation": "^5.64.0",
+		"@strapi/plugin-users-permissions": "5.64.0",
+		"@strapi/provider-upload-cloudinary": "^5.64.0",
+		"@strapi/strapi": "5.64.0",
+		"dejavu-fonts-ttf": "^2.37.3",
+		"googleapis": "^152.0.0",
+		"jsonwebtoken": "^9.0.3",
+		"nodemailer": "^10.6.1",
+		"pdfkit": "^0.21.0",
+		"pg": "^8.23.1",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"react-router-dom": "^6.30.6",
+		"strapi-plugin-slugify": "^2.3.8",
+		"styled-components": "^6.7.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.6.9",
+		"@types/node": "^20.19.43",
+		"@types/nodemailer": "^8.0.2",
+		"@types/pdfkit": "^0.17.7",
+		"@types/react": "^18.3.32",
+		"@types/react-dom": "^18.3.7",
+		"typescript": "^5.9.3"
+	},
+	"engines": {
+		"node": ">=22.0.0 <=26.x.x",
+		"yarn": ">=1.22.0"
+	},
+	"strapi": {
+		"uuid": "8a8e9f11-c6d4-41ba-8484-e4e9af831525",
+		"installId": "821467e32d4f8abd89d3eac123b7f4c34138e602088c1ada52f5ee09219d671f"
+	}
 }

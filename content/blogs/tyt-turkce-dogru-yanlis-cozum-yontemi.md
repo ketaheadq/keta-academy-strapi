@@ -1,4 +1,5 @@
 ---
+
 title: "TYT Türkçe’de Doğru–Yanlış Nasıl Çözülür?"
 slug: tyt-turkce-dogru-yanlis-cozum-yontemi
 category: Lise

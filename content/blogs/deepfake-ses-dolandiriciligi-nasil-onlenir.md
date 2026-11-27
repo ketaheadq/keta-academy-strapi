@@ -1,4 +1,5 @@
 ---
+
 title: Deepfake Ses ve Görüntüyle Dolandırıcılığı Nasıl Önlenir?
 slug: deepfake-ses-dolandiriciligi-nasil-onlenir
 category: Lise

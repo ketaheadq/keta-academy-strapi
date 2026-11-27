@@ -1,4 +1,5 @@
 ---
+
 title: YKS 2027 Haftalık Çalışma Planı Nasıl Hazırlanır?
 slug: yks-2027-haftalik-calisma-plani
 category: Lise

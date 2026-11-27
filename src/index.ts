@@ -1,9 +1,9 @@
 import type { Core } from "@strapi/strapi";
 import { registerPanelRoute } from "./deneme/admin";
 import { seedDefaultTerms } from "./legal/terms";
+import { migrateQuizProgress } from "./migrate-quiz-progress";
 import { seedBulk } from "./seed-bulk";
 import { seedDevelopment } from "./seed-development";
-import { migrateQuizProgress } from "./migrate-quiz-progress";
 
 interface AdvancedSettings {
 	default_role?: number;
@@ -15,11 +15,7 @@ interface AdvancedSettings {
  * Idempotent permission grant helper.
  * Grants an action to a role only if it doesn't already exist.
  */
-async function grantPermission(
-	strapi: Core.Strapi,
-	action: string,
-	roleId: number,
-) {
+async function grantPermission(strapi: Core.Strapi, action: string, roleId: number) {
 	const permissions = strapi.db.query("plugin::users-permissions.permission");
 	const existing = await permissions.findOne({ where: { action, role: roleId } });
 	if (!existing) {
@@ -61,7 +57,9 @@ function cascadeCourseLessonDeletes(strapi: Core.Strapi) {
 			await strapi.documents(COURSE_LESSON).delete({ documentId: linkId });
 		}
 		if (linkIds.length) {
-			strapi.log.info(`🧹 Removed ${linkIds.length} course-lesson link(s) of deleted ${relation} ${documentId}`);
+			strapi.log.info(
+				`🧹 Removed ${linkIds.length} course-lesson link(s) of deleted ${relation} ${documentId}`,
+			);
 		}
 		return result;
 	});
@@ -122,12 +120,12 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 
 	// ─── Auth endpoints (public must be able to login / register) ─────────────
 	const publicAuthActions = [
-		"plugin::users-permissions.auth.callback",       // POST /auth/local
-		"plugin::users-permissions.auth.connect",        // social login
-		"plugin::users-permissions.auth.register",       // POST /auth/local/register
+		"plugin::users-permissions.auth.callback", // POST /auth/local
+		"plugin::users-permissions.auth.connect", // social login
+		"plugin::users-permissions.auth.register", // POST /auth/local/register
 		"plugin::users-permissions.auth.forgotPassword", // POST /auth/forgot-password
-		"plugin::users-permissions.auth.resetPassword",  // POST /auth/reset-password
-		"plugin::users-permissions.auth.emailConfirmation",     // GET /auth/email-confirmation
+		"plugin::users-permissions.auth.resetPassword", // POST /auth/reset-password
+		"plugin::users-permissions.auth.emailConfirmation", // GET /auth/email-confirmation
 		"plugin::users-permissions.auth.sendEmailConfirmation", // POST /auth/send-email-confirmation
 	];
 	for (const action of publicAuthActions) {
@@ -139,7 +137,7 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 	// granted — Strapi does no ownership check there, so any logged-in user could
 	// read or edit other accounts (including their role).
 	const accountActions = [
-		"plugin::users-permissions.user.me",            // GET  /users/me
+		"plugin::users-permissions.user.me", // GET  /users/me
 		"plugin::users-permissions.auth.changePassword", // POST /auth/change-password (own password)
 	];
 	for (const action of accountActions) {
@@ -150,13 +148,13 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 	// These are the ONLY write paths for progress data; each handler scopes
 	// reads/writes to ctx.state.user.
 	const learningActions = [
-		"listLessons",    // GET  /learning/lesson-progress
+		"listLessons", // GET  /learning/lesson-progress
 		"completeLesson", // PUT  /learning/lesson-progress/:documentId
 		"courseProgress", // GET  /learning/course-progress/:documentId
-		"listCourses",    // GET  /learning/courses
-		"startCourse",    // POST /learning/courses/:documentId/start
-		"listAttempts",   // GET  /learning/quizzes/:documentId/attempts
-		"submitQuiz",     // POST /learning/quizzes/:documentId/attempts
+		"listCourses", // GET  /learning/courses
+		"startCourse", // POST /learning/courses/:documentId/start
+		"listAttempts", // GET  /learning/quizzes/:documentId/attempts
+		"submitQuiz", // POST /learning/quizzes/:documentId/attempts
 	];
 	for (const handler of learningActions) {
 		await grantPermission(strapi, `api::learning.learning.${handler}`, authenticated.id);
@@ -175,7 +173,16 @@ async function bootstrapPermissions(strapi: Core.Strapi) {
 	}
 
 	// ─── Mock exams: solved without sign-up, so everything is public ───────────
-	const denemeActions = ["list", "detail", "submit", "requestReport", "report", "reportPdf", "addParent", "lessonExams"];
+	const denemeActions = [
+		"list",
+		"detail",
+		"submit",
+		"requestReport",
+		"report",
+		"reportPdf",
+		"addParent",
+		"lessonExams",
+	];
 	for (const handler of denemeActions) {
 		const action = `api::deneme.deneme.${handler}`;
 		await grantPermission(strapi, action, publicRole.id);

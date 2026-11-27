@@ -12,11 +12,7 @@ type PolicyContext = {
 	request: { header: Record<string, string | string[] | undefined> };
 };
 
-export default (
-	ctx: PolicyContext,
-	_config: unknown,
-	{ strapi }: { strapi: Core.Strapi },
-) => {
+export default (ctx: PolicyContext, _config: unknown, { strapi }: { strapi: Core.Strapi }) => {
 	const expected = (process.env.SORU_YAZARI_TOKEN || "").trim();
 	if (expected.length < MIN_TOKEN_LENGTH) {
 		strapi.log.warn(
@@ -24,9 +20,7 @@ export default (
 		);
 		return false;
 	}
-	const given = Buffer.from(
-		String(ctx.request.header["x-soru-yazari-token"] ?? ""),
-	);
+	const given = Buffer.from(String(ctx.request.header["x-soru-yazari-token"] ?? ""));
 	const wanted = Buffer.from(expected);
 	return given.length === wanted.length && timingSafeEqual(given, wanted);
 };

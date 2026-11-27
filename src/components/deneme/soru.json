@@ -13,9 +13,7 @@
 		"gorsel": {
 			"type": "media",
 			"multiple": false,
-			"allowedTypes": [
-				"images"
-			]
+			"allowedTypes": ["images"]
 		},
 		"secenekler": {
 			"type": "component",
@@ -26,22 +24,12 @@
 		},
 		"dogruSecenek": {
 			"type": "enumeration",
-			"enum": [
-				"A",
-				"B",
-				"C",
-				"D",
-				"E"
-			],
+			"enum": ["A", "B", "C", "D", "E"],
 			"required": true
 		},
 		"zorluk": {
 			"type": "enumeration",
-			"enum": [
-				"Kolay",
-				"Orta",
-				"Zor"
-			],
+			"enum": ["Kolay", "Orta", "Zor"],
 			"default": "Orta"
 		},
 		"konu": {

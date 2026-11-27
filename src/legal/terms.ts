@@ -111,8 +111,7 @@ export async function seedDefaultTerms(strapi: Core.Strapi) {
 	} | null;
 	if (existing && hasText(existing.text)) return;
 	const data = { text: textToLegalBlocks(TERMS) };
-	if (existing)
-		await documents.update({ documentId: existing.documentId, data } as never);
+	if (existing) await documents.update({ documentId: existing.documentId, data } as never);
 	else await documents.create({ data } as never);
 	strapi.log.info(
 		"📄 Hizmet şartları boştu: varsayılan metin yazıldı (admin panelinden düzenlenebilir)",

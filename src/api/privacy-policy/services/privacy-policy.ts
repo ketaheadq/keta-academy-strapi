@@ -4,6 +4,4 @@
 
 import { factories } from "@strapi/strapi";
 
-export default factories.createCoreService(
-	"api::privacy-policy.privacy-policy",
-);
+export default factories.createCoreService("api::privacy-policy.privacy-policy");

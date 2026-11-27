@@ -26,12 +26,7 @@
 		},
 		"sinavTuru": {
 			"type": "enumeration",
-			"enum": [
-				"LGS",
-				"TYT",
-				"AYT",
-				"Okul"
-			],
+			"enum": ["LGS", "TYT", "AYT", "Okul"],
 			"required": true,
 			"default": "Okul"
 		},

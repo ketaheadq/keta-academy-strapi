@@ -22,23 +22,12 @@
 		},
 		"yakinlik": {
 			"type": "enumeration",
-			"enum": [
-				"Veli",
-				"Ogrenci",
-				"Diger"
-			],
+			"enum": ["Veli", "Ogrenci", "Diger"],
 			"required": true
 		},
 		"durum": {
 			"type": "enumeration",
-			"enum": [
-				"Aranacak",
-				"Arandi",
-				"Ulasilamadi",
-				"Gorusme_yapildi",
-				"Paket_aldi",
-				"Uygun_degil"
-			],
+			"enum": ["Aranacak", "Arandi", "Ulasilamadi", "Gorusme_yapildi", "Paket_aldi", "Uygun_degil"],
 			"default": "Aranacak"
 		},
 		"raporLinki": {

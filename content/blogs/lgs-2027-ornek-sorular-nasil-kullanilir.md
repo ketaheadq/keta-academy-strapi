@@ -1,4 +1,5 @@
 ---
+
 title: LGS 2027 Örnek Sorular Nasıl Kullanılır? Doğru Çalışma Rehberi
 slug: lgs-2027-ornek-sorular-nasil-kullanilir
 category: Lise

@@ -1,4 +1,5 @@
 ---
+
 title: Üniversite Bölümü Seçerken Neye Bakmalı?
 slug: universite-bolumu-secerken-ne-bakmali
 category: Lise

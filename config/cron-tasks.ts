@@ -9,8 +9,12 @@ export default {
 	denemeVerisiTemizligi: {
 		task: async ({ strapi }: { strapi: Core.Strapi }) => {
 			const before = new Date(Date.now() - retentionDays() * 24 * 60 * 60 * 1000);
-			const talepler = await strapi.db.query(UIDS.talep).deleteMany({ where: { createdAt: { $lt: before } } });
-			const sonuclar = await strapi.db.query(UIDS.sonuc).deleteMany({ where: { createdAt: { $lt: before } } });
+			const talepler = await strapi.db
+				.query(UIDS.talep)
+				.deleteMany({ where: { createdAt: { $lt: before } } });
+			const sonuclar = await strapi.db
+				.query(UIDS.sonuc)
+				.deleteMany({ where: { createdAt: { $lt: before } } });
 			strapi.log.info(
 				`[deneme] Retention cleanup: ${talepler.count} requests and ${sonuclar.count} results older than ${before.toISOString()} deleted`,
 			);

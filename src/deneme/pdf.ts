@@ -63,7 +63,9 @@ async function loadImages(sorular: QuestionReview[]) {
 		if (q.gorselUrl) urls.add(q.gorselUrl);
 		for (const o of q.secenekler) if (o.gorselUrl) urls.add(o.gorselUrl);
 	}
-	const entries = await Promise.all([...urls].map(async (url) => [url, await fetchImage(url)] as const));
+	const entries = await Promise.all(
+		[...urls].map(async (url) => [url, await fetchImage(url)] as const),
+	);
 	return new Map(entries.filter(([, img]) => img) as [string, Buffer][]);
 }
 
@@ -82,7 +84,9 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 	doc.registerFont("bold", FONT_BOLD);
 	const chunks: Buffer[] = [];
 	doc.on("data", (chunk: Buffer) => chunks.push(chunk));
-	const done = new Promise<Buffer>((resolve) => doc.on("end", () => resolve(Buffer.concat(chunks))));
+	const done = new Promise<Buffer>((resolve) =>
+		doc.on("end", () => resolve(Buffer.concat(chunks))),
+	);
 
 	const width = doc.page.width - MARGIN * 2;
 	const left = MARGIN;
@@ -92,18 +96,29 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 	const heading = (text: string) => {
 		ensureSpace(60);
 		doc.moveDown(0.8).font("bold").fontSize(15).fillColor(C.ink).text(text, left, doc.y, { width });
-		doc.moveTo(left, doc.y + 4).lineTo(left + width, doc.y + 4).lineWidth(1).strokeColor(C.line).stroke();
+		doc
+			.moveTo(left, doc.y + 4)
+			.lineTo(left + width, doc.y + 4)
+			.lineWidth(1)
+			.strokeColor(C.line)
+			.stroke();
 		doc.moveDown(0.8);
 	};
 	const paragraph = (text: string, opts: { color?: string; size?: number } = {}) => {
-		doc.font("regular").fontSize(opts.size ?? 10.5).fillColor(opts.color ?? C.ink).text(text, left, doc.y, {
-			width,
-			lineGap: 3,
-		});
+		doc
+			.font("regular")
+			.fontSize(opts.size ?? 10.5)
+			.fillColor(opts.color ?? C.ink)
+			.text(text, left, doc.y, {
+				width,
+				lineGap: 3,
+			});
 	};
 	// openImage exists at runtime but isn't in @types/pdfkit.
 	const open = (buffer: Buffer) =>
-		(doc as unknown as { openImage(src: Buffer): { width: number; height: number } }).openImage(buffer);
+		(doc as unknown as { openImage(src: Buffer): { width: number; height: number } }).openImage(
+			buffer,
+		);
 	const scaledHeight = (buffer: Buffer, maxW: number, maxH: number) => {
 		const img = open(buffer);
 		return img.height * Math.min(maxW / img.width, maxH / img.height, 1);
@@ -138,9 +153,12 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 	doc.y = 135;
 	doc.font("bold").fontSize(13).fillColor(C.ink).text(`Merhaba ${input.ad},`, left, doc.y);
 	doc.moveDown(0.3);
-	paragraph("Deneme sonucunun konu konu analizi, yanlış ve boş soruların çözümleri ve sana özel çalışma önerileri aşağıda.", {
-		color: C.muted,
-	});
+	paragraph(
+		"Deneme sonucunun konu konu analizi, yanlış ve boş soruların çözümleri ve sana özel çalışma önerileri aşağıda.",
+		{
+			color: C.muted,
+		},
+	);
 
 	// ── Score boxes ───────────────────────────────────────────────────────────
 	doc.moveDown(1);
@@ -156,8 +174,16 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 	boxes.forEach(([label, value, main], i) => {
 		const x = left + i * (boxW + gap);
 		doc.roundedRect(x, boxY, boxW, 62, 8).fill(main ? C.primary : C.soft);
-		doc.font("bold").fontSize(22).fillColor(main ? "#ffffff" : C.ink).text(value, x, boxY + 10, { width: boxW, align: "center" });
-		doc.font("regular").fontSize(9).fillColor(main ? "#cbd5e1" : C.muted).text(label, x, boxY + 40, { width: boxW, align: "center" });
+		doc
+			.font("bold")
+			.fontSize(22)
+			.fillColor(main ? "#ffffff" : C.ink)
+			.text(value, x, boxY + 10, { width: boxW, align: "center" });
+		doc
+			.font("regular")
+			.fontSize(9)
+			.fillColor(main ? "#cbd5e1" : C.muted)
+			.text(label, x, boxY + 40, { width: boxW, align: "center" });
 	});
 	doc.y = boxY + 74;
 	if (data.siralama) {
@@ -175,10 +201,22 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 		ensureSpace(70);
 		doc.moveDown(0.8);
 		const noteY = doc.y;
-		const noteHeight = doc.font("regular").fontSize(10.5).heightOfString(input.hocaNotu, { width: width - 24, lineGap: 3 }) + 34;
+		const noteHeight =
+			doc
+				.font("regular")
+				.fontSize(10.5)
+				.heightOfString(input.hocaNotu, { width: width - 24, lineGap: 3 }) + 34;
 		doc.roundedRect(left, noteY, width, noteHeight, 8).fill("#fef3c7");
-		doc.font("bold").fontSize(10).fillColor("#92400e").text("Çağlar Hoca'nın notu", left + 12, noteY + 10);
-		doc.font("regular").fontSize(10.5).fillColor(C.ink).text(input.hocaNotu, left + 12, noteY + 26, { width: width - 24, lineGap: 3 });
+		doc
+			.font("bold")
+			.fontSize(10)
+			.fillColor("#92400e")
+			.text("Çağlar Hoca'nın notu", left + 12, noteY + 10);
+		doc
+			.font("regular")
+			.fontSize(10.5)
+			.fillColor(C.ink)
+			.text(input.hocaNotu, left + 12, noteY + 26, { width: width - 24, lineGap: 3 });
 		doc.y = noteY + noteHeight;
 	}
 
@@ -187,13 +225,19 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 	for (const konu of [...data.konular].sort((a, b) => a.oran - b.oran)) {
 		ensureSpace(32);
 		const y = doc.y;
-		doc.font("regular").fontSize(10).fillColor(C.ink).text(konu.ad, left, y, { width: width * 0.55 });
+		doc
+			.font("regular")
+			.fontSize(10)
+			.fillColor(C.ink)
+			.text(konu.ad, left, y, { width: width * 0.55 });
 		doc
 			.fillColor(C.muted)
 			.text(`${konu.dogru}/${konu.toplam} · %${konu.oran}`, left, y, { width, align: "right" });
 		const barY = y + 15;
 		doc.roundedRect(left, barY, width, 6, 3).fill(C.soft);
-		doc.roundedRect(left, barY, Math.max(6, (width * konu.oran) / 100), 6, 3).fill(rateColor(konu.oran));
+		doc
+			.roundedRect(left, barY, Math.max(6, (width * konu.oran) / 100), 6, 3)
+			.fill(rateColor(konu.oran));
 		doc.y = barY + 14;
 	}
 
@@ -202,7 +246,11 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 		heading("Önce bu konulara çalışalım");
 		for (const konu of data.zayifKonular) {
 			ensureSpace(80);
-			doc.font("bold").fontSize(11.5).fillColor(C.ink).text(`${konu.ad}  `, left, doc.y, { continued: true, width });
+			doc
+				.font("bold")
+				.fontSize(11.5)
+				.fillColor(C.ink)
+				.text(`${konu.ad}  `, left, doc.y, { continued: true, width });
 			doc.font("regular").fillColor(rateColor(konu.oran)).text(`%${konu.oran}`);
 			const comment = yorum?.konuYorumlari.find((k) => k.konu === konu.ad)?.yorum;
 			if (comment) {
@@ -211,7 +259,8 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 			}
 			doc.moveDown(0.2);
 			if (konu.videolar.length) {
-				for (const video of konu.videolar) link(`▶ Şu dersi izle: ${video.baslik}`, tracked(video.url));
+				for (const video of konu.videolar)
+					link(`▶ Şu dersi izle: ${video.baslik}`, tracked(video.url));
 			} else {
 				paragraph("Bu konunun ders videoları yakında eklenecek.", { color: C.muted, size: 9.5 });
 			}
@@ -224,17 +273,33 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 		// Start on a new page only when the first question wouldn't fit.
 		ensureSpace(260);
 		heading("Soru soru analiz");
-		paragraph("Yanlış yaptığın ve boş bıraktığın sorular, doğru cevaplar ve çözümleriyle.", { color: C.muted });
+		paragraph("Yanlış yaptığın ve boş bıraktığın sorular, doğru cevaplar ve çözümleriyle.", {
+			color: C.muted,
+		});
 		doc.moveDown(0.5);
 		for (const q of data.sorular) {
 			// Keep the question header, text and image on one page.
 			const questionImage = q.gorselUrl ? images.get(q.gorselUrl) : null;
-			const textHeight = doc.font("regular").fontSize(10.5).heightOfString(q.soru, { width, lineGap: 3 });
-			ensureSpace(120 + textHeight + (questionImage ? scaledHeight(questionImage, width * 0.7, 200) + 8 : 0));
+			const textHeight = doc
+				.font("regular")
+				.fontSize(10.5)
+				.heightOfString(q.soru, { width, lineGap: 3 });
+			ensureSpace(
+				120 + textHeight + (questionImage ? scaledHeight(questionImage, width * 0.7, 200) + 8 : 0),
+			);
 			const top = doc.y;
-			doc.moveTo(left, top).lineTo(left + width, top).lineWidth(1).strokeColor(C.line).stroke();
+			doc
+				.moveTo(left, top)
+				.lineTo(left + width, top)
+				.lineWidth(1)
+				.strokeColor(C.line)
+				.stroke();
 			doc.y = top + 10;
-			doc.font("bold").fontSize(11.5).fillColor(C.ink).text(`Soru ${q.no}`, left, doc.y, { continued: true });
+			doc
+				.font("bold")
+				.fontSize(11.5)
+				.fillColor(C.ink)
+				.text(`Soru ${q.no}`, left, doc.y, { continued: true });
 			doc
 				.font("regular")
 				.fillColor(q.durum === "yanlis" ? C.red : C.muted)
@@ -258,7 +323,9 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 					.font(isCorrect || isStudent ? "bold" : "regular")
 					.fontSize(10.5)
 					.fillColor(color)
-					.text(`${mark}  ${option.harf}) ${option.metin}${note}`, left + 8, doc.y, { width: width - 8 });
+					.text(`${mark}  ${option.harf}) ${option.metin}${note}`, left + 8, doc.y, {
+						width: width - 8,
+					});
 				const optionImage = option.gorselUrl ? images.get(option.gorselUrl) : null;
 				if (optionImage) image(optionImage, left + 26, 160, 80);
 			}
@@ -309,7 +376,11 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 		input.yakinlik === "Ogrenci"
 			? "Velinin numarasını ekle: Çağlar Hoca velini arayıp raporu birlikte 15 dakikada ücretsiz değerlendirsin."
 			: `Çağlar Hoca bu raporu sizinle 15 dakikada ücretsiz değerlendirsin.${input.aramaIzni ? " Sizi bu numaradan arayacağız." : ""}`;
-	doc.font("regular").fontSize(10.5).fillColor(C.ink).text(offer, left + 16, ctaY + 36, { width: width - 32, lineGap: 2 });
+	doc
+		.font("regular")
+		.fontSize(10.5)
+		.fillColor(C.ink)
+		.text(offer, left + 16, ctaY + 36, { width: width - 32, lineGap: 2 });
 	const ctaLinkY = ctaY + 84;
 	if (input.yakinlik === "Ogrenci") {
 		doc
@@ -341,11 +412,16 @@ export async function renderReportPdf(input: PdfInput): Promise<Buffer> {
 			.font("regular")
 			.fontSize(8)
 			.fillColor(C.muted)
-			.text(`KetaLearn · ${siteUrl().replace(/^https?:\/\//, "")} · Sayfa ${i + 1}/${range.count}`, MARGIN, doc.page.height - 35, {
-				width,
-				align: "center",
-				lineBreak: false,
-			});
+			.text(
+				`KetaLearn · ${siteUrl().replace(/^https?:\/\//, "")} · Sayfa ${i + 1}/${range.count}`,
+				MARGIN,
+				doc.page.height - 35,
+				{
+					width,
+					align: "center",
+					lineBreak: false,
+				},
+			);
 		doc.page.margins.bottom = bottom;
 	}
 

@@ -1,4 +1,5 @@
 ---
+
 title: YKS 2027 Başvuru Takvimi ve Kontrol Listesi
 slug: yks-2027-basvuru-takvimi-ve-kontrol-listesi
 category: Lise

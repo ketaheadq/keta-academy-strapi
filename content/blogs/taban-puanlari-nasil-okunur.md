@@ -1,4 +1,5 @@
 ---
+
 title: Taban Puanları Nasıl Okunur? Doğru Yorum Rehberi
 slug: taban-puanlari-nasil-okunur
 category: Lise

@@ -1,5 +1,3 @@
-
-
 /**
  * Custom providers service that extends the default one
  */
@@ -23,9 +21,7 @@ module.exports = ({ strapi }) => ({
 
 			// Generate username if not provided
 			if (!result.user.username) {
-				let baseUsername = result.user.email
-					? result.user.email.split("@")[0]
-					: "user";
+				let baseUsername = result.user.email ? result.user.email.split("@")[0] : "user";
 
 				// Clean username (remove special characters, ensure min length)
 				baseUsername = baseUsername.replace(/[^a-zA-Z0-9]/g, "");
@@ -38,9 +34,7 @@ module.exports = ({ strapi }) => ({
 
 				// Check if username exists and generate unique one
 				while (
-					await strapi
-						.query("plugin::users-permissions.user")
-						.findOne({ where: { username } })
+					await strapi.query("plugin::users-permissions.user").findOne({ where: { username } })
 				) {
 					username = `${baseUsername}${counter}`;
 					counter++;

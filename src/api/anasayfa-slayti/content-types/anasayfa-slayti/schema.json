@@ -22,9 +22,7 @@
 		"gorsel": {
 			"type": "media",
 			"multiple": false,
-			"allowedTypes": [
-				"images"
-			]
+			"allowedTypes": ["images"]
 		},
 		"butonYazisi": {
 			"type": "string"

@@ -81,18 +81,13 @@ export function blocksToPlain(blocks: any): string {
 	// biome-ignore lint/suspicious/noExplicitAny: see above
 	const inline = (nodes: any[]): string =>
 		(nodes ?? [])
-			.map((n) =>
-				typeof n?.text === "string" ? n.text : inline(n?.children ?? []),
-			)
+			.map((n) => (typeof n?.text === "string" ? n.text : inline(n?.children ?? [])))
 			.join("");
 	return blocks
 		.map((block) =>
 			block?.type === "list"
 				? (block.children ?? [])
-						.map(
-							(item: { children?: unknown[] }) =>
-								`- ${inline(item.children ?? [])}`,
-						)
+						.map((item: { children?: unknown[] }) => `- ${inline(item.children ?? [])}`)
 						.join("\n")
 				: inline(block?.children ?? []),
 		)
@@ -124,8 +119,7 @@ export function slugify(text: string) {
 
 type Issue = { yol: string; hata: string };
 
-const isText = (v: unknown): v is string =>
-	typeof v === "string" && v.trim().length > 0;
+const isText = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
 
 /**
  * Checks an exam against the content model and the catalogue, and turns it into the data
@@ -153,9 +147,7 @@ export async function toDocumentData(
 		};
 
 	if (!isText(input.baslik)) fail("baslik", "Zorunlu");
-	const slug = slugify(
-		isText(input.slug) ? input.slug : String(input.baslik ?? ""),
-	);
+	const slug = slugify(isText(input.slug) ? input.slug : String(input.baslik ?? ""));
 	if (!slug) fail("slug", "Başlıktan slug üretilemedi; slug alanını verin");
 	if (!EXAM_TYPES.includes(input.sinavTuru as (typeof EXAM_TYPES)[number])) {
 		fail("sinavTuru", `Şunlardan biri olmalı: ${EXAM_TYPES.join(", ")}`);
@@ -164,12 +156,8 @@ export async function toDocumentData(
 		fail("sureDakika", "1 veya daha büyük tam sayı olmalı");
 	if (!Array.isArray(input.sorular) || !input.sorular.length)
 		fail("sorular", "En az bir soru gerekli");
-	else if (input.sorular.length > MAX_QUESTIONS)
-		fail("sorular", `En fazla ${MAX_QUESTIONS} soru`);
-	if (
-		input.SEO &&
-		(!isText(input.SEO.metaTitle) || !isText(input.SEO.metaDescription))
-	) {
+	else if (input.sorular.length > MAX_QUESTIONS) fail("sorular", `En fazla ${MAX_QUESTIONS} soru`);
+	if (input.SEO && (!isText(input.SEO.metaTitle) || !isText(input.SEO.metaDescription))) {
 		fail("SEO", "metaTitle ve metaDescription birlikte verilmeli");
 	}
 
@@ -190,29 +178,21 @@ export async function toDocumentData(
 			select: ["slug", "documentId"],
 		});
 		return new Map<string, string>(
-			rows.map((r: { slug: string; documentId: string }) => [
-				r.slug,
-				r.documentId,
-			]),
+			rows.map((r: { slug: string; documentId: string }) => [r.slug, r.documentId]),
 		);
 	};
 	const grade = input.sinif
 		? (await bySlug("api::grade.grade", [input.sinif])).get(input.sinif)
 		: undefined;
-	if (input.sinif && !grade)
-		fail("sinif", `"${input.sinif}" sınıfı yok (GET /katalog → siniflar)`);
+	if (input.sinif && !grade) fail("sinif", `"${input.sinif}" sınıfı yok (GET /katalog → siniflar)`);
 	const subject = input.ders
 		? (await bySlug("api::subject.subject", [input.ders])).get(input.ders)
 		: undefined;
-	if (input.ders && !subject)
-		fail("ders", `"${input.ders}" dersi yok (GET /katalog → dersler)`);
+	if (input.ders && !subject) fail("ders", `"${input.ders}" dersi yok (GET /katalog → dersler)`);
 
 	const questions = Array.isArray(input.sorular) ? input.sorular : [];
 	const topicSlugs = [
-		...new Set([
-			...(input.konular ?? []),
-			...questions.map((q) => q?.konu).filter(isText),
-		]),
+		...new Set([...(input.konular ?? []), ...questions.map((q) => q?.konu).filter(isText)]),
 	];
 	const topics = await bySlug(UIDS.konu, topicSlugs);
 
@@ -235,10 +215,7 @@ export async function toDocumentData(
 		if (value == null) return null;
 		const id = Number(value);
 		if (!Number.isInteger(id) || !foundMedia.has(id)) {
-			fail(
-				yol,
-				`${value} numaralı görsel yok (önce POST /gorseller ile yükleyin)`,
-			);
+			fail(yol, `${value} numaralı görsel yok (önce POST /gorseller ile yükleyin)`);
 			return null;
 		}
 		return id;
@@ -256,18 +233,11 @@ export async function toDocumentData(
 			fail(`${at}.secenekler`, "2 ile 5 arasında şık olmalı");
 		const letters = LETTERS.slice(0, options.length) as readonly string[];
 		if (!letters.includes(q.dogruSecenek))
-			fail(
-				`${at}.dogruSecenek`,
-				`Şunlardan biri olmalı: ${letters.join(", ") || "A–E"}`,
-			);
-		if (
-			q.zorluk != null &&
-			!DIFFICULTIES.includes(q.zorluk as (typeof DIFFICULTIES)[number])
-		) {
+			fail(`${at}.dogruSecenek`, `Şunlardan biri olmalı: ${letters.join(", ") || "A–E"}`);
+		if (q.zorluk != null && !DIFFICULTIES.includes(q.zorluk as (typeof DIFFICULTIES)[number])) {
 			fail(`${at}.zorluk`, `Şunlardan biri olmalı: ${DIFFICULTIES.join(", ")}`);
 		}
-		if (!isText(q.konu))
-			fail(`${at}.konu`, "Zorunlu: konu slug'ı (GET /katalog → konular)");
+		if (!isText(q.konu)) fail(`${at}.konu`, "Zorunlu: konu slug'ı (GET /katalog → konular)");
 		else if (!topics.has(q.konu))
 			fail(`${at}.konu`, `"${q.konu}" konusu yok (GET /katalog → konular)`);
 		if (!isText(q.cozum))
@@ -278,16 +248,14 @@ export async function toDocumentData(
 
 		const texts = options.map((o) => (isText(o?.metin) ? o.metin.trim() : ""));
 		const duplicate = texts.find((t, j) => t && texts.indexOf(t) !== j);
-		if (duplicate)
-			fail(`${at}.secenekler`, `Aynı şık iki kez var: "${duplicate}"`);
+		if (duplicate) fail(`${at}.secenekler`, `Aynı şık iki kez var: "${duplicate}"`);
 
 		return {
 			metin: textToBlocks(q.metin),
 			gorsel: media(q.gorsel, `${at}.gorsel`),
 			secenekler: options.map((o, j) => {
 				const yol = `${at}.secenekler[${j}]`;
-				if (!isText(o?.metin) && o?.gorsel == null)
-					fail(yol, "Şıkta metin ya da görsel olmalı");
+				if (!isText(o?.metin) && o?.gorsel == null) fail(yol, "Şıkta metin ya da görsel olmalı");
 				return {
 					metin: isText(o?.metin) ? o.metin.trim() : null,
 					gorsel: media(o?.gorsel, `${yol}.gorsel`),
@@ -300,12 +268,11 @@ export async function toDocumentData(
 		};
 	});
 
-	for (const s of input.konular ?? [])
-		if (!topics.has(s)) fail("konular", `"${s}" konusu yok`);
+	for (const s of input.konular ?? []) if (!topics.has(s)) fail("konular", `"${s}" konusu yok`);
 	// The exam's topics default to the topics of its questions.
-	const examTopics = (
-		input.konular?.length ? input.konular : questions.map((q) => q?.konu)
-	).filter((s): s is string => isText(s) && topics.has(s));
+	const examTopics = (input.konular?.length ? input.konular : questions.map((q) => q?.konu)).filter(
+		(s): s is string => isText(s) && topics.has(s),
+	);
 
 	if (hatalar.length) return { data: null, hatalar, uyarilar };
 	return {

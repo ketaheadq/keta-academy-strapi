@@ -1,4 +1,5 @@
 ---
+
 title: "Üniversiteye Yeni Başlayanlar: İlk 30 Gün Rehberi"
 slug: universiteye-yeni-baslayanlar-ilk-30-gun
 category: Üniversite

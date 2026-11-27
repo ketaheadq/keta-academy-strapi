@@ -1,4 +1,5 @@
 ---
+
 title: Türkiye Scholarships 2027 Takvimi ve Başvuru Hazırlığı
 slug: turkiye-scholarships-basvuru-takvimi-2027-hazirlik
 category: Üniversite

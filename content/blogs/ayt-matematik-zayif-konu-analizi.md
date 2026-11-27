@@ -1,4 +1,5 @@
 ---
+
 title: "AYT Matematik’te Zayıf Konu Nasıl Bulunur?"
 slug: ayt-matematik-zayif-konu-analizi
 category: Lise

@@ -68,7 +68,8 @@ export const COMMENT_SCHEMA = {
 		},
 		soruIpuclari: {
 			type: "array",
-			description: "Yalnızca verideki çözüme ve soru metnine dayanarak somut bir ipucu yazılabilen sorular için; emin olunamayan sorular eklenmez",
+			description:
+				"Yalnızca verideki çözüme ve soru metnine dayanarak somut bir ipucu yazılabilen sorular için; emin olunamayan sorular eklenmez",
 			items: {
 				type: "object",
 				additionalProperties: false,
@@ -107,12 +108,6 @@ Kurallar:
 
 function buildUserMessage(input: CommentInput) {
 	return `Deneme verisi (JSON):\n${JSON.stringify(input, null, 2)}\n\nBu veriye göre raporun JSON yorumunu yaz.`;
-}
-
-function requireKey(name: string) {
-	const value = process.env[name];
-	if (!value) throw new Error(`${name} tanımlı değil`);
-	return value;
 }
 
 async function postJson(url: string, headers: Record<string, string>, body: unknown) {
@@ -158,7 +153,8 @@ async function openRouterComment(model: string, input: CommentInput): Promise<st
 			],
 		},
 	);
-	if (data.error) throw new Error(`OpenRouter hatası: ${data.error.message ?? JSON.stringify(data.error)}`);
+	if (data.error)
+		throw new Error(`OpenRouter hatası: ${data.error.message ?? JSON.stringify(data.error)}`);
 	const choice = data.choices?.[0];
 	if (!choice) throw new Error("OpenRouter yanıt vermedi");
 	if (choice.finish_reason && choice.finish_reason !== "stop") {
@@ -191,7 +187,10 @@ function isSpecificHint(hint: string) {
  * strips any link, and fails when the essential parts are missing.
  */
 export function parseComment(raw: string, input: CommentInput): ReportComment {
-	const json = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+	const json = raw
+		.trim()
+		.replace(/^```(?:json)?\s*/i, "")
+		.replace(/\s*```$/, "");
 	let data: Record<string, unknown>;
 	try {
 		data = JSON.parse(json);

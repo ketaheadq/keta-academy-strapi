@@ -1,4 +1,5 @@
 ---
+
 title: "AYT Fizik’teki Hatalar Neden Tekrar Edilir?"
 slug: ayt-fizikte-hatalar-neden-tekrarlanir
 category: Lise

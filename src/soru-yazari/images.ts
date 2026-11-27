@@ -28,33 +28,22 @@ type SharpFn = typeof import("sharp").default;
 async function loadSharp(): Promise<SharpFn> {
 	try {
 		const mod = await import("sharp");
-		return (
-			(mod as unknown as { default?: SharpFn }).default ??
-			(mod as unknown as SharpFn)
-		);
+		return (mod as unknown as { default?: SharpFn }).default ?? (mod as unknown as SharpFn);
 	} catch {
 		throw new Error("Görsel dönüştürücü (sharp) yüklü değil");
 	}
 }
 
-export async function storeImage(
-	strapi: Core.Strapi,
-	file: IncomingFile,
-	alt: string,
-) {
+export async function storeImage(strapi: Core.Strapi, file: IncomingFile, alt: string) {
 	if (file.size > MAX_UPLOAD_BYTES)
-		throw new Error(
-			`Görsel en fazla ${MAX_UPLOAD_BYTES / 1024 / 1024} MB olabilir`,
-		);
+		throw new Error(`Görsel en fazla ${MAX_UPLOAD_BYTES / 1024 / 1024} MB olabilir`);
 	const sharp = await loadSharp();
 	const input = await readFile(file.filepath);
 
 	const isSvg =
 		/\.svg$/i.test(file.originalFilename ?? "") ||
 		/svg/.test(file.mimetype ?? "") ||
-		/^\s*(<\?xml[^>]*>\s*)?<svg[\s>]/i.test(
-			input.subarray(0, 512).toString("utf8"),
-		);
+		/^\s*(<\?xml[^>]*>\s*)?<svg[\s>]/i.test(input.subarray(0, 512).toString("utf8"));
 	let image = isSvg ? sharp(input, { density: SVG_DENSITY }) : sharp(input);
 	let meta: Awaited<ReturnType<typeof image.metadata>>;
 	try {

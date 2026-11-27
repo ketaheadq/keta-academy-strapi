@@ -23,12 +23,7 @@ export default [
 						"https://upload-widget.cloudinary.com",
 						"https://console.cloudinary.com",
 					],
-					"media-src": [
-						"'self'",
-						"data:",
-						"blob:",
-						"https://console.cloudinary.com",
-					],
+					"media-src": ["'self'", "data:", "blob:", "https://console.cloudinary.com"],
 					"frame-src": [
 						"'self'",
 						"https://media-library.cloudinary.com",

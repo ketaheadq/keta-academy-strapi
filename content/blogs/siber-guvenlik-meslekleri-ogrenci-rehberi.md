@@ -1,4 +1,5 @@
 ---
+
 title: Siber Güvenlik Meslekleri Öğrenci Rehberi
 slug: siber-guvenlik-meslekleri-ogrenci-rehberi
 category: Üniversite

@@ -12,7 +12,10 @@ export const VIDEOS_PER_TOPIC = 2;
 export const MAX_REQUESTS_PER_PHONE_PER_DAY = 3;
 
 export const siteUrl = () =>
-	(process.env.PUBLIC_SITE_URL || process.env.FRONTEND_URL || "http://localhost:3000").replace(/\/$/, "");
+	(process.env.PUBLIC_SITE_URL || process.env.FRONTEND_URL || "http://localhost:3000").replace(
+		/\/$/,
+		"",
+	);
 
 export const whatsappNumber = () => (process.env.WHATSAPP_NUMBER || "").trim();
 

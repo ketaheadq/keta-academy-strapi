@@ -1,4 +1,5 @@
 ---
+
 title: YKS Çalışırken Yapay Zekâ Nasıl Doğru Kullanılır?
 slug: yks-calisirken-yapay-zeka-kullanimi
 category: Lise

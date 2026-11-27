@@ -1,4 +1,5 @@
 ---
+
 title: Açık Uçlu Ortak Yazılılar ve YKS 2027: Lise Yol Haritası
 slug: acik-uclu-ortak-yazililar-ve-yks-2027
 category: Lise
@@ -14,7 +15,7 @@ keywords: açık uçlu sınav, ortak yazılı sınav, OYSS, YKS 2027, TYT, AYT, 
 
 12 Kasım'da 10. sınıflar Türk dili ve edebiyatında, ülke genelinde **aynı sorularla** yazılıya girdi.
 Cevap şıkkı yoktu; yedi soru, kırk dakika ve boş bir cevap alanı vardı. Sınavdan çıkanların ortak
-cümlesi aynıydı: *"Test çözer gibi çözülmiyor."*
+cümlesi aynıydı: _"Test çözer gibi çözülmiyor."_
 
 Bu yazıda MEB'in 2026–2027 ortak yazılı sınav kılavuzunda ne olduğunu, açık uçlu soruya nasıl
 çalışılacağını ve tüm bunların 2027 YKS'yi nasıl etkilediğini tek yerde topladık.
@@ -40,7 +41,7 @@ kurmanı sağlıyor.
 
 ## Açık uçlu soru, testten neden bu kadar farklı?
 
-Test sorusunda doğru cevabı *tanırsın*. Açık uçlu soruda doğru cevabı *kurman* gerekir.
+Test sorusunda doğru cevabı _tanırsın_. Açık uçlu soruda doğru cevabı _kurman_ gerekir.
 Aradaki fark bilgi değil, **ifade** becerisidir.
 
 > Testte dört yanlış bir doğruyu götürür. Açık uçluda ise yarım kalan bir gerekçe,
@@ -54,9 +55,9 @@ Cevabını şu üç adımda kur:
 3. KANIT     → Metinden alıntı, işlem basamağı veya örnek göster.
 ```
 
-Edebiyatta "Bu parçada anlatıcı kimdir?" sorusuna *"Yazar."* yazmak puan getirmez.
-*"Birinci tekil kişi anlatıcıdır; çünkü 'gördüm' ve 'düşündüm' fiilleriyle olaylar anlatıcının
-kendi bakışından aktarılıyor."* cümlesi üç adımı da karşılar.
+Edebiyatta "Bu parçada anlatıcı kimdir?" sorusuna _"Yazar."_ yazmak puan getirmez.
+_"Birinci tekil kişi anlatıcıdır; çünkü 'gördüm' ve 'düşündüm' fiilleriyle olaylar anlatıcının
+kendi bakışından aktarılıyor."_ cümlesi üç adımı da karşılar.
 
 Matematikte ise sonuç kadar **işlem basamakları** puanlanır. Cevabı doğru bulup işlemi yazmamak,
 kılavuzun vurguladığı ölçme yaklaşımının tam tersidir.
@@ -112,7 +113,7 @@ alışkanlık haline getir.
 ## Son söz
 
 Açık uçlu sorular ezberi değil, düşünmeyi ölçüyor. Bu, ilk başta zor görünen ama uzun vadede
-senin lehine bir değişiklik: cevabı *işaretleyen* değil, *kuran* öğrenci AYT'de de öne geçiyor.
+senin lehine bir değişiklik: cevabı _işaretleyen_ değil, _kuran_ öğrenci AYT'de de öne geçiyor.
 
 Kendi hızında çalışmak, eksik kazanımlarını görmek ve deneme sonuçlarını takip etmek için
 [KetaLearn](https://ketalearn.cloud) üzerindeki ücretsiz ders videolarını ve quizleri kullanabilirsin.

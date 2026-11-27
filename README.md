@@ -9,6 +9,7 @@ A high-performance Strapi 5 backend for Keta Academy, managing courses, interact
 This project is optimized for deployment on Ubuntu servers using Docker Compose with a Supabase PostgreSQL backend.
 
 ### Standard Production Workflow
+
 To deploy updates or perform a first-time setup:
 
 ```bash
@@ -20,6 +21,7 @@ docker compose build --no-cache && docker compose up -d
 ```
 
 ### Advanced Operations
+
 - **View Logs**: `docker compose logs -f`
 - **Stop Services**: `docker compose down`
 - **Shell Access**: `docker exec -it strapi sh`
@@ -31,12 +33,14 @@ docker compose build --no-cache && docker compose up -d
 If you prefer to run Strapi natively for development:
 
 1. **Install Dependencies**:
+
    ```bash
    yarn install
    ```
 2. **Environment Setup**:
    Copy `.env.example` to `.env` and fill in your Supabase and Cloudinary credentials.
 3. **Run Dev Server**:
+
    ```bash
    yarn run develop
    ```
@@ -54,8 +58,10 @@ We prioritize security through several layers:
 - **Health Monitoring**: Integrated Docker healthchecks monitor service availability.
 
 ### 🔒 Vulnerability Management
-*Current Status: Maintenance ongoing.*
+
+_Current Status: Maintenance ongoing._
 As with all large Node.js projects, dependencies are regularly audited.
+
 - **Internal Audit**: Run `yarn audit` locally to see details.
 - **Automated Fixes**: We use `yarn audit fix` during the build pipeline where safe.
 
@@ -64,24 +70,25 @@ As with all large Node.js projects, dependencies are regularly audited.
 ## ️ Roadmap & TODOs
 
 ### 🎯 High Priority
+
 - [ ] **Automated Backups**: Implement daily scripts to back up the Supabase DB and local uploads.
 - [ ] **Sentry Integration**: Add error tracking for the production environment.
 - [ ] **Cache Layer**: Implement Redis for faster API responses on heavy course endpoints.
 
 ### ⚙️ Improvements
+
 - [ ] **Unit Tests**: Add Jest suites for custom controllers and services.
 - [ ] **Media Optimization**: Configure automated WebP conversion for all uploads via Cloudinary.
 - [ ] **CI/CD Pipeline**: Set up GitHub Actions to auto-deploy to Ubuntu server on push to `main`.
 
 ### 🛠️ Maintenance
+
 - [ ] **Dependency Update**: Keep Strapi 5 and its plugins on the latest stable versions.
 - [ ] **Log Analytics**: Integrate with a logging service (like ELK or BetterStack) for better Ubuntu server monitoring.
 
 ---
 
 <sub>🎓 Built for Keta Academy | Managed by Docker</sub>
-
-
 
 ---
 
@@ -91,14 +98,14 @@ Free mock exams that open a detailed report in exchange for a phone number. The 
 
 ### Content types (admin panel)
 
-| Type | What it holds |
-|---|---|
-| **Konu** | Topic names from the MEB curriculum (pick from this list, don't type free text). Linked to a Subject, Grades and the lesson videos that teach it (`Ders videoları`). |
-| **Deneme Sınavı** | Title, slug, description, exam type (LGS/TYT/AYT/Okul), grade, subject, topics, duration, featured flag, questions, SEO. Draft & publish. |
-| ↳ **Soru** (component) | Text, image, options (A, B, C, D, E in order), correct option, difficulty, topic, solution. |
-| **Sınav Sonucu** | Answers, correct/wrong/blank, net, per-topic rates, source (UTM), anonymous session id. |
-| **Rapor Talebi** | The call list: name, phone, relation, status, report link, net, weakest topics, source, consents, call notes, AI comment JSON (`Yapay zeka yorumu`, editable), optional teacher's note (`Hoca notu`), AI and e-mail errors, how often the report was opened. |
-| **Anasayfa Slaytı** | Home page slides: image, title, text, button text, link, order, active. |
+| Type                   | What it holds                                                                                                                                                                                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Konu**               | Topic names from the MEB curriculum (pick from this list, don't type free text). Linked to a Subject, Grades and the lesson videos that teach it (`Ders videoları`).                                                                                         |
+| **Deneme Sınavı**      | Title, slug, description, exam type (LGS/TYT/AYT/Okul), grade, subject, topics, duration, featured flag, questions, SEO. Draft & publish.                                                                                                                    |
+| ↳ **Soru** (component) | Text, image, options (A, B, C, D, E in order), correct option, difficulty, topic, solution.                                                                                                                                                                  |
+| **Sınav Sonucu**       | Answers, correct/wrong/blank, net, per-topic rates, source (UTM), anonymous session id.                                                                                                                                                                      |
+| **Rapor Talebi**       | The call list: name, phone, relation, status, report link, net, weakest topics, source, consents, call notes, AI comment JSON (`Yapay zeka yorumu`, editable), optional teacher's note (`Hoca notu`), AI and e-mail errors, how often the report was opened. |
+| **Anasayfa Slaytı**    | Home page slides: image, title, text, button text, link, order, active.                                                                                                                                                                                      |
 
 Existing content types are unchanged; the new types point to them (one-way relations).
 
@@ -153,15 +160,15 @@ Lets Claude write mock exams: it reads the catalogue, draws question figures, up
 - **Auth:** every route needs `x-soru-yazari-token: <SORU_YAZARI_TOKEN>`. Without the variable (or with fewer than 32 characters) the API answers 403. The token isn't a Strapi user, so keep it like an admin password.
 - **CLI settings:** `KETA_API_URL` (Strapi root address, no `/api`) and `SORU_YAZARI_TOKEN`. Read from the shell, else from `--env <file>`, `KETA_ENV_FILE`, `ENV_PATH` or `./.env`. `node .claude/skills/deneme-yazari/scripts/keta.mjs ayarlar` shows which values are used and tests the connection.
 
-| Route | What it does |
-|---|---|
-| `GET /api/soru-yazari/katalog` | Exam types, difficulties, subjects, grades, topics with their linked lessons and how many questions use each |
-| `GET /api/soru-yazari/dersler?q=&konu=&kurs=&konusuz=1&icerik=1` | Lessons with courses and topics (`icerik=1`: lesson text) |
-| `GET /api/soru-yazari/dersler/:documentId` | One lesson's full text |
-| `GET /api/soru-yazari/denemeler?q=` | All exams, drafts included |
-| `GET /api/soru-yazari/denemeler/:documentId` | One exam's draft with answers and solutions, in the format PUT accepts |
-| `POST /api/soru-yazari/denemeler[?kontrol=1]` | Creates a draft exam (`kontrol=1`: validate only) |
-| `PUT /api/soru-yazari/denemeler/:documentId[?kontrol=1]` | Replaces the exam's draft; the published version stays until the teacher publishes |
-| `POST /api/soru-yazari/gorseller` | multipart `file` + `alt` → media id. SVG/WebP become PNG (the PDF can only draw PNG/JPEG); max 5 MB, longest side 1600 px |
+| Route                                                            | What it does                                                                                                              |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/soru-yazari/katalog`                                   | Exam types, difficulties, subjects, grades, topics with their linked lessons and how many questions use each              |
+| `GET /api/soru-yazari/dersler?q=&konu=&kurs=&konusuz=1&icerik=1` | Lessons with courses and topics (`icerik=1`: lesson text)                                                                 |
+| `GET /api/soru-yazari/dersler/:documentId`                       | One lesson's full text                                                                                                    |
+| `GET /api/soru-yazari/denemeler?q=`                              | All exams, drafts included                                                                                                |
+| `GET /api/soru-yazari/denemeler/:documentId`                     | One exam's draft with answers and solutions, in the format PUT accepts                                                    |
+| `POST /api/soru-yazari/denemeler[?kontrol=1]`                    | Creates a draft exam (`kontrol=1`: validate only)                                                                         |
+| `PUT /api/soru-yazari/denemeler/:documentId[?kontrol=1]`         | Replaces the exam's draft; the published version stays until the teacher publishes                                        |
+| `POST /api/soru-yazari/gorseller`                                | multipart `file` + `alt` → media id. SVG/WebP become PNG (the PDF can only draw PNG/JPEG); max 5 MB, longest side 1600 px |
 
 The exam format uses slugs for grade/subject/topics, media ids for images and plain text for question and solution (one paragraph per line, `- ` for list items). Validation returns every problem at once as `{ hatalar: [{ yol, hata }] }`. Code: `src/api/soru-yazari/`, `src/soru-yazari/`.
