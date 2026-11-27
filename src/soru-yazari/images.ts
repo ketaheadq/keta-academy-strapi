@@ -22,13 +22,15 @@ type IncomingFile = {
 	size: number;
 };
 
+type SharpFn = typeof import("sharp").default;
+
 // sharp comes with Strapi's upload plugin; loaded lazily so the rest of the app doesn't need it.
-async function loadSharp() {
+async function loadSharp(): Promise<SharpFn> {
 	try {
 		const mod = await import("sharp");
 		return (
-			(mod as unknown as { default?: typeof import("sharp") }).default ??
-			(mod as unknown as typeof import("sharp"))
+			(mod as unknown as { default?: SharpFn }).default ??
+			(mod as unknown as SharpFn)
 		);
 	} catch {
 		throw new Error("Görsel dönüştürücü (sharp) yüklü değil");

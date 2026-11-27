@@ -1,22 +1,22 @@
 # STAGE 1: Build
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /opt/app
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock .yarnrc ./
 
 RUN --mount=type=cache,target=/root/.yarn \
-  yarn install --frozen-lockfile --network-timeout 100000 --registry https://registry.npmjs.org/
+  yarn install --frozen-lockfile --ignore-engines --network-timeout 100000 --registry https://registry.npmjs.org/
 
 COPY . .
 RUN yarn build
 
 RUN --mount=type=cache,target=/root/.yarn \
-  yarn install --production --frozen-lockfile --force --network-timeout 100000 --registry https://registry.npmjs.org/
+  yarn install --production --frozen-lockfile --force --ignore-engines --network-timeout 100000 --registry https://registry.npmjs.org/
 
 # ---
 
 # STAGE 2: Runtime
-FROM node:20-alpine
+FROM node:22-alpine
 # fontconfig + DejaVu: sharp needs a font to render the text in question SVGs
 RUN apk add --no-cache tini curl fontconfig font-dejavu
 
