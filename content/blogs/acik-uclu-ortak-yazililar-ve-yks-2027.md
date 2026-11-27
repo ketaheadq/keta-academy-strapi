@@ -49,11 +49,9 @@ Aradaki fark bilgi değil, **ifade** becerisidir.
 
 Cevabını şu üç adımda kur:
 
-```text
-1. CEVAP     → Sorunun istediği sonucu tek cümleyle yaz.
-2. GEREKÇE   → Neden böyle olduğunu kavramla açıkla.
-3. KANIT     → Metinden alıntı, işlem basamağı veya örnek göster.
-```
+1. **Cevap:** Sorunun istediği sonucu tek cümleyle yaz.
+2. **Gerekçe:** Neden böyle olduğunu kavramla açıkla.
+3. **Kanıt:** Metinden alıntı, işlem basamağı veya örnek göster.
 
 Edebiyatta "Bu parçada anlatıcı kimdir?" sorusuna _"Yazar."_ yazmak puan getirmez.
 _"Birinci tekil kişi anlatıcıdır; çünkü 'gördüm' ve 'düşündüm' fiilleriyle olaylar anlatıcının

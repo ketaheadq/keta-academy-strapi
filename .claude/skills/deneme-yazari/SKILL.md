@@ -7,11 +7,9 @@ description: KetaLearn deneme sınavı yazar. Use when asked to write, generate,
 
 KetaLearn'ün deneme sınavları için soru yazar, soru görsellerini çizer ve denemeyi Strapi'ye **taslak** olarak kaydedersin. Yayınlamak her zaman hocanın işidir: denemeyi admin panelinde okur, düzeltir, yayınlar. Sen asla yayınlamazsın; API buna izin de vermez.
 
-Bütün işlemler `scripts/keta.mjs` üzerinden yapılır (Node 18+, bağımlılık yok):
+Bütün işlemler `scripts/keta.mjs` üzerinden yapılır (Node 18+, bağımlılık yok).
 
-```bash
-node <skill>/scripts/keta.mjs yardim
-```
+- **Yardım:** `node <skill>/scripts/keta.mjs yardim` komutunu çalıştır.
 
 ## Kurulum
 
@@ -31,25 +29,16 @@ CLI bunları sırayla şuradan okur: terminaldeki ortam değişkeni → `--env <
 ## Akış
 
 1. **İsteği netleştir.** Sınav türü (LGS, TYT, AYT, Okul), sınıf, ders, konular, soru sayısı, süre ve zorluk dağılımı. Kullanıcı belirtmediyse makul varsayılanları kullan ve ne seçtiğini tek satırda söyle: LGS matematik 20 soru / 40 dk, 4 şık; TYT/AYT 5 şık; zorluk yaklaşık %30 Kolay, %50 Orta, %20 Zor. Kullanıcı örnek soru ya da adet verdiyse önce "Örnek sorulara ve adetlere göre yazma" bölümüne göre bir soru planı çıkar ve onay al.
-2. **Kataloğu oku.**
-   ```bash
-   node keta.mjs katalog --ders matematik --sinif 8-sinif
-   ```
+2. **Kataloğu oku.** `node keta.mjs katalog --ders matematik --sinif 8-sinif` komutunu çalıştır.
    Her konunun `slug`'ı, bağlı ders videoları (`dersVideolari`) ve şimdiye kadar kaç soruda kullanıldığı (`soruSayisi`) gelir. **Konular yalnızca bu listeden seçilir.** Gereken konu yoksa uydurma; kullanıcıya hangi konunun admin panelinden (Konu) eklenmesi gerektiğini söyle.
 3. **İlgili dersleri oku.** Sorular sitedeki derslerle uyumlu olmalı; raporda yanlış yapılan sorunun altında o konunun dersi önerilir.
-   ```bash
-   node keta.mjs dersler --konu uslu-ifadeler --icerik
-   node keta.mjs ders <documentId>
-   ```
+   Önce `node keta.mjs dersler --konu uslu-ifadeler --icerik` komutuyla ilgili dersleri listele. Bir dersin tam metnini okumak için `node keta.mjs ders <documentId>` komutunu çalıştır.
    Dersin anlattığı yöntem ve gösterimi kullan (ör. ders "üslü sayılarda çarpma"yı nasıl anlatıyorsa soru da öyle sorsun). Konuya bağlı ders yoksa `--q` ile başlıkta ara. Konusu olmayan dersleri `--konusuz` listeler; bunları hocaya bildirebilirsin.
 4. **Tekrardan kaçın.** `node keta.mjs denemeler` ile mevcut denemelere bak. Aynı konuda deneme varsa `node keta.mjs deneme <id>` ile sorularını oku ve aynı soruları ya da sayıları yazma.
 5. **Soruları yaz** (aşağıdaki kurallar), görselleri çiz (aşağıdaki görsel kuralları) ve `deneme.json` dosyasını oluştur. Çalışma klasörü olarak proje dışında bir klasör kullan (ör. `denemeler/<slug>/`). Görseller de aynı klasöre.
 6. **Her cevabı doğrula.** Her sorunun doğru cevabını, Python ya da Node ile hesaplayarak bağımsız olarak kontrol et: sayısal sonuç, şıkların hiçbirinin ikinci bir doğru cevap olmaması, görseldeki ölçülerin metinle tutması. Hesap tutmuyorsa soruyu düzelt; hiçbir soruyu doğrulamadan kaydetme.
 7. **Kontrol et, sonra gönder.**
-   ```bash
-   node keta.mjs kontrol denemeler/<slug>/deneme.json   # kaydetmeden doğrular
-   node keta.mjs gonder  denemeler/<slug>/deneme.json   # görselleri yükler, taslağı oluşturur
-   ```
+   Kaydetmeden doğrulamak için `node keta.mjs kontrol denemeler/<slug>/deneme.json` komutunu çalıştır. Görselleri yükleyip taslağı oluşturmak için `node keta.mjs gonder denemeler/<slug>/deneme.json` komutunu kullan.
    `gonder` ilk seferde taslağı oluşturur ve dönen `documentId`'yi dosyaya yazar. Sonraki `gonder` aynı taslağı günceller (yeni deneme açmaz). Yalnızca değişen görseller yeniden yüklenir.
 8. **Teslim et.** Kullanıcıya şunları ver: admin linki (`adminUrl`), soru sayısı ve konu/zorluk dağılımı, uyarılar, ve hocanın yayından önce bakması gereken şeyler (özellikle görselli sorular).
 
@@ -68,32 +57,33 @@ Kullanıcı genellikle denemeyi şöyle tarif eder: "9. sınıf 1. dönem", "şu
 
 ## deneme.json biçimi
 
-```json
-{
-  "baslik": "LGS Matematik Denemesi 3",
-  "slug": "lgs-matematik-denemesi-3",
-  "aciklama": "Üslü ifadeler ve kareköklü ifadeler. 20 soru, 40 dakika.",
-  "sinavTuru": "LGS",
-  "sinif": "8-sinif",
-  "ders": "matematik",
-  "sureDakika": 40,
-  "sorular": [
-    {
-      "metin": "Şekildeki ABCD karesinin alanı 48 cm²'dir.\nBuna göre karenin bir kenar uzunluğu kaç cm'dir?",
-      "gorsel": { "dosya": "s01.svg", "alt": "Köşeleri A, B, C, D olan bir kare." },
-      "secenekler": [{ "metin": "2√3" }, { "metin": "4√3" }, { "metin": "6√2" }, { "metin": "8√3" }],
-      "dogruSecenek": "B",
-      "zorluk": "Kolay",
-      "konu": "karekoklu-ifadeler",
-      "cozum": "Kenar a ise a² = 48.\na = √48 = √(16·3) = 4√3 cm."
-    }
-  ],
-  "SEO": {
-    "metaTitle": "LGS Matematik Denemesi 3 – Ücretsiz Çöz | KetaLearn",
-    "metaDescription": "Üslü ve kareköklü ifadelerden 20 soruluk ücretsiz LGS matematik denemesi. Kayıt olmadan çöz, netini hemen gör."
-  }
-}
-```
+Dosya JSON biçimindedir. Aşağıdaki alanlar örnek bir denemenin içeriğini gösterir.
+
+### Deneme bilgileri
+
+- **Başlık:** LGS Matematik Denemesi 3
+- **Slug:** lgs-matematik-denemesi-3
+- **Açıklama:** Üslü ifadeler ve kareköklü ifadeler. 20 soru, 40 dakika.
+- **Sınav türü:** LGS
+- **Sınıf:** 8-sinif
+- **Ders:** matematik
+- **Süre:** 40 dakika
+- **Sorular:** Aşağıdaki alanları kullanan soru nesnelerinden oluşur.
+
+### Soru bilgileri
+
+- **Metin:** Şekildeki ABCD karesinin alanı 48 cm²'dir. Buna göre karenin bir kenar uzunluğu kaç cm'dir?
+- **Görsel:** s01.svg dosyası; alternatif metin: Köşeleri A, B, C, D olan bir kare.
+- **Seçenekler:** A: 2√3, B: 4√3, C: 6√2, D: 8√3.
+- **Doğru seçenek:** B
+- **Zorluk:** Kolay
+- **Konu:** karekoklu-ifadeler
+- **Çözüm:** Kenar a ise a² = 48. Bu nedenle a = √48 = √(16·3) = 4√3 cm olur.
+
+### SEO
+
+- **Meta başlık:** LGS Matematik Denemesi 3 – Ücretsiz Çöz | KetaLearn
+- **Meta açıklama:** Üslü ve kareköklü ifadelerden 20 soruluk ücretsiz LGS matematik denemesi. Kayıt olmadan çöz, netini hemen gör.
 
 - `slug` verilmezse başlıktan üretilir; benzersiz olmalı.
 - `sinif`, `ders`, `konu` → katalogdaki `slug`'lar. `konular` verilmezse soruların konularından oluşur.

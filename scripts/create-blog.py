@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 Markdown dosyasını (veya komut satırı argümanlarını) Strapi 5 "blocks" formatına
-çevirip blog yazısı olarak yükler. Başlıklar, listeler, alıntılar, kod blokları ve
-görseller otomatik dönüştürülür; SEO alanları verilmezse üretilir.
+çevirip blog yazısı olarak yükler. Başlıklar, listeler, alıntılar ve görseller
+otomatik dönüştürülür; SEO alanları verilmezse üretilir. Blog yazılarında kod
+bloğu veya satır içi kod kullanma; içeriği başlıklar, paragraflar, listeler,
+alıntılar ve görsellerle anlat.
 
 Kullanım (PowerShell):
   # 0. Oturumda bir kez: canlı Strapi adresi ve token'ı
@@ -70,13 +72,17 @@ Markdown biçimi (ön bilgi bloğu isteğe bağlıdır):
   keywords: a, b, c
   ---
 
-  ## Başlık                -> heading (level 2)
-  Paragraf, **kalın**, *italik*, ~~üstü çizili~~, `kod`, [bağlantı](https://...)
+  # Başlık                 -> heading (level 1)
+  ## Alt başlık            -> heading (level 2)
+  ### Küçük başlık         -> heading (level 3)
+  Paragraf, **kalın**, *italik*, ~~üstü çizili~~, [bağlantı](https://...)
   - madde                  -> unordered list
   1. madde                 -> ordered list
   > alıntı                 -> quote
-  ```python                -> code
   ![alt](./gorsel.png)     -> image block (dosya Strapi'ye yüklenir)
+
+  Kod bloğu ve satır içi kod kullanma. Blog sayfasında başlıklar, listeler,
+  alıntılar, paragraflar ve görselleri tercih et.
 """
 
 import argparse
@@ -1196,6 +1202,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Markdown içeriği Strapi blog yazısına (blocks + SEO + görsel) dönüştürüp yükler.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Blog yazılarında kod bloğu veya satır içi kod kullanma. "
+            "İçeriği başlıklar, paragraflar, listeler, alıntılar ve görsellerle anlat."
+        ),
     )
     parser.add_argument("markdown_file", nargs="?", default=None, help="Ön bilgi bloğu içerebilen markdown dosyası")
     parser.add_argument("--title", help="Yazı başlığı")

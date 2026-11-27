@@ -70,14 +70,12 @@ Bu kayıt başkalarını denetlemek için değil, kendi sözünü daha görünü
 
 ### Aynı gün uygulayabileceğin 45 dakikalık rutin
 
-```text
-18.30–18.35  Hedefi yaz, telefonu uzaklaştır, dağılma listesini hazırla.
-18.35–18.45  On dakikalık başlangıç: önceki konuyu hatırla.
-18.45–19.10  Kitabı kapatarak özet çıkar, kısa soruları cevapla.
-19.10–19.15  Su iç, kısa yürü veya pencereye bak.
-19.15–19.30  Yeni bölümü çalış, dağıtan düşünceyi park notuna yaz.
-19.30–19.35  Bir cümle öğrenme notu yaz, sonraki adımı belirle.
-```
+1. **18.30–18.35:** Hedefi yaz, telefonu uzaklaştır, dağılma listesini hazırla.
+2. **18.35–18.45:** On dakikalık başlangıç: önceki konuyu hatırla.
+3. **18.45–19.10:** Kitabı kapatarak özet çıkar, kısa soruları cevapla.
+4. **19.10–19.15:** Su iç, kısa yürü veya pencereye bak.
+5. **19.15–19.30:** Yeni bölümü çalış, dağıtan düşünceyi park notuna yaz.
+6. **19.30–19.35:** Bir cümle öğrenme notu yaz, sonraki adımı belirle.
 
 Rutini bugün deneyebilirsin. Sonunda zorunlu bir başarı puanı vermek yerine “Hangi adım dikkatimi en çok dağıttı?” sorusunu yanıtla.
 

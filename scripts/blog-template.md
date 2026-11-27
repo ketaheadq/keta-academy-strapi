@@ -35,11 +35,9 @@ Belirsizlik kaygının en büyük kaynağıdır. Haftalık bir plan çıkar ve h
 
 Yanlışlarını konu bazında grupla:
 
-```text
-Matematik  → problem çözme: 8 yanlış
-Fen        → grafik okuma:  3 yanlış
-Türkçe     → paragraf:      5 yanlış
-```
+- **Matematik:** Problem çözme — 8 yanlış
+- **Fen:** Grafik okuma — 3 yanlış
+- **Türkçe:** Paragraf — 5 yanlış
 
 ## 4. Kaynakları Sadeleştir
 

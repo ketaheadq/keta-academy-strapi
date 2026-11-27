@@ -48,10 +48,8 @@ Grafiğe bakarken önce hangi eksenin hangi değişkeni gösterdiğini oku. Ekse
 
 Şu basit doğrusal grafik verisini düşünelim:
 
-```text
-x değerleri: 0  1  2  3
-y değerleri: 2  5  8  11
-```
+- **x değerleri:** 0, 1, 2, 3
+- **y değerleri:** 2, 5, 8, 11
 
 Her x adımında y değeri 3 artıyor. x = 2 noktasında grafiğin y değeri 8’dir. Bu bilgiyi eksenlerden okuyarak bulabilirsin; çizime yaklaşık bir yükseklik ölçmene gerek yoktur. x = 3 için verilen y değeri de 11’dir.
 

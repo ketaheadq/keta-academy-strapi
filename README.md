@@ -12,13 +12,8 @@ This project is optimized for deployment on Ubuntu servers using Docker Compose 
 
 To deploy updates or perform a first-time setup:
 
-```bash
-# 1. Build and start (Zero Downtime Build)
-docker compose up -d --build
-
-# 2. To force a fresh build without cache
-docker compose build --no-cache && docker compose up -d
-```
+1. **Build and start:** Run `docker compose up -d --build`.
+2. **Fresh build without cache:** Run `docker compose build --no-cache`, then `docker compose up -d`.
 
 ### Advanced Operations
 
@@ -32,18 +27,10 @@ docker compose build --no-cache && docker compose up -d
 
 If you prefer to run Strapi natively for development:
 
-1. **Install Dependencies**:
-
-   ```bash
-   yarn install
-   ```
+1. **Install Dependencies**: Run `yarn install`.
 2. **Environment Setup**:
    Copy `.env.example` to `.env` and fill in your Supabase and Cloudinary credentials.
-3. **Run Dev Server**:
-
-   ```bash
-   yarn run develop
-   ```
+3. **Run Dev Server**: Run `yarn run develop`.
 
 ---
 

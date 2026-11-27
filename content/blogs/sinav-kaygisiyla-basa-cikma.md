@@ -49,12 +49,10 @@ dönüştürmek günün kontrolünü geri kazandırabilir.
 Günlük planını yalnızca “matematik çalışacağım” gibi genel cümlelerle kurma. Şu şekilde daha somut
 olabilir:
 
-```text
-1. 10 dakika önceki konuyu hatırlama
-2. 30 dakika yeni konu ve örnek çözümü
-3. 20 dakika kısa soru turu
-4. 10 dakika hataları inceleme ve kapanış notu
-```
+1. **10 dakika:** Önceki konuyu hatırla.
+2. **30 dakika:** Yeni konu çalış ve örnek çözümü incele.
+3. **20 dakika:** Kısa bir soru turu çöz.
+4. **10 dakika:** Hataları incele ve kapanış notu yaz.
 
 Her oturumun sonunda yalnızca ne kadar süre çalıştığını değil, **neyi öğrendiğini** de kaydet.
 “Üç soru çözdüm” yerine “Kesir problemlerinde önce verilenleri yazmayı öğrendim.” notu daha anlamlıdır.

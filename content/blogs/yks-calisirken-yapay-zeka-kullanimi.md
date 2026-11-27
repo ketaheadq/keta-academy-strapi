@@ -32,29 +32,42 @@ Gelen cevabı kapatıp aynı soruyu yeniden çöz; mümkünse değişik bir örn
 
 Açıklama isterken yalnızca “anlat” deme. Seviyeni, istediğin örnek türünü ve kontrol sorusunu belirt. Gelen matematiksel ifadeleri kitabındaki gösterimle karşılaştır.
 
-```text
-TYT fizikte frekans ile periyot ilişkisini 9. sınıf düzeyinde anlat. Önce günlük hayattan bir örnek ver, sonra formülü sembollerle açıkla. Sonunda beni sınayacak iki kısa soru sor; cevaplarını henüz verme.
-```
+İstemini şu başlıklar altında kurabilirsin:
+
+- **Konu ve düzey:** TYT fizikte frekans ile periyot ilişkisi, 9. sınıf düzeyi.
+- **Anlatım sırası:** Önce günlük hayattan bir örnek ver, sonra formülü sembollerle açıkla.
+- **Kontrol:** Sonunda beni sınayacak iki kısa soru sor; cevaplarını henüz verme.
 
 Üretilen soruları yalnızca zorluklarına göre değil, konu ve çözümlerinin doğruluğuna göre de incele. Önce kendin çöz, sonra ayrıca hazırlanan çözümle karşılaştır.
 
-```text
-AYT matematikte ikinci dereceden denklemler konusunda, çözüm adımlarını gösteren 4 örnek soru hazırla. Önce soruları yaz, çözüm anahtarını ayrı bölümde ver. Zorluklar kolay, orta, orta ve zor olsun.
-```
+Yeni soru isterken de isteğini netleştir:
+
+- **Konu:** AYT matematikte ikinci dereceden denklemler.
+- **İstenen çıktı:** Çözüm adımlarını gösteren dört örnek soru.
+- **Akış:** Önce soruları yaz, çözüm anahtarını ayrı bölümde ver.
+- **Zorluk:** Kolay, orta, orta ve zor.
 
 ### Plan geri bildirimi ve hata kategorileme
 
 Planına ilişkin kişisel bilgi paylaşmadan sınırlarını verebilirsin. Yapay zekâdan mevcut planını sorgulamasını iste; önerileri uygulamadan önce uyku, okul saatleri ve ders yüküyle uyumunu kontrol et.
 
-```text
-Haftada 5 gün, günde 2 saat çalışabiliyorum. Matematik ve fizik zayıf; TYT tarih ile edebiyat tekrarı da gerekiyor. Bu planımı incele: [planını buraya yapıştır]. Ders dengesi, mola ve tekrar eksiklerini sor; bana ait yeni bir program yazma.
-```
+Plan geri bildirimi isterken şu sınırları belirt:
 
-Hata analizinde yapay zekâya yalnızca anonim notlar ver. Bir hatanın nedenini konu, kavram, işlem, dikkat veya zaman kategorilerinden birine ayırt etmesini iste; sonunda kendi analizini de yap.
+- **Zaman:** Haftada 5 gün, günde 2 saat çalışabilme.
+- **Öncelikler:** Matematik, fizik, TYT tarih ve edebiyat tekrarı.
+- **Paylaşılacak içerik:** Planını kişisel bilgilerden arındırarak ekle.
+- **İstenen inceleme:** Ders dengesini, molaları ve tekrar eksiklerini sorgula.
+- **Sınır:** Yeni bir program yazmasını isteme.
 
-```text
-Şu deneme hatalarını konu, hata türü ve tekrar önerisi şeklinde ayır: [yalnızca soru numarası ve kısa hata notlarını yapıştır]. Verdiğim bilgiler dışına çıkma; belirsizse “belirsiz” yaz ve nedenini sor.
-```
+Hata analizinde yapay zekâya yalnızca anonim notlar ver. İsteğini şöyle sınırla:
+
+- **Veri:** Yalnızca soru numaraları ve kısa hata notları.
+- **Kategoriler:** Konu, kavram, işlem, dikkat veya zaman.
+- **İstenen çıktı:** Hata türü ve tekrar önerisi.
+- **Sınır:** Verilen bilgiler dışına çıkma.
+- **Belirsizlik:** Bilgi yetersizse belirsiz yaz ve nedenini sor.
+
+Sonunda kendi analizini de yap.
 
 ## Doğrulama: Akıcı cevap, kaynaklı bilgi değildir
 
